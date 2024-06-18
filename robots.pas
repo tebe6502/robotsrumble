@@ -38,8 +38,6 @@ const
 	id_lava = 4;
 	id_elevator = 5;
 
-
-
 var
 	cmap1: array [0..63] of byte = (		// color1
 	$46, $46, $46, $0e, $98, $46, $0e, $84,
