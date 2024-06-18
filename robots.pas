@@ -1,3 +1,11 @@
+(*
+
+- kazdy level sklada się z 64 tilesow
+- 'cmap1', 'cmap2' to mapa kolorów dla 64 tilesow
+- 'id' to identyfikator tilesow
+
+*)
+
 
 uses crt, atari, control, ctm, vsprite, vbxe;
 
@@ -22,6 +30,13 @@ const
 	lmag_tile: array [0..3] of byte = (32,33,34,35);
 
 	rmag_tile: array [0..3] of byte = (40,41,42,43);
+
+
+	id_empty= 1;
+	id_downbar = 2;
+	id_death = 3;
+	id_lava = 4;
+	id_elevator = 5;
 
 
 
@@ -279,9 +294,11 @@ end;
 function empty(a: byte): Boolean;
 begin
 
- Result := (a = empty_tile) or (a = empty2_tile) or (a = empty3_tile) or (a = empty4_tile) or
-	   (a = empty5_tile) or (a = empty6_tile) or (a = death_tile) or
-           (a = elevator_tile) or (a = elevator2_tile) or (a = elevator_tile+1) or (a = elevator2_tile+1);
+// Result := (a = empty_tile) or (a = empty2_tile) or (a = empty3_tile) or (a = empty4_tile) or
+//	   (a = empty5_tile) or (a = empty6_tile) or (a = death_tile) or
+//           (a = elevator_tile) or (a = elevator2_tile) or (a = elevator_tile+1) or (a = elevator2_tile+1);
+
+ Result := (a = id_empty) or (a = id_death) or (a = id_elevator);
 
 end;
 
@@ -296,7 +313,7 @@ begin
 
   p:=pointer(dpeek(88) + mul_40[y] + x);
 
-  Result:=p[0];
+  Result:=id[ p[0] ];
 
 end;
 
@@ -319,7 +336,7 @@ begin
 
    a:=locate(x, y+1);
 
-   if (a = elevator_tile) or (a = elevator2_tile) then
+   if (a = id_elevator) then
     SetPaletteEntry(1, 40,40,40)
    else
     SetPaletteEntry(1, 255,255,255);
@@ -352,11 +369,12 @@ begin
   b := locate(x+1, y+3);
 
 
-  if (a = death_tile) or (b = death_tile) then begin inc(robot_y, 8); death_robot:=true; exit end;	// robot failed
+  if (a = id_death) or (b = id_death) then begin inc(robot_y, 8); death_robot:=true; exit end;		// robot failed
 
-  if a = downbar_tile then begin next_room:=true; dec(robot_y, 20*8); exit end;				// next room
+  if a = id_downbar then begin next_room:=true; dec(robot_y, 20*8); exit end;				// next room
 
-  if (a = battery_tile) and (b = battery_tile+1) then begin
+{
+  if (a = id_battery) and (b = id_battery) then begin
    tile(empty_tile, battery_x, battery_y);
    tile(empty_tile, battery_x+1, battery_y);
 
@@ -365,12 +383,12 @@ begin
 
    energyFull;
   end;
+}
 
+  left := (a = id_empty) or (a = id_lava);
+  right := (b = id_empty) or (b = id_lava);
 
-  left := (a = empty_tile) or (a = empty2_tile) or (a = empty3_tile) or (a = empty4_tile) or (a = lava_tile);
-  right := (b = empty_tile) or (b = empty2_tile) or (b = empty3_tile) or (b = empty4_tile) or (b = lava_tile);
-
-  if (a = lava_tile) and (y >= 18) then next_level:=true;
+  if (a = id_lava) and (y >= 18) then next_level:=true;
 
   if left and right then begin inc(robot_y, 4); exit end;						// falling down
 
@@ -382,8 +400,8 @@ begin
   a := locate(x, y_+1);
   b := locate(x+1, y_+1);
 
-  if (a = elevator_tile) and (b = elevator_tile+1) then begin elevator:=true; dec(robot_y, 2) end;
-  if (a = elevator2_tile) and (b = elevator2_tile+1) then begin elevator:=true; dec(robot_y, 2) end;
+  if (a = id_elevator) and (b = id_elevator) then begin elevator:=true; dec(robot_y, 2) end;
+//  if (a = elevator2_tile) and (b = elevator2_tile+1) then begin elevator:=true; dec(robot_y, 2) end;
 
 
   if elevator then begin
@@ -422,7 +440,7 @@ begin
    left := empty(a);
 
    a:=locate(x, y+2);
-   if a = death_tile then death_Robot:=true;
+   if a = id_death then death_Robot:=true;
 
  end else
   left:=true;
@@ -442,7 +460,7 @@ begin
    right := empty(a);
 
    a:=locate(x+1, y+2);
-   if a = death_tile then death_Robot:=true;
+   if a = id_death then death_Robot:=true;
 
  end else
   right:=true;
@@ -566,7 +584,8 @@ begin
 
  level(0);
 
- //room:=3+ 2;
+ 
+ room:=3+ 1;
 
  newRoom;	// room = 0
 

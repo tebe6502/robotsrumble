@@ -9,6 +9,8 @@ const
 	right_magnet_px = 25;
 
 	empty_tile = 3;
+	
+{	
 	empty2_tile = 17;
 	empty3_tile = 6;
 	empty4_tile = 36;
@@ -25,7 +27,7 @@ const
 	
 	elevator_tile = 44;	// 44..45
 	elevator2_tile = 47;	// 47..48
-		
+}
 	py_limit = 22;
 
 	delay_value = 6;
