@@ -14,11 +14,11 @@ const
 var
 	map: array [0..24*156-1] of byte;		// 24*156
 	
-	panel_map: array of byte = [ {$bin2csv map\panel.bin} ];
-	panel_fnt: array of byte = [ {$bin2csv map\panel_fnt.zx0} ];
+	panel_map: array of byte = [ {$bin2csv map\panel.bin} ];		// panel po prawej stronie ekranu
+	panel_fnt: array of byte = [ {$bin2csv map\panel_fnt.zx0} ];		// fonty reprezentujace panel, litery, cyfry -> fnt[76]...
 	
-	lvl01_map: array of byte = [ {$bin2csv map\lvl01.zx0} ];
-	lvl01_fnt: array of byte = [ {$bin2csv map\lvl02_fnt.zx0} ];
+	lvl01_map: array of byte = [ {$bin2csv map\lvl01.zx0} ];		// mapa levelu #1 -> map
+	lvl01_fnt: array of byte = [ {$bin2csv map\lvl02_fnt.zx0} ];		// fonty 0..63 dla levelu #1 -> fnt[0]...
 
 
 	procedure titleFnt;

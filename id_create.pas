@@ -1,13 +1,15 @@
+{
+
+ tworzenie tablicy ID dla zadanego levelu
+
+
+}
+
 uses crt;
 
-const
+{$i id.inc}
 
-	id_empty= 1;
-	id_downbar = 2;
-	id_death = 3;
-	id_lava = 4;
-	id_elevator = 5;
-	
+
 // level #1
 	empty_tile = 3;
 	
@@ -55,6 +57,12 @@ begin
  
  id[elevator2_tile] := id_elevator;
  id[elevator2_tile+1] := id_elevator;
+ 
+ id[battery_tile] := id_battery;
+ id[battery_tile+1] := id_battery;
+ id[battery_tile+2] := id_battery;
+ id[battery_tile+3] := id_battery;
+ 
  
  for j:=0 to 7 do begin
   for i:=0 to 7 do write(id[i+j*8],',');

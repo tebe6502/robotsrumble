@@ -14,13 +14,14 @@ uses crt, atari, control, ctm, vsprite, vbxe;
 {$r robots.rc}
 
 const
-	cmap_width = 160;	// color map width 40 * 4 = 160
+	cmap_width = 160;		// color map width 40 * 4 = 160
 
 
-	left_magnet_code = 32;
+	left_magnet_code = 32;		// kody tilesow dla level #1
 	right_magnet_code = 41;
 	robot_code = 23;
 	battery_code = 50;
+
 
 	cmap_adr: array of pointer = [ {$eval 24,"VBXE_WINDOW+:1*cmap_width"} ];
 
@@ -32,11 +33,8 @@ const
 	rmag_tile: array [0..3] of byte = (40,41,42,43);
 
 
-	id_empty= 1;
-	id_downbar = 2;
-	id_death = 3;
-	id_lava = 4;
-	id_elevator = 5;
+{$i id.inc}			// kody identyfikacji tilesow niezalezne od levelu
+
 
 var
 	cmap1: array [0..63] of byte = (		// color1
@@ -68,6 +66,7 @@ var
 //	id_death = 3;
 //	id_lava = 4;
 //	id_elevator = 5;
+//	id_battery = 6;
 
 	id: array [0..63] of byte = (
 	0,0,0,1,0,0,1,0,
@@ -76,9 +75,10 @@ var
 	0,0,0,0,0,0,0,0,
 	0,0,0,0,1,0,0,3,
 	0,0,0,0,5,5,0,5,
-	5,0,0,0,0,0,0,0,
+	5,0,6,6,6,6,0,0,
 	0,4,2,0,0,0,0,0
 	);
+	
 
 
 	vram: TVBXEMemoryStream;
@@ -371,7 +371,7 @@ begin
 
   if a = id_downbar then begin next_room:=true; dec(robot_y, 20*8); exit end;				// next room
 
-{
+
   if (a = id_battery) and (b = id_battery) then begin
    tile(empty_tile, battery_x, battery_y);
    tile(empty_tile, battery_x+1, battery_y);
@@ -381,7 +381,7 @@ begin
 
    energyFull;
   end;
-}
+
 
   left := (a = id_empty) or (a = id_lava);
   right := (b = id_empty) or (b = id_lava);
