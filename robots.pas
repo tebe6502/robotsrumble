@@ -1,6 +1,9 @@
+
+// dlaczego dla makra  $define nie mozna wstawic kodu asm
+
 (*
 
-- kazdy level sklada się z 64 tilesow
+- kazdy level sklada się z 64 tilesow (64 znakow), od 
 - 'cmap1', 'cmap2' to mapa kolorów dla 64 tilesow
 - 'id' to identyfikator tilesow
 
@@ -132,6 +135,13 @@ begin
 end;
 
 
+procedure doText(var a: string; x,y: byte);
+begin
+
+
+end;
+
+
 procedure doTitle;
 var i,j: byte;
 begin
@@ -139,6 +149,11 @@ begin
  for j:=0 to 23 do
   for i:=0 to 7 do
    tile_panel(panel_map[i+j*8], i+28, j);
+   
+   
+ for i:=0 to 7 do 
+ tile_panel(i, 28 + i, 10);   
+
 
 end;
 
