@@ -86,7 +86,7 @@ var
 
 	vram: TVBXEMemoryStream;
 
-	robot_x, robot_y, room, lvl: byte;
+	robot_x, robot_y, room, lvl, lives: byte;
 	battery_x, battery_y: byte;
 
 	next_room, next_level: Boolean;
@@ -118,7 +118,8 @@ begin
 	  fxs FX_MEMS #$00
 	end;
 
-	p:=pointer(dpeek(88) + y * 40 + x);
+	p:=pointer(dpeek(88) + mul_40[y] + x);
+
 
 	p[0] := t + panel_ofset;
 
@@ -129,31 +130,77 @@ begin
 
 	p:=cmap_adr[y] + x shl 2 + 1;
 
-	p[0]:=$0e;//cmap1[t];
-	p[1]:=$00;//cmap2[t];
+	p[0]:=color1;
+	p[1]:=color2;
 
 end;
 
 
 procedure doText(var a: string; x,y: byte);
+var i: byte;
+    v: byte;
 begin
 
+ for i:=1 to length(a) do begin
+  v:=byte(a[i]);
+  
+  case v of
+             ord(' '): v:=0;
+   ord('0')..ord('9'): dec(v, 21);
+   ord('A')..ord('Z'): dec(v, 64);
+  end;
+  
+  tile_panel(v, x, y);
+  inc(x);
+ end;
 
 end;
 
 
-procedure doTitle;
+procedure doStatusPanel;
 var i,j: byte;
+    s: TString;
 begin
 
  for j:=0 to 23 do
-  for i:=0 to 7 do
+  for i:=0 to 7 do begin
+  
+   TextColor($64);
+
+   if j=3 then TextColor($7c);
+     
+   if (i=0) or (i=7) or (j=0) or (j=23) then TextColor($54);
+   
+
    tile_panel(panel_map[i+j*8], i+28, j);
    
-   
- for i:=0 to 7 do 
- tile_panel(i, 28 + i, 10);   
+  end;
 
+end;
+
+
+procedure doStatus;
+var s: TString;
+    v: byte;
+begin
+
+ TextColor($0e);
+ 
+ v:=6 - room;
+
+ str(v, s);
+ doText(s, 32, 10);	// room
+ 
+ str(lives, s);
+ doText(s, 34, 10);	// lives
+ 
+
+ case lvl of
+  0: begin s:='EARTH2'; doText(s, 29,8) end;
+  1: begin s:='NEBULA'; doText(s, 29,8) end;
+  2: begin s:='ALTAIR'; doText(s, 29,8) end;
+  3: begin s:='BOWIER'; doText(s, 29,8) end;
+ end;
 
 end;
 
@@ -226,6 +273,8 @@ begin
  r_magnet := $ff;
 
 
+ doStatus;
+
 
  ofs:=22*24* room + 24;
 
@@ -284,7 +333,7 @@ begin
 	  fxs FX_MEMS #$00
 	end;
 
-	p:=pointer(dpeek(88) + y * 40 + x);
+	p:=pointer(dpeek(88) + mul_40[y] + x);
 
 	p[0] := t;
 
@@ -582,8 +631,13 @@ begin
   sta $10		; irq disable
   sta irqen
  end;
+ 
+ TextColor($0c);	// color1
+ TextBackground($00);	// color2
 
  InitVBXE;
+ 
+ lives:=3;
 
  robot_x:=128-16;
  robot_y:=0*8;
@@ -592,13 +646,13 @@ begin
 
  titleFnt;
 
- doTitle;
+ doStatusPanel;
 
 
  level(0);
 
  
- room:=3+ 1;
+ //room:=3+ 1;
 
  newRoom;	// room = 0
 
