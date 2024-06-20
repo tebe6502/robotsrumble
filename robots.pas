@@ -10,7 +10,7 @@
 *)
 
 
-uses crt, atari, control, ctm, vsprite, vbxe;
+uses crt, atari, joystick, control, ctm, vsprite, vbxe;
 
 {$define romoff}
 
@@ -29,6 +29,8 @@ const
 	cmap_adr: array of pointer = [ {$eval 24,"VBXE_WINDOW+:1*cmap_width"} ];
 
 	mul_40: array of word = [ {$eval 24,":1*40"} ];
+	
+//	mul_320: array of word = [ {$eval 256,":1*320"} ];
 
 
 	lmag_tile: array [0..3] of byte = (32,33,34,35);
@@ -86,7 +88,7 @@ var
 
 	vram: TVBXEMemoryStream;
 
-	robot_x, robot_y, room, lvl, lives: byte;
+	robot_x, robot_y, room, lvl, lives, power: byte;
 	battery_x, battery_y: byte;
 
 	next_room, next_level: Boolean;
@@ -94,17 +96,10 @@ var
 	elevator: Boolean;
 
 	tick: byte;
-
-
-(*-----------------------------------------------------------*)
-
-procedure energyFull;
-begin
-
-
-
-
-end;
+	
+	clock: word absolute $13;
+	
+	txt: TString;
 
 
 (*-----------------------------------------------------------*)
@@ -136,13 +131,15 @@ begin
 end;
 
 
-procedure doText(var a: string; x,y: byte);
+(*-----------------------------------------------------------*)
+
+procedure doText(x,y: byte);
 var i: byte;
     v: byte;
 begin
 
- for i:=1 to length(a) do begin
-  v:=byte(a[i]);
+ for i:=1 to length(txt) do begin
+  v:=byte(txt[i]);
   
   case v of
              ord(' '): v:=0;
@@ -159,18 +156,23 @@ end;
 
 procedure doStatusPanel;
 var i,j: byte;
-    s: TString;
 begin
 
  for j:=0 to 23 do
   for i:=0 to 7 do begin
   
-   TextColor($64);
+   TextColor($61 + j shr 2);
 
-   if j=3 then TextColor($7c);
-     
-   if (i=0) or (i=7) or (j=0) or (j=23) then TextColor($54);
+   if (j=3) or (j=10) then TextColor($7c);	// robots ; lvl
+
+   if (j=4) or (j=7) then TextColor($48);	// rumble ; planet
    
+   if j >= 12 then TextColor($0e);
+
+   if (i=3) and (j=13) then TextColor($7a);	// battery
+   if (i=4) and (j=13) then TextColor($26);	// battery
+
+   if (i=0) or (i=7) or (j=0) or (j=23) then TextColor($42);   
 
    tile_panel(panel_map[i+j*8], i+28, j);
    
@@ -179,28 +181,66 @@ begin
 end;
 
 
+(*-----------------------------------------------------------*)
+
+procedure doPowerFull;
+begin
+  txt:=#46#47;
+   
+  TextColor($ba);
+  doText(31, 16);
+  doText(31, 17);
+
+  TextColor($fc);
+  doText(31, 18);
+  doText(31, 19);
+
+  TextColor($28);
+  doText(31, 20);
+  doText(31, 21);
+  
+  power:=6;
+  clock:=0;
+
+end;
+
+
+procedure doStatusPower;
+begin
+
+ txt:='  ';
+ 
+ doText(31, 16+5-power);
+
+end;
+
+
+(*-----------------------------------------------------------*)
+
+
 procedure doStatus;
-var s: TString;
-    v: byte;
+var v: byte;
 begin
 
  TextColor($0e);
  
  v:=6 - room;
 
- str(v, s);
- doText(s, 32, 10);	// room
+ str(v, txt);
+ doText(32, 10);	// room
  
- str(lives, s);
- doText(s, 34, 10);	// lives
+ str(lives, txt);
+ doText(34, 10);	// lives
  
 
  case lvl of
-  0: begin s:='EARTH2'; doText(s, 29,8) end;
-  1: begin s:='NEBULA'; doText(s, 29,8) end;
-  2: begin s:='ALTAIR'; doText(s, 29,8) end;
-  3: begin s:='BOWIER'; doText(s, 29,8) end;
+  0: begin txt:='EARTH2'; doText(29,8) end;
+  1: begin txt:='NEBULA'; doText(29,8) end;
+  2: begin txt:='ALTAIR'; doText(29,8) end;
+  3: begin txt:='BOWIER'; doText(29,8) end;
  end;
+ 
+ if power = 6 then doPowerFull;
 
 end;
 
@@ -431,9 +471,27 @@ begin
   b := locate(x+1, y+3);
 
 
-  if (a = id_death) or (b = id_death) then begin inc(robot_y, 8); death_robot:=true; exit end;		// robot failed
+  if (a = id_death) or (b = id_death) then begin 				// robot failed
+    inc(robot_y, 8); 
+    
+    death_robot:=true; 
+    
+    txt:='          ';
+    doText(11,11);
+    doText(11,13);
+    
+    if lives=1 then 
+     txt:=' GAME OVER '
+    else
+     txt:=' BAD LUCK ';
+     
+    TextColor($ca);
+    doText(11,12);
 
-  if a = id_downbar then begin next_room:=true; dec(robot_y, 20*8); exit end;				// next room
+    exit;
+  end;		
+
+  if a = id_downbar then begin next_room:=true; dec(robot_y, 20*8); exit end;	// next room
 
 
   if (a = id_battery) and (b = id_battery) then begin
@@ -443,7 +501,7 @@ begin
    tile(empty_tile, battery_x, battery_y+1);
    tile(empty_tile, battery_x+1, battery_y+1);
 
-   energyFull;
+   doPowerFull;
   end;
 
 
@@ -616,6 +674,23 @@ begin
 end;
 
 
+function anyKey: Boolean; assembler;
+asm
+	lda #1
+	sta Result
+
+	lda $d20f
+	and #4
+	bne skp
+
+	beq stop
+
+skp	lda trig0
+	bne @exit
+
+stop	sta Result
+end;
+
 
 (*-----------------------------------------------------------*)
 
@@ -638,9 +713,11 @@ begin
  InitVBXE;
  
  lives:=3;
+ power:=6;
 
  robot_x:=128-16;
  robot_y:=0*8;
+ 
 
 (*-----------------------------------------------------------*)
 
@@ -650,6 +727,8 @@ begin
 
 
  level(0);
+
+ clock:=0;
 
  
  //room:=3+ 1;
@@ -686,7 +765,7 @@ begin
 //--------------------- set sprites -------------------------
 
 						// MoveBlit modifing blt_control initialize first by EraseBlit
- DstBlit(0, dst0 + robot_y*320+robot_x);	// mask = $ff ; copy = 1
+ DstBlit(0, dst0 + robot_y*320 + robot_x);	// mask = $ff ; copy = 1
  DstBlit(1, dst0 + 200*320);
 
  RunBCB(blit0);
@@ -694,26 +773,34 @@ begin
 
 //-----------------------------------------------------------
 
- {
+ 
 	if death_Robot then begin
 
 
-		if robot_y > 0 then
+		if robot_y > 0 then begin
 
-		  dec(robot_y, 2)
+		  dec(robot_y, 2);
+		  //if robot_y = 0 then SrcBlit(0, src3); 
 
-		else begin
+		end else begin		  
+		
+		  while anyKey do;
 
 		  death_Robot:=false;
 
+		  dec(lives);
+		  
+		  if lives = 0 then begin level(lvl); lives:=3 end;
+
 		  room:=0;
+		  power:=6;
 		  newRoom;
 
 		end;
 
 
 	end else begin
- }
+ 
 	  clrMagnet(0);  clrMagnet(1);
 
 	  JoyScan;
@@ -723,16 +810,29 @@ begin
 	  testRobot;
 
 	  if next_room then begin inc(room); newRoom end;
-	  if next_level then begin inc(lvl); level(lvl); room:=0; newRoom end;
-
+	  if next_level then begin inc(lvl); level(lvl); room:=0; power:=6; newRoom end;
+	  
 	  if battery_x > 0 then flashBattery;
 
 	  colorRobot;
 
-//	end;
+	end;
 
 
- inc(tick);
+   inc(tick);
+ 
+ 
+   if lo(clock) = 2 then begin
+   
+     dec(power);
+     
+     doStatusPower;
+     clock:=0;
+     
+     if power=0 then 
+      while true do;
+   
+   end;
 
  until false;
 
