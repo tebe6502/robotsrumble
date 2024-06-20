@@ -1,0 +1,4 @@
+*.pas        eol=lf
+*.inc        eol=lf
+*.rc         eol=lf
+*.asm        eol=lf
