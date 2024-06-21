@@ -182,6 +182,28 @@ end;
 
 (*-----------------------------------------------------------*)
 
+procedure endGameMessage;
+begin
+	if lives=1 then begin
+	  txt:='           ';
+	  doText(11,10);
+	  doText(11,12);
+
+	  txt:=' GAME OVER '
+	end else begin
+	  txt:='          ';
+	  doText(11,10);
+	  doText(11,12);
+
+	  txt:=' BAD LUCK ';
+	end;
+
+	TextColor($ca);
+	doText(11,11);
+end;
+
+(*-----------------------------------------------------------*)
+
 procedure doPowerFull;
 begin
   txt:=#46#47;
@@ -475,18 +497,6 @@ begin
 
     death_robot:=true;
 
-    txt:='          ';
-    doText(11,11);
-    doText(11,13);
-
-    if lives=1 then
-     txt:=' GAME OVER '
-    else
-     txt:=' BAD LUCK ';
-
-    TextColor($ca);
-    doText(11,12);
-
     exit;
   end;
 
@@ -763,7 +773,14 @@ begin
 //--------------------- set sprites -------------------------
 
 						// MoveBlit modifing blt_control initialize first by EraseBlit
- DstBlit(0, dst0 + robot_y*320 + robot_x);	// mask = $ff ; copy = 1
+
+
+ if (death_robot = false) and (power < 2) and (tick and 7 < 3) then
+   DstBlit(0, dst0 + 200*320)			// robots blinking
+ else
+   DstBlit(0, dst0 + robot_y*320 + robot_x);	// mask = $ff ; copy = 1
+
+
  DstBlit(1, dst0 + 200*320);
 
  RunBCB(blit0);
@@ -806,6 +823,9 @@ begin
 
 	  testRobot;
 
+	  if death_robot then endGameMessage;
+
+
 	  if next_room then begin inc(room); newRoom end;
 	  if next_level then begin inc(lvl); level(lvl); room:=0; power:=6; newRoom end;
 
@@ -819,17 +839,7 @@ begin
    inc(tick);
 
 
-   if power < 2 then begin		// robots blinking
-
-     SrcBlit(0, src3);
-
-
-
-
-   end;
-
-
-   if lo(clock) = 3 then begin
+   if lo(clock) = 2 then begin
 
      dec(power);
 
