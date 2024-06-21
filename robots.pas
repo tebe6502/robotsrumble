@@ -3,7 +3,7 @@
 
 (*
 
-- kazdy level sklada się z 64 tilesow (64 znakow), od 
+- kazdy level sklada się z 64 tilesow (64 znakow), od
 - 'cmap1', 'cmap2' to mapa kolorów dla 64 tilesow
 - 'id' to identyfikator tilesow
 
@@ -29,9 +29,8 @@ const
 	cmap_adr: array of pointer = [ {$eval 24,"VBXE_WINDOW+:1*cmap_width"} ];
 
 	mul_40: array of word = [ {$eval 24,":1*40"} ];
-	
-//	mul_320: array of word = [ {$eval 256,":1*320"} ];
 
+//	mul_320: array of word = [ {$eval 256,":1*320"} ];
 
 	lmag_tile: array [0..3] of byte = (32,33,34,35);
 
@@ -83,7 +82,7 @@ var
 	5,0,6,6,6,6,0,0,
 	0,4,2,0,0,0,0,0
 	);
-	
+
 
 
 	vram: TVBXEMemoryStream;
@@ -96,9 +95,9 @@ var
 	elevator: Boolean;
 
 	tick: byte;
-	
+
 	clock: word absolute $13;
-	
+
 	txt: TString;
 
 
@@ -140,13 +139,13 @@ begin
 
  for i:=1 to length(txt) do begin
   v:=byte(txt[i]);
-  
+
   case v of
              ord(' '): v:=0;
    ord('0')..ord('9'): dec(v, 21);
    ord('A')..ord('Z'): dec(v, 64);
   end;
-  
+
   tile_panel(v, x, y);
   inc(x);
  end;
@@ -160,22 +159,22 @@ begin
 
  for j:=0 to 23 do
   for i:=0 to 7 do begin
-  
+
    TextColor($61 + j shr 2);
 
    if (j=3) or (j=10) then TextColor($7c);	// robots ; lvl
 
    if (j=4) or (j=7) then TextColor($48);	// rumble ; planet
-   
+
    if j >= 12 then TextColor($0e);
 
    if (i=3) and (j=13) then TextColor($7a);	// battery
    if (i=4) and (j=13) then TextColor($26);	// battery
 
-   if (i=0) or (i=7) or (j=0) or (j=23) then TextColor($42);   
+   if (i=0) or (i=7) or (j=0) or (j=23) then TextColor($42);
 
    tile_panel(panel_map[i+j*8], i+28, j);
-   
+
   end;
 
 end;
@@ -186,7 +185,7 @@ end;
 procedure doPowerFull;
 begin
   txt:=#46#47;
-   
+
   TextColor($ba);
   doText(31, 16);
   doText(31, 17);
@@ -198,7 +197,7 @@ begin
   TextColor($28);
   doText(31, 20);
   doText(31, 21);
-  
+
   power:=6;
   clock:=0;
 
@@ -209,7 +208,7 @@ procedure doStatusPower;
 begin
 
  txt:='  ';
- 
+
  doText(31, 16+5-power);
 
 end;
@@ -223,15 +222,15 @@ var v: byte;
 begin
 
  TextColor($0e);
- 
+
  v:=6 - room;
 
  str(v, txt);
  doText(32, 10);	// room
- 
+
  str(lives, txt);
  doText(34, 10);	// lives
- 
+
 
  case lvl of
   0: begin txt:='EARTH2'; doText(29,8) end;
@@ -239,7 +238,7 @@ begin
   2: begin txt:='ALTAIR'; doText(29,8) end;
   3: begin txt:='BOWIER'; doText(29,8) end;
  end;
- 
+
  if power = 6 then doPowerFull;
 
 end;
@@ -472,24 +471,24 @@ begin
 
 
   if (a = id_death) or (b = id_death) then begin 				// robot failed
-    inc(robot_y, 8); 
-    
-    death_robot:=true; 
-    
+    inc(robot_y, 8);
+
+    death_robot:=true;
+
     txt:='          ';
     doText(11,11);
     doText(11,13);
-    
-    if lives=1 then 
+
+    if lives=1 then
      txt:=' GAME OVER '
     else
      txt:=' BAD LUCK ';
-     
+
     TextColor($ca);
     doText(11,12);
 
     exit;
-  end;		
+  end;
 
   if a = id_downbar then begin next_room:=true; dec(robot_y, 20*8); exit end;	// next room
 
@@ -521,7 +520,6 @@ begin
   b := locate(x+1, y_+1);
 
   if (a = id_elevator) and (b = id_elevator) then begin elevator:=true; dec(robot_y, 2) end;
-//  if (a = elevator2_tile) and (b = elevator2_tile+1) then begin elevator:=true; dec(robot_y, 2) end;
 
 
   if elevator then begin
@@ -706,18 +704,18 @@ begin
   sta $10		; irq disable
   sta irqen
  end;
- 
+
  TextColor($0c);	// color1
  TextBackground($00);	// color2
 
  InitVBXE;
- 
+
  lives:=3;
  power:=6;
 
  robot_x:=128-16;
  robot_y:=0*8;
- 
+
 
 (*-----------------------------------------------------------*)
 
@@ -730,7 +728,7 @@ begin
 
  clock:=0;
 
- 
+
  //room:=3+ 1;
 
  newRoom;	// room = 0
@@ -773,23 +771,22 @@ begin
 
 //-----------------------------------------------------------
 
- 
+
 	if death_Robot then begin
 
 
 		if robot_y > 0 then begin
 
 		  dec(robot_y, 2);
-		  //if robot_y = 0 then SrcBlit(0, src3); 
 
-		end else begin		  
-		
+		end else begin
+
 		  while anyKey do;
 
 		  death_Robot:=false;
 
 		  dec(lives);
-		  
+
 		  if lives = 0 then begin level(lvl); lives:=3 end;
 
 		  room:=0;
@@ -800,7 +797,7 @@ begin
 
 
 	end else begin
- 
+
 	  clrMagnet(0);  clrMagnet(1);
 
 	  JoyScan;
@@ -811,7 +808,7 @@ begin
 
 	  if next_room then begin inc(room); newRoom end;
 	  if next_level then begin inc(lvl); level(lvl); room:=0; power:=6; newRoom end;
-	  
+
 	  if battery_x > 0 then flashBattery;
 
 	  colorRobot;
@@ -820,19 +817,32 @@ begin
 
 
    inc(tick);
- 
- 
-   if lo(clock) = 2 then begin
-   
+
+
+   if power < 2 then begin		// robots blinking
+
+     SrcBlit(0, src3);
+
+
+
+
+   end;
+
+
+   if lo(clock) = 3 then begin
+
      dec(power);
-     
+
      doStatusPower;
      clock:=0;
-     
-     if power=0 then 
-      while true do;
-   
+
+     if power=0 then begin
+      SetPaletteEntry(1, 70,255,70);
+      death_Robot := true;
+     end;
+
    end;
+
 
  until false;
 
