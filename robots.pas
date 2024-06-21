@@ -182,8 +182,34 @@ end;
 
 (*-----------------------------------------------------------*)
 
+
+procedure wellDoneMessage;
+var i: byte;
+begin
+
+// well done
+// ready for next planet
+
+  txt:='           ';
+  doText(11,10);
+  doText(11,12);
+
+
+
+ TextColor($ca);
+ doText(11,11);
+end;
+
+
 procedure endGameMessage;
 begin
+	if power = 0 then begin
+	  txt:='           ';
+	  doText(11,10);
+	  doText(11,12);
+
+	  txt:=' POWER OFF ';	
+	end else
 	if lives=1 then begin
 	  txt:='           ';
 	  doText(11,10);
@@ -198,8 +224,8 @@ begin
 	  txt:=' BAD LUCK ';
 	end;
 
-	TextColor($ca);
-	doText(11,11);
+ TextColor($ca);
+ doText(11,11);
 end;
 
 (*-----------------------------------------------------------*)
@@ -776,7 +802,7 @@ begin
 
 
  if (death_robot = false) and (power < 2) and (tick and 7 < 3) then
-   DstBlit(0, dst0 + 200*320)			// robots blinking
+   DstBlit(0, dst0 + 200*320)			// robot blinks -> move outside the visible screen area
  else
    DstBlit(0, dst0 + robot_y*320 + robot_x);	// mask = $ff ; copy = 1
 
@@ -815,7 +841,7 @@ begin
 
 	end else begin
 
-	  clrMagnet(0);  clrMagnet(1);
+	  clrMagnet(0); clrMagnet(1);
 
 	  JoyScan;
 
@@ -827,9 +853,25 @@ begin
 
 
 	  if next_room then begin inc(room); newRoom end;
-	  if next_level then begin inc(lvl); level(lvl); room:=0; power:=6; newRoom end;
 
-	  if battery_x > 0 then flashBattery;
+
+	  if next_level then begin 
+
+	   wellDoneMessage;
+	   
+	   while anyKey do;
+	   
+	   inc(lvl); level(lvl); 
+	   
+	   room:=0; 
+	   power:=6; 
+	   
+	   newRoom;
+	   
+	  end;
+
+
+	  if battery_x > 0 then flashBattery;		// battery blinking
 
 	  colorRobot;
 
@@ -849,6 +891,8 @@ begin
      if power=0 then begin
       SetPaletteEntry(1, 70,255,70);
       death_Robot := true;
+      
+      endGameMessage;
      end;
 
    end;
