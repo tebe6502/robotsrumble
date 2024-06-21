@@ -184,20 +184,22 @@ end;
 
 
 procedure wellDoneMessage;
-var i: byte;
+var i, j: byte;
 begin
 
-// well done
-// ready for next planet
+  txt:=' ';
+  
+  for j:=0 to 4 do
+   for i:=left_magnet_px to 26 do doText(i, 8+j);  
 
-  txt:='           ';
-  doText(11,10);
-  doText(11,12);
+  TextColor($ca);
 
+  txt:='WELL DONE';
+  doText(11, 9);
+  
+  txt:='READY FOR NEXT PLANET'; 
+  doText(left_magnet_px+1, 11);
 
-
- TextColor($ca);
- doText(11,11);
 end;
 
 
@@ -768,6 +770,7 @@ begin
  //room:=3+ 1;
 
  newRoom;	// room = 0
+  
 
 
 (*---------------- VBXE bank = VBXE_BCBADR ------------------*)
