@@ -205,6 +205,7 @@ end;
 
 procedure endGameMessage;
 begin
+
 	if power = 0 then begin
 	  txt:='           ';
 	  doText(11,10);
@@ -253,6 +254,7 @@ begin
 
 end;
 
+(*-----------------------------------------------------------*)
 
 procedure doStatusPower;
 begin
@@ -263,9 +265,7 @@ begin
 
 end;
 
-
 (*-----------------------------------------------------------*)
-
 
 procedure doStatus;
 var v: byte;
@@ -281,14 +281,15 @@ begin
  str(lives, txt);
  doText(34, 10);	// lives
 
-
  case lvl of
-  0: begin txt:='EARTH2'; doText(29,8) end;
-  1: begin txt:='NEBULA'; doText(29,8) end;
-  2: begin txt:='ALTAIR'; doText(29,8) end;
-  3: begin txt:='BOWIER'; doText(29,8) end;
+  0: txt:='EARTH2';
+  1: txt:='NEBULA';
+  2: txt:='ALTAIR';
+  3: txt:='BOWIER';
  end;
 
+ doText(29,8);
+ 
  if power = 6 then doPowerFull;
 
 end;
