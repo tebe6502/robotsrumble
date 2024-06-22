@@ -7,25 +7,22 @@ begin
   writeln('VBXE not detected');
   writeln;
   writeln('Press any key to continue');
-  
+
   repeat until keypressed;
   halt;
  end;
 }
  a:=sdmctl;
  sdmctl:=0;
- 
+
  pause;
- 
 
-// poke(756, hi(fnt));
- 
- level(0);
 
-  
- 
+ poke(756, hi(fnt));
+
+
  SetHRes(VBXE.VGAMed);		// 320x240 (VGA)
- 
+
  SetMapStep(160);
 
 
@@ -41,7 +38,7 @@ begin
 
 
  pause;
- 
+
  sdmctl:=a;
 
 end;

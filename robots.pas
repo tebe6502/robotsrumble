@@ -39,32 +39,6 @@ const
 
 {$i id.inc}			// kody identyfikacji tilesow niezalezne od levelu
 
-
-var
-	cmap1: array [0..63] of byte = (		// color1
-	$46, $46, $46, $0e, $98, $46, $0e, $84,
-	$36, $56, $36, $56, $36, $56, $82, $82,
-	$82, $98, $06, $26, $24, $24, $24, $9e,
-	$9e, $98, $98, $0e, $0e, $0a, $0a, $0e,
-	$24, $aa, $24, $aa, $82, $98, $98, $c8,
-	$aa, $24, $aa, $24, $fd, $fd, $26, $fe,
-	$fe, $9a, $38, $38, $38, $38, $98, $98,
-	$36, $24, $46, $82, $82, $82, $82, $82
-	);
-
-
-	cmap2: array [0..63] of byte = (		// color2
-	$00, $00, $00, $00, $00, $00, $00, $00,
-	$0e, $0e, $0e, $0e, $0e, $0e, $00, $00,
-	$00, $00, $00, $00, $00, $00, $00, $00,
-	$00, $00, $00, $00, $00, $00, $00, $00,
-	$00, $00, $00, $00, $00, $00, $00, $00,
-	$00, $00, $00, $00, $00, $00, $00, $00,
-	$00, $00, $00, $00, $00, $00, $00, $00,
-	$00, $00, $00, $00, $00, $00, $00, $00
-	);
-
-
 //	id_empty= 1;
 //	id_downbar = 2;
 //	id_death = 3;
@@ -72,19 +46,7 @@ var
 //	id_elevator = 5;
 //	id_battery = 6;
 
-	id: array [0..63] of byte = (
-	0,0,0,1,0,0,1,0,
-	0,0,0,0,0,0,0,1,
-	1,1,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,
-	0,0,0,0,1,0,0,3,
-	0,0,0,0,5,5,0,5,
-	5,0,6,6,6,6,0,0,
-	0,4,2,0,0,0,0,0
-	);
-
-
-
+var
 	vram: TVBXEMemoryStream;
 
 	robot_x, robot_y, room, lvl, lives, power: byte;
@@ -102,7 +64,6 @@ var
 
 
 (*-----------------------------------------------------------*)
-
 
 procedure tile_panel(t: byte; x,y: byte);
 var p: PByte register;
@@ -129,7 +90,6 @@ begin
 
 end;
 
-
 (*-----------------------------------------------------------*)
 
 procedure doText(x,y: byte);
@@ -152,6 +112,7 @@ begin
 
 end;
 
+(*-----------------------------------------------------------*)
 
 procedure doStatusPanel;
 var i,j: byte;
@@ -179,29 +140,28 @@ begin
 
 end;
 
-
 (*-----------------------------------------------------------*)
-
 
 procedure wellDoneMessage;
 var i, j: byte;
 begin
 
   txt:=' ';
-  
+
   for j:=0 to 4 do
-   for i:=left_magnet_px to 26 do doText(i, 8+j);  
+   for i:=left_magnet_px to 26 do doText(i, 8+j);
 
   TextColor($ca);
 
   txt:='WELL DONE';
   doText(11, 9);
-  
-  txt:='READY FOR NEXT PLANET'; 
+
+  txt:='READY FOR NEXT PLANET';
   doText(left_magnet_px+1, 11);
 
 end;
 
+(*-----------------------------------------------------------*)
 
 procedure endGameMessage;
 begin
@@ -211,7 +171,7 @@ begin
 	  doText(11,10);
 	  doText(11,12);
 
-	  txt:=' POWER OFF ';	
+	  txt:=' POWER OFF ';
 	end else
 	if lives=1 then begin
 	  txt:='           ';
@@ -289,14 +249,12 @@ begin
  end;
 
  doText(29,8);
- 
+
  if power = 6 then doPowerFull;
 
 end;
 
-
 (*-----------------------------------------------------------*)
-
 
 procedure newRoom;
 var j, py: byte;
@@ -411,9 +369,7 @@ begin
  next_room:=false;
 end;
 
-
 (*-----------------------------------------------------------*)
-
 
 procedure tile(t: byte; x,y: byte);
 var p: PByte register;
@@ -439,9 +395,7 @@ begin
 
 end;
 
-
 (*-----------------------------------------------------------*)
-
 
 function empty(a: byte): Boolean;
 begin
@@ -454,6 +408,7 @@ begin
 
 end;
 
+(*-----------------------------------------------------------*)
 
 function locate(x,y: byte): byte;
 var p: PByte register;
@@ -469,9 +424,7 @@ begin
 
 end;
 
-
 (*-----------------------------------------------------------*)
-
 
 procedure colorRobot;
 var a,x,y: byte;
@@ -495,13 +448,9 @@ begin
 
  end;
 
-
 end;
 
-
-
 (*-----------------------------------------------------------*)
-
 
 procedure testRobot;
 var a, b, x, y, y_: byte;
@@ -627,9 +576,7 @@ begin
 
 end;
 
-
 (*-----------------------------------------------------------*)
-
 
 procedure flashBattery;
 var p: PByte register;
@@ -652,9 +599,7 @@ begin
 
 end;
 
-
 (*-----------------------------------------------------------*)
-
 
 procedure clrMagnet(a: byte);
 begin
@@ -681,9 +626,7 @@ begin
 
 end;
 
-
 (*-----------------------------------------------------------*)
-
 
 procedure setMagnet(a: byte);
 begin
@@ -710,6 +653,7 @@ begin
 
 end;
 
+(*-----------------------------------------------------------*)
 
 function anyKey: Boolean; assembler;
 asm
@@ -763,7 +707,7 @@ begin
  doStatusPanel;
 
 
- level(0);
+ level(1);
 
  clock:=0;
 
@@ -771,7 +715,6 @@ begin
  //room:=3+ 1;
 
  newRoom;	// room = 0
-  
 
 
 (*---------------- VBXE bank = VBXE_BCBADR ------------------*)
@@ -859,19 +802,19 @@ begin
 	  if next_room then begin inc(room); newRoom end;
 
 
-	  if next_level then begin 
+	  if next_level then begin
 
 	   wellDoneMessage;
-	   
+
 	   while anyKey do;
-	   
-	   inc(lvl); level(lvl); 
-	   
-	   room:=0; 
-	   power:=6; 
-	   
+
+	   inc(lvl); level(lvl);
+
+	   room:=0;
+	   power:=6;
+
 	   newRoom;
-	   
+
 	  end;
 
 
@@ -895,7 +838,7 @@ begin
      if power=0 then begin
       SetPaletteEntry(1, 70,255,70);
       death_Robot := true;
-      
+
       endGameMessage;
      end;
 
