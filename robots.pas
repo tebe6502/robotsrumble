@@ -195,7 +195,7 @@ end;
 
 procedure doPowerFull;
 begin
-  txt:=#46#47;
+  txt:=#42#43;		// energy status bar
 
   TextColor($ba);
   doText(31, 16);
@@ -707,7 +707,7 @@ begin
  doStatusPanel;
 
 
- level(1);
+ level(0);
 
  clock:=0;
 
