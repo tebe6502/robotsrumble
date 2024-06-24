@@ -8,26 +8,8 @@ const
 	left_magnet_px = 5;
 	right_magnet_px = 25;
 
-	empty_tile = 3;
-	
-{	
-	empty2_tile = 17;
-	empty3_tile = 6;
-	empty4_tile = 36;
-	
-	empty5_tile = 15;
-	empty6_tile = 16;
-		
-	downbar_tile = 58;
-	death_tile = 39;
+	empty_tile = 0;
 
-	lava_tile = 57;
-	
-	battery_tile = 50;	// 50..51 _ 52..53
-	
-	elevator_tile = 44;	// 44..45
-	elevator2_tile = 47;	// 47..48
-}
 	py_limit = 22;
 
 	delay_value = 6;

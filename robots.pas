@@ -20,11 +20,13 @@ const
 	cmap_width = 160;		// color map width 40 * 4 = 160
 
 
-	left_magnet_code = 32;		// kody tilesow dla level #1
-	right_magnet_code = 41;
-	robot_code = 23;
-	battery_code = 50;
+	left_magnet_code = 1;		// wspolne kody tilesow
+	right_magnet_code = 24;
+	robot_code = 5;
+	battery_code = 11;
 
+	lmag_tile_code = 1;		// 1,2,3,4
+	rmag_tile_code = 24;		// 24,25,26,27
 
 	cmap_adr: array of pointer = [ {$eval 24,"VBXE_WINDOW+:1*cmap_width"} ];
 
@@ -32,9 +34,6 @@ const
 
 //	mul_320: array of word = [ {$eval 256,":1*320"} ];
 
-	lmag_tile: array [0..3] of byte = (32,33,34,35);
-
-	rmag_tile: array [0..3] of byte = (40,41,42,43);
 
 
 {$i id.inc}			// kody identyfikacji tilesow niezalezne od levelu
@@ -640,19 +639,19 @@ begin
 
 	if l_magnet > py_limit then exit;
 
-	tile(lmag_tile[0], left_magnet_px, l_magnet);
-	tile(lmag_tile[1], left_magnet_px+1, l_magnet);
-	tile(lmag_tile[2], left_magnet_px, l_magnet+1);
-	tile(lmag_tile[3], left_magnet_px+1, l_magnet+1);
+	tile(lmag_tile_code, left_magnet_px, l_magnet);
+	tile(lmag_tile_code+1, left_magnet_px+1, l_magnet);
+	tile(lmag_tile_code+2, left_magnet_px, l_magnet+1);
+	tile(lmag_tile_code+3, left_magnet_px+1, l_magnet+1);
 
  end else begin
 
 	if r_magnet > py_limit then exit;
 
-	tile(rmag_tile[0], right_magnet_px, r_magnet);
-	tile(rmag_tile[1], right_magnet_px+1, r_magnet);
-	tile(rmag_tile[2], right_magnet_px, r_magnet+1);
-	tile(rmag_tile[3], right_magnet_px+1, r_magnet+1);
+	tile(rmag_tile_code, right_magnet_px, r_magnet);
+	tile(rmag_tile_code+1, right_magnet_px+1, r_magnet);
+	tile(rmag_tile_code+2, right_magnet_px, r_magnet+1);
+	tile(rmag_tile_code+3, right_magnet_px+1, r_magnet+1);
 
  end;
 
@@ -717,7 +716,7 @@ begin
  clock:=0;
 
 
- //room:=3+ 1;
+// room:=3+ 1;
 
  newRoom;	// room = 0
 
