@@ -6,3 +6,8 @@ const
 	id_lava = 4;
 	id_elevator = 5;
 	id_battery = 6;
+
+	id_left_magnet = 7;
+	id_right_magnet = 8;
+	id_robot = 9;
+	id_battery = 10;

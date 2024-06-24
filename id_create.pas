@@ -2,7 +2,6 @@
 
  tworzenie tablicy ID dla zadanego levelu
 
-
 }
 
 uses crt;
