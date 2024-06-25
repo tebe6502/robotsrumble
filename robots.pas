@@ -328,7 +328,11 @@ begin
 
  ofs:=22*24* room + 24;
 
+	
  if (lvl=0) and (room=6) then inc(robot_x, 8);
+
+ if (lvl=1) and (room=2) then dec(robot_x, 8); 
+ if (lvl=1) and (room=3) then inc(robot_x, 8);
 
 
  m:=pointer(VBXE_WINDOW+4*4);		// color_map pointer, skip row #0
@@ -456,6 +460,19 @@ end;
 
 (*-----------------------------------------------------------*)
 
+procedure powerUP;
+begin
+      tile(empty_tile, battery_x, battery_y);
+      tile(empty_tile, battery_x+1, battery_y);
+
+      tile(empty_tile, battery_x, battery_y+1);
+      tile(empty_tile, battery_x+1, battery_y+1);
+
+      doPowerFull;
+end;
+
+(*-----------------------------------------------------------*)  
+
 procedure testRobot;
 var a, b, x, y, y_: byte;
     left, right: Boolean;
@@ -485,15 +502,7 @@ begin
   if a = id_downbar then begin next_room:=true; dec(robot_y, 20*8); exit end;	// next room
 
 
-  if (a = id_battery) and (b = id_battery) then begin
-   tile(empty_tile, battery_x, battery_y);
-   tile(empty_tile, battery_x+1, battery_y);
-
-   tile(empty_tile, battery_x, battery_y+1);
-   tile(empty_tile, battery_x+1, battery_y+1);
-
-   doPowerFull;
-  end;
+  if (a = id_battery) and (b = id_battery) then powerUP;
 
 
   left := (a = id_empty) or (a = id_lava);
@@ -548,10 +557,12 @@ begin
 
    a:=locate(x-1, y+2);
    left := empty(a);
+   
+   if a = id_battery then powerUP;
 
    a:=locate(x, y+2);
    if a = id_death then death_Robot:=true;
-
+   
  end else
   left:=true;
 
@@ -568,6 +579,8 @@ begin
 
    a:=locate(x+2, y+2);
    right := empty(a);
+
+   if a = id_battery then powerUP;
 
    a:=locate(x+1, y+2);
    if a = id_death then death_Robot:=true;
@@ -700,7 +713,7 @@ begin
  lives:=3;
  power:=6;
 
- robot_x:=128-16;
+ robot_x:=48;
  robot_y:=0*8;
 
 
@@ -711,12 +724,13 @@ begin
  doStatusPanel;
 
 
- level(1);
+ lvl:=1;
+ level(lvl);
 
  clock:=0;
 
 
- room:=0;
+ room:= 2;
 
  newRoom;	// room = 0
 
@@ -833,7 +847,7 @@ begin
    inc(tick);
 
 
-   if lo(clock) = 2 then begin
+   if lo(clock) = 3 then begin
 
      dec(power);
 
