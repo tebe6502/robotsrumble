@@ -433,7 +433,8 @@ var a,x,y: byte;
 begin
 
  if death_Robot then begin SetPaletteEntry(1, 70,255,70); exit; end;
-
+ 
+ if next_level then begin SetPaletteEntry(1, 200,30,10); exit; end;
 
  if robot_x and 7 = 0 then begin
 
@@ -449,6 +450,7 @@ begin
     SetPaletteEntry(1, 255,255,255);
 
  end;
+ 
 
 end;
 
@@ -497,7 +499,7 @@ begin
   left := (a = id_empty) or (a = id_lava);
   right := (b = id_empty) or (b = id_lava);
 
-  if (a = id_lava) and (y >= 18) then next_level:=true;
+  if (a = id_lava) and (y >= 18) then next_level:=true; 
 
   if left and right then begin inc(robot_y, 4); exit end;						// falling down
 
@@ -709,12 +711,12 @@ begin
  doStatusPanel;
 
 
- level(0);
+ level(1);
 
  clock:=0;
 
 
- room:=3;//+ 1;
+// room:=3+ 2;
 
  newRoom;	// room = 0
 
@@ -804,6 +806,9 @@ begin
 	  if next_room then begin inc(room); newRoom end;
 
 
+	  colorRobot;
+
+
 	  if next_level then begin
 
 	   wellDoneMessage;
@@ -821,8 +826,6 @@ begin
 
 
 	  if battery_x > 0 then flashBattery;		// battery blinking
-
-	  colorRobot;
 
 	end;
 
