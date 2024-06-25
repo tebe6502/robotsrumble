@@ -14,7 +14,7 @@ const
 var
 	map: array [0..24*156-1] of byte;		// 24*156
 
-	cmap1, cmap2, id: array [0..72] of byte;
+	cmap1, cmap2, id: array [0..74] of byte;
 
 	panel_map: array of byte = [ {$bin2csv map\panel.bin} ];		// panel po prawej stronie ekranu
 	panel_fnt: array of byte = [ {$bin2csv map\panel_fnt.zx0} ];		// fonty reprezentujace panel, litery, cyfry -> fnt[panel_ofset]...
@@ -24,7 +24,7 @@ var
 	lvl_1_map: array of byte = [ {$bin2csv map\lvl01.zx0} ];		// mapa levelu #1 -> map
 	lvl_1_fnt: array of byte = [ {$bin2csv map\lvl01_fnt.zx0} ];		// fonty 0..63 dla levelu #1 -> fnt[0]...
 
-	lvl_1_cmap1: array [0..72] of byte = (		// color1
+	lvl_1_cmap1: array [0..74] of byte = (		// color1
 	$46, $24, $aa, $24, $aa, $a8, $a8, $a7,		// 0..7
 	$a7, $56, $36, $0e, $0e, $56, $c8, $82,		// 8..15
 	$82, $98, $06, $26, $24, $24, $24, $9e,		// 16..23
@@ -34,10 +34,10 @@ var
 	$42, $42, $a8, $0e, $75, $38, $36, $38,		// 48..55
 	$36, $38, $36, $f4, $82, $82, $aa, $04,		// 56..63
 	$14, $f2, $f2, $f2, $09, $09, $0e, $82,		// 64..71
-	$aa
+	$aa, $26, $94
 	);
 
-	lvl_1_cmap2: array [0..72] of byte = (		// color2
+	lvl_1_cmap2: array [0..74] of byte = (		// color2
 	$00, $00, $00, $00, $00, $00, $00, $00,
 	$00, $0e, $0e, $00, $00, $0e, $00, $00,
 	$00, $00, $00, $00, $00, $00, $00, $00,
@@ -47,7 +47,7 @@ var
 	$00, $00, $00, $00, $00, $0e, $0a, $0e,
 	$0a, $0e, $0a, $00, $00, $00, $00, $00,
 	$00, $00, $00, $00, $00, $00, $00, $00,
-	$00
+	$00, $00, $00
 	);
 
 //	id_empty= 1;
@@ -57,7 +57,7 @@ var
 //	id_elevator = 5;
 //	id_battery = 6;
 
-	lvl_1_id: array [0..72] of byte = (
+	lvl_1_id: array [0..74] of byte = (
 	1,0,0,0,0,0,0,0,
 	0,0,0,6,6,0,3,0,
 	0,0,0,0,0,0,0,0,
@@ -67,7 +67,7 @@ var
 	0,2,0,1,0,0,0,0,
 	0,0,0,0,1,1,1,0,
 	0,0,0,0,0,0,0,0,
-	0
+	0,0,0
 	);
 
 (*-----------------------------------------------------------*)

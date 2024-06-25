@@ -3,9 +3,12 @@
 
 (*
 
-- kazdy level sklada się z 64 tilesow (64 znakow), od
-- 'cmap1', 'cmap2' to mapa kolorów dla 64 tilesow
+- kazdy level sklada się z 78 tilesow (78 znakow), od
+- 'cmap1', 'cmap2' to mapa kolorów dla tilesow
 - 'id' to identyfikator tilesow
+
+kazda lokacja przegladana jest w poszukiwaniu tilesow reprezentujacych
+prawy/lewy magnes, baterie etc.
 
 *)
 
