@@ -1,7 +1,12 @@
 
 // dlaczego dla makra  $define nie mozna wstawic kodu asm
+// nie moze byc dostepu do tablicy enemy  jako enemy.x itd.
 
 (*
+
+Robots Rumble
+
+https://www.file-hunter.com/MSXdev/index.php?id=roborumble
 
 - kazdy level sklada się z 78 tilesow (78 znakow), od
 - 'cmap1', 'cmap2' to mapa kolorów dla tilesow
@@ -22,6 +27,7 @@ uses crt, atari, joystick, control, ctm, vsprite, vbxe;
 type
 	TEnemy = record
 		 x,y: byte;
+		 adx: byte;
 		 kind: byte;
 		 end;
 
@@ -326,6 +332,7 @@ var j, py: byte;
    procedure row;
    var v, i, x: byte;
        e: PTEnemy;
+       yes: Boolean;
    begin
 
      for i:=0 to 23 do begin
@@ -357,22 +364,39 @@ var j, py: byte;
 
 	   e.x:=i shl 3 + 8;
 	   e.y:=j shl 3;
+	   e.adx:=1;
+	   
 	   e.kind:=enemyrobot_code;
 
 	   inc(enemy_cnt);
 	 end;
-
-
-	scr[i] := v;
-
-	asm
-	  fxs FX_MEMS #$81
+	 
+	
+	yes:=true;
+	case v of
+	   5..6: yes:=false;	// robot
+	 28..29: yes:=false;
+	 
+	 19..20: yes:=false;	// enemyrobot
+	 41..42: yes:=false;
 	end;
 
-	x:=i*4;
 
-	m[1+x]:=cmap1[v];
-	m[2+x]:=cmap2[v];
+	if yes then begin
+
+	  scr[i] := v;
+
+	  asm
+	    fxs FX_MEMS #$81
+	  end;
+
+ 	  x:=i*4;
+
+	  m[1+x]:=cmap1[v];
+	  m[2+x]:=cmap2[v];
+
+	end;
+	
 
 	inc(p);
      end;
@@ -393,6 +417,8 @@ begin
  r_magnet := $ff;
 
  enemy_cnt := 0;
+ enemy0.kind:=0;
+ enemy1.kind:=0;
 
 
  doStatus;
@@ -480,10 +506,6 @@ end;
 function empty(a: byte): Boolean;
 begin
 
-// Result := (a = empty_tile) or (a = empty2_tile) or (a = empty3_tile) or (a = empty4_tile) or
-//	   (a = empty5_tile) or (a = empty6_tile) or (a = death_tile) or
-//           (a = elevator_tile) or (a = elevator2_tile) or (a = elevator_tile+1) or (a = elevator2_tile+1);
-
  Result := (a = id_empty) or (a = id_death) or (a = id_elevator);
 
 end;
@@ -546,6 +568,57 @@ begin
 end;
 
 (*-----------------------------------------------------------*)
+
+procedure manageEnemy;
+
+  procedure update(var spr: TEnemy);
+  var a, x,y: byte;
+  begin
+  
+    x:=(spr.x - 8) shr 3 + 4;
+    y:=spr.y shr 3 + 1;
+    
+    case spr.kind of
+    
+     enemyrobot_code:
+	     begin
+    
+		if spr.adx = 1 then 
+		  a := locate(x+2, y)
+		else
+		  a := locate(x-1, y);
+
+		if not(empty(a)) then begin spr.adx:=-spr.adx; exit end;
+		  
+		if spr.adx = 1 then 
+		  a := locate(x+2, y+2)
+		else
+		  a := locate(x-1, y+2);
+     
+		if empty(a) then spr.adx:=-spr.adx;
+
+	     end;
+      
+    end;
+
+  end;
+
+
+
+begin
+
+ if (enemy0.kind <> 0) then begin
+  if enemy0.x and 7 = 0 then update(enemy0);
+  
+  inc(enemy0.x, enemy0.adx);
+ end;  
+
+
+
+end;
+
+(*-----------------------------------------------------------*)
+
 
 procedure testRobot;
 var a, b, x, y, y_: byte;
@@ -847,10 +920,12 @@ begin
  else
    DstBlit(0, dst0 + robot_y*320 + robot_x);	// mask = $ff ; copy = 1
 
+
  if enemy0.kind <> 0 then
    DstBlit(1, dst0 + enemy0.y*320 + enemy0.x)
  else
    DstBlit(1, dst0 + 200*320);
+
 
  RunBCB(blit0);
  while BlitterBusy do;				// EraseBlit + MoveBlit works together
@@ -921,6 +996,8 @@ begin
 
 	end;
 
+
+   manageEnemy;
 
    inc(tick);
 
