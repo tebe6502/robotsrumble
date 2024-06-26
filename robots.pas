@@ -19,6 +19,12 @@ uses crt, atari, joystick, control, ctm, vsprite, vbxe;
 
 {$r robots.rc}
 
+type
+	TEnemy = record of
+		 x,y: byte;
+		 kind: byte;	
+		 end;
+
 const
 	cmap_width = 160;		// color map width 40 * 4 = 160
 
@@ -50,6 +56,9 @@ const
 
 var
 	vram: TVBXEMemoryStream;
+	
+	enemy_x: array [0..1] of byte;
+	enemy_y: array [0..1] of byte;
 
 	robot_x, robot_y, room, lvl, lives, power: byte;
 	battery_x, battery_y: byte;
