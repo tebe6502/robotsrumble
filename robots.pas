@@ -20,10 +20,12 @@ uses crt, atari, joystick, control, ctm, vsprite, vbxe;
 {$r robots.rc}
 
 type
-	TEnemy = record of
+	TEnemy = record
 		 x,y: byte;
-		 kind: byte;	
+		 kind: byte;
 		 end;
+
+	PTEnemy = ^TEnemy;
 
 const
 	cmap_width = 160;		// color map width 40 * 4 = 160
@@ -34,6 +36,8 @@ const
 	robot_code = 5;
 	battery_code = 11;
 
+	enemyrobot_code = 19;
+
 	lmag_tile_code = 1;		// 1,2,3,4
 	rmag_tile_code = 24;		// 24,25,26,27
 
@@ -42,7 +46,6 @@ const
 	mul_40: array of word = [ {$eval 24,":1*40"} ];
 
 //	mul_320: array of word = [ {$eval 256,":1*320"} ];
-
 
 
 {$i id.inc}			// kody identyfikacji tilesow niezalezne od levelu
@@ -56,11 +59,11 @@ const
 
 var
 	vram: TVBXEMemoryStream;
-	
+
 	enemy_x: array [0..1] of byte;
 	enemy_y: array [0..1] of byte;
 
-	robot_x, robot_y, room, lvl, lives, power: byte;
+	robot_x, robot_y, room, lvl, lives, power, enemy_cnt: byte;
 	battery_x, battery_y: byte;
 
 	next_room, next_level: Boolean;
@@ -72,6 +75,11 @@ var
 	clock: word absolute $13;
 
 	txt: TString;
+
+	enemy0, enemy1: TEnemy;
+
+	enemy: array [0..1] of PTEnemy;
+
 
 
 (*-----------------------------------------------------------*)
@@ -317,6 +325,7 @@ var j, py: byte;
 
    procedure row;
    var v, i, x: byte;
+       e: PTEnemy;
    begin
 
      for i:=0 to 23 do begin
@@ -340,6 +349,18 @@ var j, py: byte;
 	 battery_x:=i+4;
 	 battery_y:=j+1;
 	end;
+
+
+	if v = enemyrobot_code then
+	 if enemy_cnt < 2 then begin
+	   e:=enemy[enemy_cnt];
+
+	   e.x:=i shl 3 + 8;
+	   e.y:=j shl 3;
+	   e.kind:=enemyrobot_code;
+
+	   inc(enemy_cnt);
+	 end;
 
 
 	scr[i] := v;
@@ -370,6 +391,8 @@ begin
 
  l_magnet := $ff;
  r_magnet := $ff;
+
+ enemy_cnt := 0;
 
 
  doStatus;
@@ -767,6 +790,8 @@ begin
  robot_x:=48;
  robot_y:=0*8;
 
+ enemy[0]:=@enemy0;
+ enemy[1]:=@enemy1;
 
 (*-----------------------------------------------------------*)
 
@@ -791,7 +816,7 @@ begin
 // initialize sprites
 
  IniBlit(0, src0, dst0);	// blit0
- IniBlit(1, src1, dst0);	// blit1
+ IniBlit(1, src4, dst0);	// blit1
 
 (*-----------------------------------------------------------*)
 (*                       MAIN LOOP                           *)
@@ -822,8 +847,10 @@ begin
  else
    DstBlit(0, dst0 + robot_y*320 + robot_x);	// mask = $ff ; copy = 1
 
-
- DstBlit(1, dst0 + 200*320);
+ if enemy0.kind <> 0 then
+   DstBlit(1, dst0 + enemy0.y*320 + enemy0.x)
+ else
+   DstBlit(1, dst0 + 200*320);
 
  RunBCB(blit0);
  while BlitterBusy do;				// EraseBlit + MoveBlit works together
