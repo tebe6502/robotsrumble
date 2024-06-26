@@ -285,6 +285,12 @@ var j, py: byte;
 	 if v = robot_code then begin
 	  robot_x := i shl 3 + 8;// - 1;
 	  robot_y := j shl 3;
+	  
+	  p[0]:=empty_tile;
+	  p[1]:=empty_tile;
+	  p[40]:=empty_tile;
+	  p[41]:=empty_tile;
+	  
 	 end;
 
 	if v = battery_code then begin
@@ -730,7 +736,7 @@ begin
  clock:=0;
 
 
- room:= 2;
+ //room:= 2;
 
  newRoom;	// room = 0
 
