@@ -258,6 +258,46 @@ end;
 
 (*-----------------------------------------------------------*)
 
+procedure robotLifeIcons;
+var p: Pbyte;
+    x, y: byte;
+begin
+	asm
+	  fxs FX_MEMS #$00
+	end;
+
+	x:=(robot_x-8) shr 3;
+	y:=robot_y shr 3;
+
+	p:=pointer(dpeek(88) + x + mul_40[y] + 4 + 40);
+
+	p[0]:=empty_tile;
+	p[1]:=empty_tile;
+	p[40]:=empty_tile;
+	p[41]:=empty_tile;
+
+	if lives < 3 then begin
+
+	  p[4]:=empty_tile;
+	  p[5]:=empty_tile;
+	  p[44]:=empty_tile;
+	  p[45]:=empty_tile;
+
+	end;
+
+	if lives < 2 then begin
+
+	  p[2]:=empty_tile;
+	  p[3]:=empty_tile;
+	  p[42]:=empty_tile;
+	  p[43]:=empty_tile;
+
+	end;
+
+end;
+
+(*-----------------------------------------------------------*)
+
 procedure newRoom;
 var j, py: byte;
     ofs: word;
@@ -285,12 +325,6 @@ var j, py: byte;
 	 if v = robot_code then begin
 	  robot_x := i shl 3 + 8;// - 1;
 	  robot_y := j shl 3;
-	  
-	  p[0]:=empty_tile;
-	  p[1]:=empty_tile;
-	  p[40]:=empty_tile;
-	  p[41]:=empty_tile;
-	  
 	 end;
 
 	if v = battery_code then begin
@@ -334,10 +368,10 @@ begin
 
  ofs:=22*24* room + 24;
 
-	
+
  if (lvl=0) and (room=6) then inc(robot_x, 8);
 
- if (lvl=1) and (room=2) then dec(robot_x, 8); 
+ if (lvl=1) and (room=2) then dec(robot_x, 8);
  if (lvl=1) and (room=3) then inc(robot_x, 8);
 
 
@@ -377,6 +411,8 @@ begin
 
  p:=@map + 155*24;			// row #23
  row;
+
+ if room = 0 then robotLifeIcons;
 
  next_room:=false;
 end;
@@ -477,7 +513,7 @@ begin
       doPowerFull;
 end;
 
-(*-----------------------------------------------------------*)  
+(*-----------------------------------------------------------*)
 
 procedure testRobot;
 var a, b, x, y, y_: byte;
@@ -563,12 +599,12 @@ begin
 
    a:=locate(x-1, y+2);
    left := empty(a);
-   
+
    if a = id_battery then powerUP;
 
    a:=locate(x, y+2);
    if a = id_death then death_Robot:=true;
-   
+
  end else
   left:=true;
 
@@ -736,7 +772,7 @@ begin
  clock:=0;
 
 
- //room:= 2;
+ room:= 2;
 
  newRoom;	// room = 0
 
