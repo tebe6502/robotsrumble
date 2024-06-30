@@ -12,9 +12,7 @@ type
 var
 	b1, b2: TBox;
 
-	v: byte;
-	
-	c: TColision;
+	v, f: byte;
 
 {
     x,y           
@@ -121,25 +119,14 @@ begin
 
   if v <> joy_none then begin
 
-   drawBox(b1, 0);
-   drawBox(b2, 2);
+{$i hitbox.inc}
 
-   case v of
-       joy_up: dec(b1.y);
-     joy_down: inc(b1.y);
-     joy_left: dec(b1.x);
-    joy_right: inc(b1.x);
-   end;
 
-   drawBox(b1, 1);
-
-   c := hitBox(b1,b2);
-   
-   case c of
-    1: writeln('left');
-    2: writeln('right');
-    4: writeln('top');
-    8: writeln('bottom');
+   case hitBox(b1,b2) of
+    left: writeln('left');
+    right: writeln('right');
+    top: writeln('top');
+    bottom: writeln('bottom');
    else
     writeln;
    end;

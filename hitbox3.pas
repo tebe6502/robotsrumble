@@ -1,4 +1,4 @@
-(* HIT BOX *)
+(* HIT BOX 3 *)
 
 uses crt, joystick, fastgraph;
 
@@ -12,7 +12,6 @@ var
 
 	v, f: byte;
 
-
 {
     x,y           
      *---------------------------*
@@ -20,21 +19,17 @@ var
      |                           | h-eight
      |                           |
      *---------------------------*
-                 w-idth
+                  w-idth
 }
-
+     
 function hitBox(A, B: TBox): Boolean;
 begin
 
-  if
-    (A.x < byte(B.x + B.w)) and
-    (byte(A.x + A.w) > B.x) and
-    (A.y < byte(B.y + B.h)) and
-    (byte(A.y + A.h) > B.y)
-  then
-    Result:=true
-  else
-    Result:=false;
+ Result:=true;
+
+ if ( byte(B.x + B.w - A.x - 1) >= byte(A.w + B.w - 1) ) then exit(false);
+
+ if ( byte(B.y + B.h - A.y - 1) >= byte(A.h + B.h - 1) ) then exit(false);
 
 end;
 
@@ -80,7 +75,7 @@ begin
 
 {$i hitbox.inc}
 
-   writeln( hitBox(b1,b2) );
+   writeln( hitBox(b1,b2) );   
 
   end;
 
