@@ -116,16 +116,16 @@ begin
   pause;
 
   v:=joy_1;	// read joystick #1
+  f:=trig0;	// read fire #1
 
   if v <> joy_none then begin
 
 {$i hitbox.inc}
 
-
    case hitBox(b1,b2) of
-    left: writeln('left');
-    right: writeln('right');
-    top: writeln('top');
+      left: writeln('left');
+     right: writeln('right');
+       top: writeln('top');
     bottom: writeln('bottom');
    else
     writeln;

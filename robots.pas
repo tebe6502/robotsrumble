@@ -1,6 +1,7 @@
 
 // dlaczego dla makra  $define nie mozna wstawic kodu asm
-// nie moze byc dostepu do tablicy enemy  jako enemy.x itd.
+// nie moze byc dostepu do tablicy 'enemy[] od record'  jako enemy.x itd.
+// dlaczego dla CASE nie ma mozliwości użycia ENUM
 
 (*
 
@@ -41,7 +42,14 @@ const
 	right_magnet_code = 24;
 	robot_code = 5;
 	battery_code = 11;
-
+	
+	box_corner = 45;
+	box_top = 46;
+	box_left = 47;
+	box_right = 48;
+	box_bottom = 49;
+	
+	
 	enemyrobot_code = 19;
 
 	lmag_tile_code = 1;		// 1,2,3,4
@@ -87,7 +95,6 @@ var
 	enemy: array [0..1] of PTEnemy;
 
 
-
 (*-----------------------------------------------------------*)
 
 procedure tile_panel(t: byte; x,y: byte);
@@ -101,7 +108,7 @@ begin
 	p:=pointer(dpeek(88) + mul_40[y] + x);
 
 
-	p[0] := t + panel_ofset;
+	p[0] := t ;//+ panel_ofset;
 
 
 	asm
@@ -112,6 +119,32 @@ begin
 
 	p[0]:=color1;
 	p[1]:=color2;
+
+end;
+
+(*-----------------------------------------------------------*)
+
+procedure tile(t: byte; x,y: byte);
+var p: PByte register;
+begin
+
+	asm
+	  fxs FX_MEMS #$00
+	end;
+
+	p:=pointer(dpeek(88) + mul_40[y] + x);
+
+	p[0] := t;
+
+
+	asm
+	 fxs FX_MEMS #$81
+	end;
+
+	p:=cmap_adr[y] + x shl 2 + 1;
+
+	p[0]:=cmap1[t];
+	p[1]:=cmap2[t];
 
 end;
 
@@ -130,6 +163,8 @@ begin
    ord('0')..ord('9'): dec(v, 21);
    ord('A')..ord('Z'): dec(v, 64);
   end;
+  
+  inc(v, panel_ofset);
 
   tile_panel(v, x, y);
   inc(x);
@@ -140,7 +175,7 @@ end;
 (*-----------------------------------------------------------*)
 
 procedure doStatusPanel;
-var i,j: byte;
+var i,j, v: byte;
 begin
 
  for j:=0 to 23 do
@@ -158,8 +193,14 @@ begin
    if (i=4) and (j=13) then TextColor($26);	// battery
 
    if (i=0) or (i=7) or (j=0) or (j=23) then TextColor($42);
+   
+   v:=panel_map[i+j*8];
 
-   tile_panel(panel_map[i+j*8], i+28, j);
+   if v < box_corner then begin
+    TextColor($42);
+    tile(v, i+28, j);
+   end else
+    tile_panel(v, i+28, j);
 
   end;
 
@@ -477,32 +518,6 @@ end;
 
 (*-----------------------------------------------------------*)
 
-procedure tile(t: byte; x,y: byte);
-var p: PByte register;
-begin
-
-	asm
-	  fxs FX_MEMS #$00
-	end;
-
-	p:=pointer(dpeek(88) + mul_40[y] + x);
-
-	p[0] := t;
-
-
-	asm
-	 fxs FX_MEMS #$81
-	end;
-
-	p:=cmap_adr[y] + x shl 2 + 1;
-
-	p[0]:=cmap1[t];
-	p[1]:=cmap2[t];
-
-end;
-
-(*-----------------------------------------------------------*)
-
 function empty(a: byte): Boolean;
 begin
 
@@ -569,7 +584,19 @@ end;
 
 (*-----------------------------------------------------------*)
 
-procedure manageEnemy;
+function hitBox(x,y: byte): Boolean;
+begin
+
+ Result:=true;
+
+ if ( byte(robot_x - x + 16 - 1) >= byte(16 + 16 - 1) ) then exit(false);
+
+ if ( byte(robot_y - y + 16 - 1) >= byte(16 + 16 - 1) ) then exit(false);
+
+end;
+
+
+procedure testEnemy;
 
   procedure update(var spr: TEnemy);
   var a, x,y: byte;
@@ -596,6 +623,8 @@ procedure manageEnemy;
 		  a := locate(x-1, y+2);
      
 		if empty(a) then spr.adx:=-spr.adx;
+		
+		death_robot := hitBox(spr.x, spr.y);
 
 	     end;
       
@@ -607,12 +636,11 @@ procedure manageEnemy;
 
 begin
 
- if (enemy0.kind <> 0) then begin
-  if enemy0.x and 7 = 0 then update(enemy0);
+  if (enemy0.kind <> 0) then begin
+   if enemy0.x and 7 = 0 then update(enemy0);
   
-  inc(enemy0.x, enemy0.adx);
- end;  
-
+   inc(enemy0.x, enemy0.adx);
+  end;  
 
 
 end;
@@ -965,13 +993,15 @@ begin
 
 	  setMagnet(0); setMagnet(1);
 
+
 	  testRobot;
+
+	  testEnemy;
+
 
 	  if death_robot then endGameMessage;
 
-
 	  if next_room then begin inc(room); newRoom end;
-
 
 	  colorRobot;
 
@@ -997,7 +1027,6 @@ begin
 	end;
 
 
-   manageEnemy;
 
    inc(tick);
 
