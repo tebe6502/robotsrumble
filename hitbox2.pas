@@ -13,7 +13,7 @@ var
 	b1, b2: TBox;
 
 	v, f: byte;
-
+	
 {
     x,y           
      *---------------------------*
@@ -123,12 +123,16 @@ begin
 {$i hitbox.inc}
 
    case hitBox(b1,b2) of
+   
       left: writeln('left');
      right: writeln('right');
        top: writeln('top');
     bottom: writeln('bottom');
+    
    else
+   
     writeln;
+    
    end;
   
 

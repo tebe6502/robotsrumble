@@ -1,7 +1,6 @@
 
 // dlaczego dla makra  $define nie mozna wstawic kodu asm
 // nie moze byc dostepu do tablicy 'enemy[] od record'  jako enemy.x itd.
-// dlaczego dla CASE nie ma mozliwości użycia ENUM
 
 (*
 
@@ -51,6 +50,7 @@ const
 	
 	
 	enemyrobot_code = 19;
+	enemyeel_code = 13;
 
 	lmag_tile_code = 1;		// 1,2,3,4
 	rmag_tile_code = 24;		// 24,25,26,27
@@ -74,9 +74,6 @@ const
 var
 	vram: TVBXEMemoryStream;
 
-	enemy_x: array [0..1] of byte;
-	enemy_y: array [0..1] of byte;
-
 	robot_x, robot_y, room, lvl, lives, power, enemy_cnt: byte;
 	battery_x, battery_y: byte;
 
@@ -90,9 +87,9 @@ var
 
 	txt: TString;
 
-	enemy0, enemy1: TEnemy;
+	enemy0, enemy1, enemy2, enemy3, enemy4, enemy5: TEnemy;
 
-	enemy: array [0..1] of PTEnemy;
+	enemy: array [0..5] of PTEnemy;
 
 
 (*-----------------------------------------------------------*)
@@ -399,15 +396,15 @@ var j, py: byte;
 	end;
 
 
-	if v = enemyrobot_code then
-	 if enemy_cnt < 2 then begin
+	if (v = enemyrobot_code) or (v = enemyeel_code) then
+	 if enemy_cnt < length(enemy) then begin
 	   e:=enemy[enemy_cnt];
 
 	   e.x:=i shl 3 + 8;
 	   e.y:=j shl 3;
 	   e.adx:=1;
 	   
-	   e.kind:=enemyrobot_code;
+	   e.kind := v;
 
 	   inc(enemy_cnt);
 	 end;
@@ -420,6 +417,9 @@ var j, py: byte;
 	 
 	 19..20: yes:=false;	// enemyrobot
 	 41..42: yes:=false;
+
+	     13: yes:=false;	// enemyeel
+	 
 	end;
 
 
@@ -452,14 +452,19 @@ begin
  next_level:=false;
  death_Robot:=false;
 
- battery_x:=0;
-
  l_magnet := $ff;
  r_magnet := $ff;
 
+ battery_x:=0;
+
  enemy_cnt := 0;
+
  enemy0.kind:=0;
  enemy1.kind:=0;
+ enemy2.kind:=0;
+ enemy3.kind:=0;
+ enemy4.kind:=0;
+ enemy5.kind:=0;
 
 
  doStatus;
@@ -602,6 +607,10 @@ procedure testEnemy;
   var a, x,y: byte;
   begin
   
+   if spr.kind <> 0 then begin
+   
+    if spr.x and 7 = 0 then begin
+  
     x:=(spr.x - 8) shr 3 + 4;
     y:=spr.y shr 3 + 1;
     
@@ -615,33 +624,53 @@ procedure testEnemy;
 		else
 		  a := locate(x-1, y);
 
-		if not(empty(a)) then begin spr.adx:=-spr.adx; exit end;
+		if not(empty(a)) then begin spr.adx := -spr.adx; exit end;
 		  
 		if spr.adx = 1 then 
 		  a := locate(x+2, y+2)
 		else
 		  a := locate(x-1, y+2);
      
-		if empty(a) then spr.adx:=-spr.adx;
+		if empty(a) then spr.adx := -spr.adx;
 		
-		death_robot := hitBox(spr.x, spr.y);
-
 	     end;
       
+      
+     enemyeel_code:
+	     begin
+    
+		if spr.adx = 1 then 
+		  a := locate(x+2, y)
+		else
+		  a := locate(x-1, y);
+
+		if not(empty(a)) then spr.adx := -spr.adx; 
+
+	     end;
+            
     end;
+    
+    end;
+    
+    death_robot := hitBox(spr.x, spr.y);
+    
+    if death_robot then exit;
+    
+    inc(spr.x, spr.adx);    
+    
+   end;	// if spr.kind 
 
   end;
 
 
-
 begin
 
-  if (enemy0.kind <> 0) then begin
-   if enemy0.x and 7 = 0 then update(enemy0);
-  
-   inc(enemy0.x, enemy0.adx);
-  end;  
-
+  if not death_robot then update(enemy0);
+  if not death_robot then update(enemy1);
+  if not death_robot then update(enemy2);
+  if not death_robot then update(enemy3);
+  if not death_robot then update(enemy4);
+  if not death_robot then update(enemy5);
 
 end;
 
@@ -918,6 +947,7 @@ begin
 
  IniBlit(0, src0, dst0);	// blit0
  IniBlit(1, src4, dst0);	// blit1
+ IniBlit(2, src4, dst0);	// blit2
 
 (*-----------------------------------------------------------*)
 (*                       MAIN LOOP                           *)
@@ -931,7 +961,9 @@ begin
 
 						// EraseBlit initialize blt_control
  ClrBlit(0, blt_copy_0 + blt_next);		// mask = $00 ; copy = 0
- ClrBlit(1, blt_copy_0 + blt_stop);
+
+ ClrBlit(1, blt_copy_0 + blt_next);
+ ClrBlit(2, blt_copy_0 + blt_stop);
 
 
  RunBCB(Blit0);
@@ -953,6 +985,11 @@ begin
    DstBlit(1, dst0 + enemy0.y*320 + enemy0.x)
  else
    DstBlit(1, dst0 + 200*320);
+
+ if enemy1.kind <> 0 then
+   DstBlit(2, dst0 + enemy1.y*320 + enemy1.x)
+ else
+   DstBlit(2, dst0 + 200*320);
 
 
  RunBCB(blit0);
