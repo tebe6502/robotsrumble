@@ -13,14 +13,24 @@ var
 	v: byte;
 
 
-function hitBox(var rect1, rect2: TBox): Boolean;
+{
+    x,y           
+     *---------------------------*
+     |                           |
+     |                           | h-eight
+     |                           |
+     *---------------------------*
+                 w-idth
+}
+
+function hitBox(A, B: TBox): Boolean;
 begin
 
   if
-    (rect1.x < byte(rect2.x + rect2.w)) and
-    (byte(rect1.x + rect1.w) > rect2.x) and
-    (rect1.y < byte(rect2.y + rect2.h)) and
-    (byte(rect1.y + rect1.h) > rect2.y)
+    (A.x < byte(B.x + B.w)) and
+    (byte(A.x + A.w) > B.x) and
+    (A.y < byte(B.y + B.h)) and
+    (byte(A.y + A.h) > B.y)
   then
     Result:=true
   else
@@ -29,16 +39,16 @@ begin
 end;
 
 
-procedure drawBox(b: TBox; c: byte);
+procedure drawBox(B: TBox; c: byte);
 begin
 
  SetColor(c);
 
- MoveTo(b.x, b.y);
- LineTo(b.x + b.w, b.y);
- LineTo(b.x + b.w, b.y + b.h);
- LineTo(b.x, b.y + b.h);
- LineTo(b.x, b.y);
+ MoveTo(B.x, B.y);
+ LineTo(B.x + B.w, B.y);
+ LineTo(B.x + B.w, B.y + B.h);
+ LineTo(B.x, B.y + B.h);
+ LineTo(B.x, B.y);
 
 end;
 
@@ -48,8 +58,8 @@ begin
 
  b1.x:=85;	// moveable box
  b1.y:=75;
- b1.w:=25;
- b1.h:=20;
+ b1.w:=8;
+ b1.h:=16;
 
  b2.x:=50;	// static box
  b2.y:=54;
@@ -63,7 +73,7 @@ begin
 
   pause;
 
-  v:=joy_1;
+  v:=joy_1;	// read joystick #1
 
   if v <> joy_none then begin
 
@@ -79,7 +89,7 @@ begin
 
    drawBox(b1, 1);
 
-   writeln(hitBox(b1,b2));
+   writeln( hitBox(b1,b2) );
 
   end;
 

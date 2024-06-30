@@ -15,18 +15,21 @@ var
 	v: byte;
 	
 	c: TColision;
-	
+
 {
     x,y           
      *---------------------------*
      |                           |
-     |             * center      | h
+     |           Cx,Cy           | h-eight
      |                           |
      *---------------------------*
-                   w
+                  w-idth
+
+     Cx = x + w/2
+     Cy = y + h/2
 }
      
-function hitBox(var A, B: TBox): TColision;
+function hitBox(A, B: TBox): TColision;
 var w,h, _w, _h: byte;
     dx,dy,wy,hx: smallint;
 begin
@@ -36,14 +39,14 @@ Result:=nohit;
 w := byte(A.w + B.w) shr 1;
 h := byte(A.h + B.h) shr 1;
 
-dx := (A.x + A.w shr 1) - (B.x + B.w shr 1);	// center X
+dx := (A.x + A.w shr 1) - (B.x + B.w shr 1);	// A.Cx - B.Cx
 
 if dx >= 0 then
  _w := dx
 else
  _w := -dx;
 
-dy := (A.y + A.h shr 1) - (B.y + B.h shr 1);	// center Y
+dy := (A.y + A.h shr 1) - (B.y + B.h shr 1);	// A.Cy - B.Cy
 
 if dy >= 0 then
  _h := dy
@@ -80,16 +83,16 @@ end;
 end;
 
 
-procedure drawBox(b: TBox; c: byte);
+procedure drawBox(B: TBox; c: byte);
 begin
 
  SetColor(c);
 
- MoveTo(b.x, b.y);
- LineTo(b.x + b.w, b.y);
- LineTo(b.x + b.w, b.y + b.h);
- LineTo(b.x, b.y + b.h);
- LineTo(b.x, b.y);
+ MoveTo(B.x, B.y);
+ LineTo(B.x + B.w, B.y);
+ LineTo(B.x + B.w, B.y + B.h);
+ LineTo(B.x, B.y + B.h);
+ LineTo(B.x, B.y);
 
 end;
 
@@ -99,8 +102,8 @@ begin
 
  b1.x:=85;	// moveable box
  b1.y:=75;
- b1.w:=25;
- b1.h:=20;
+ b1.w:=8;
+ b1.h:=16;
 
  b2.x:=50;	// static box
  b2.y:=54;
@@ -114,7 +117,7 @@ begin
 
   pause;
 
-  v:=joy_1;
+  v:=joy_1;	// read joystick #1
 
   if v <> joy_none then begin
 
