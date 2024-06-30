@@ -197,7 +197,7 @@ begin
    v:=panel_map[i+j*8];
 
    if v < box_corner then begin
-    TextColor($42);
+    //TextColor($42);
     tile(v, i+28, j);
    end else
     tile_panel(v, i+28, j);
@@ -888,7 +888,7 @@ begin
  lives:=3;
  power:=6;
 
- robot_x:=48;
+ robot_x:=48+48;
  robot_y:=0*8;
 
  enemy[0]:=@enemy0;
@@ -907,7 +907,7 @@ begin
  clock:=0;
 
 
- room:= 2;
+ room:= 2+2 + 2;
 
  newRoom;	// room = 0
 
