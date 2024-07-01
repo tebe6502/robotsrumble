@@ -2,6 +2,8 @@
 // dlaczego dla makra  $define nie mozna wstawic kodu asm
 // nie moze byc dostepu do tablicy 'enemy[] od record'  jako enemy.x itd.
 
+// od wiersza 108 myli sie liczenie linii, przez ASM
+
 (*
 
 Robots Rumble
@@ -27,8 +29,11 @@ uses crt, atari, joystick, control, ctm, vsprite, vbxe;
 type
 	TEnemy = record
 		 x,y: byte;
+		 blit: byte;
 		 adx: byte;
 		 kind: byte;
+		 frm: byte;
+		 src: cardinal;
 		 end;
 
 	PTEnemy = ^TEnemy;
@@ -87,9 +92,9 @@ var
 
 	txt: TString;
 
-	enemy0, enemy1, enemy2, enemy3, enemy4, enemy5: TEnemy;
+	enemy0, enemy1, enemy2, enemy3, enemy4: TEnemy;
 
-	enemy: array [0..5] of PTEnemy;
+	enemy: array [0..4] of PTEnemy;
 
 
 (*-----------------------------------------------------------*)
@@ -398,11 +403,19 @@ var j, py: byte;
 
 	if (v = enemyrobot_code) or (v = enemyeel_code) then
 	 if enemy_cnt < length(enemy) then begin
+	   
 	   e:=enemy[enemy_cnt];
 
 	   e.x:=i shl 3 + 8;
 	   e.y:=j shl 3;
 	   e.adx:=1;
+	   
+	   if v = enemyeel_code then
+	    e.src := src4
+	   else
+	    e.src := src6;
+	   
+	   e.frm:=0;
 	   
 	   e.kind := v;
 
@@ -410,34 +423,32 @@ var j, py: byte;
 	 end;
 	 
 	
-	yes:=true;
+	yes:=false;
 	case v of
-	   5..6: yes:=false;	// robot
-	 28..29: yes:=false;
+	   5..6: yes:=true;	// robot
+	 28..29: yes:=true;
 	 
-	 19..20: yes:=false;	// enemyrobot
-	 41..42: yes:=false;
+	 19..20: yes:=true;	// enemyrobot
+	 41..42: yes:=true;
 
-	     13: yes:=false;	// enemyeel
+	     13: yes:=true;	// enemyeel
 	 
 	end;
 
+	if yes then v:=empty_tile;
 
-	if yes then begin
 
-	  scr[i] := v;
+	scr[i] := v;
 
-	  asm
+	asm
 	    fxs FX_MEMS #$81
-	  end;
-
- 	  x:=i*4;
-
-	  m[1+x]:=cmap1[v];
-	  m[2+x]:=cmap2[v];
-
 	end;
-	
+
+ 	x:=i*4;
+
+	m[1+x]:=cmap1[v];
+	m[2+x]:=cmap2[v];
+
 
 	inc(p);
      end;
@@ -464,7 +475,6 @@ begin
  enemy2.kind:=0;
  enemy3.kind:=0;
  enemy4.kind:=0;
- enemy5.kind:=0;
 
  atract:=0;		// disable attract mode
 
@@ -604,43 +614,46 @@ end;
 
 
 procedure testEnemy;
+var tc: byte;
+
 
   procedure update(var spr: TEnemy);
   var a, x,y: byte;
   begin
   
    if spr.kind <> 0 then begin
+
    
     if spr.x and 7 = 0 then begin
   
-    x:=(spr.x - 8) shr 3 + 4;
+    x:=byte(spr.x - 8) shr 3 + 4;
     y:=spr.y shr 3 + 1;
-    
+
     case spr.kind of
-    
+  
      enemyrobot_code:
 	     begin
-    
+
 		if spr.adx = 1 then 
 		  a := locate(x+2, y)
 		else
 		  a := locate(x-1, y);
 
 		if not(empty(a)) then begin spr.adx := -spr.adx; exit end;
-		  
+
 		if spr.adx = 1 then 
 		  a := locate(x+2, y+2)
 		else
 		  a := locate(x-1, y+2);
      
 		if empty(a) then spr.adx := -spr.adx;
-		
+
 	     end;
-      
-      
+
+
      enemyeel_code:
 	     begin
-    
+
 		if spr.adx = 1 then 
 		  a := locate(x+2, y)
 		else
@@ -649,30 +662,42 @@ procedure testEnemy;
 		if not(empty(a)) then spr.adx := -spr.adx; 
 
 	     end;
-            
+
     end;
-    
-    end;
-    
+
+    end;  // if spr.x and 7
+ 
+ 
     death_robot := hitBox(spr.x, spr.y);
     
     if death_robot then exit;
+
+ 
+    if tc = 0 then     
+      spr.frm := (spr.frm + spr.adx) and 7;
+
+    case spr.kind of
+     enemyrobot_code: SrcBlit(spr.blit, spr.src + spr.frm shl 4);
+       enemyeel_code: SrcBlit(spr.blit, spr.src + spr.frm);
+    end;
+
+
+    inc(spr.x, spr.adx);  
     
-    inc(spr.x, spr.adx);    
-    
-   end;	// if spr.kind 
+   end;	// if spr.kind
 
   end;
 
 
 begin
 
+  tc:=tick and 3;
+
   if not death_robot then update(enemy0);
   if not death_robot then update(enemy1);
   if not death_robot then update(enemy2);
   if not death_robot then update(enemy3);
   if not death_robot then update(enemy4);
-  if not death_robot then update(enemy5);
 
 end;
 
@@ -921,9 +946,18 @@ begin
 
  robot_x:=48+48;
  robot_y:=0*8;
+ 
+ enemy0.blit:=1;
+ enemy1.blit:=2;
+ enemy2.blit:=3;
+ enemy3.blit:=4;
+ enemy4.blit:=5;
 
  enemy[0]:=@enemy0;
  enemy[1]:=@enemy1;
+ enemy[2]:=@enemy2;
+ enemy[3]:=@enemy3;
+ enemy[4]:=@enemy4;
 
 (*-----------------------------------------------------------*)
 
@@ -938,7 +972,7 @@ begin
  clock:=0;
  
 
- //room:= 2+2 + 2;
+ room:= 2+2 + 0;
 
  newRoom;	// room = 0
 
@@ -948,8 +982,12 @@ begin
 // initialize sprites
 
  IniBlit(0, src0, dst0);	// blit0
+ 
  IniBlit(1, src4, dst0);	// blit1
  IniBlit(2, src4, dst0);	// blit2
+ IniBlit(3, src4, dst0);	// blit3
+ IniBlit(4, src4, dst0);	// blit4
+ IniBlit(5, src4, dst0);	// blit5
 
 (*-----------------------------------------------------------*)
 (*                       MAIN LOOP                           *)
@@ -965,7 +1003,10 @@ begin
  ClrBlit(0, blt_copy_0 + blt_next);		// mask = $00 ; copy = 0
 
  ClrBlit(1, blt_copy_0 + blt_next);
- ClrBlit(2, blt_copy_0 + blt_stop);
+ ClrBlit(2, blt_copy_0 + blt_next);
+ ClrBlit(3, blt_copy_0 + blt_next);
+ ClrBlit(4, blt_copy_0 + blt_next);
+ ClrBlit(5, blt_copy_0 + blt_stop);
 
 
  RunBCB(Blit0);
@@ -992,6 +1033,21 @@ begin
    DstBlit(2, dst0 + enemy1.y*320 + enemy1.x)
  else
    DstBlit(2, dst0 + 200*320);
+
+ if enemy2.kind <> 0 then
+   DstBlit(3, dst0 + enemy2.y*320 + enemy2.x)
+ else
+   DstBlit(3, dst0 + 200*320);
+
+ if enemy3.kind <> 0 then
+   DstBlit(4, dst0 + enemy3.y*320 + enemy3.x)
+ else
+   DstBlit(4, dst0 + 200*320);
+   
+ if enemy4.kind <> 0 then
+   DstBlit(5, dst0 + enemy4.y*320 + enemy4.x)
+ else
+   DstBlit(5, dst0 + 200*320);   
 
 
  RunBCB(blit0);
@@ -1028,7 +1084,7 @@ begin
 
 	  clrMagnet(0); clrMagnet(1);
 
-	  JoyScan;
+	  JoyScan(room);
 
 	  setMagnet(0); setMagnet(1);
 

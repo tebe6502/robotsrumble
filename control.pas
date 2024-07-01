@@ -21,7 +21,7 @@ var
 	joy, joyDelay, l_magnet, r_magnet: byte;
 
 
-	procedure JoyScan;
+	procedure JoyScan(r: byte);
 
 
 
@@ -68,7 +68,7 @@ end;
 (*-----------------------------------------------------------*)
 
 
-Procedure JoyScan;
+Procedure JoyScan(r: byte);
 var onKey: byte = $80;
     a: byte;
 
@@ -144,6 +144,7 @@ BEGIN
 	  
 	end else							{right magnet}
 
+	if r <> 0 then
 	  case a of
 	      joy_up: if allow(1, -1) then dec(r_magnet, 3);		{up}
 	    joy_down: if allow(1, 2) then inc(r_magnet, 3);		{down}
