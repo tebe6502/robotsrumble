@@ -85,12 +85,8 @@ procedure drawBox(B: TBox; c: byte);
 begin
 
  SetColor(c);
-
- MoveTo(B.x, B.y);
- LineTo(B.x + B.w, B.y);
- LineTo(B.x + B.w, B.y + B.h);
- LineTo(B.x, B.y + B.h);
- LineTo(B.x, B.y);
+ 
+ Rectangle(B.x, B.y, B.x + B.w, B.y + B.h)
 
 end;
 
@@ -98,14 +94,14 @@ end;
 begin
  InitGraph(15);
 
- b1.x:=85;	// moveable box
+ b1.x:=85;	// box1 -> fire ON + joy
  b1.y:=75;
- b1.w:=8;
+ b1.w:=11;
  b1.h:=16;
 
- b2.x:=50;	// static box
+ b2.x:=50;	// box2 -> fire OFF + joy
  b2.y:=54;
- b2.w:=33;
+ b2.w:=27;
  b2.h:=16;
 
  drawBox(b1, 1);

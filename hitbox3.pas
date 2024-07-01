@@ -38,12 +38,8 @@ procedure drawBox(B: TBox; c: byte);
 begin
 
  SetColor(c);
-
- MoveTo(B.x, B.y);
- LineTo(B.x + B.w, B.y);
- LineTo(B.x + B.w, B.y + B.h);
- LineTo(B.x, B.y + B.h);
- LineTo(B.x, B.y);
+ 
+ Rectangle(B.x, B.y, B.x + B.w, B.y + B.h)
 
 end;
 
