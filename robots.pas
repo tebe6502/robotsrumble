@@ -466,6 +466,8 @@ begin
  enemy4.kind:=0;
  enemy5.kind:=0;
 
+ atract:=0;		// disable attract mode
+
 
  doStatus;
 
@@ -934,9 +936,9 @@ begin
  level(lvl);
 
  clock:=0;
+ 
 
-
- room:= 2+2 + 2;
+ //room:= 2+2 + 2;
 
  newRoom;	// room = 0
 

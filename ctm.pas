@@ -17,7 +17,7 @@ var
 	cmap1, cmap2, id: array [0..74] of byte;
 
 //	panel_map: array of byte = [ {$bin2csv map\panel.bin} ];		// panel po prawej stronie ekranu
-
+										// dane wygenerowane przez 'panel_update.pas'
 	panel_map: array of byte = [
 	$2D,$2E,$2E,$2E,$2E,$2E,$2E,$2D,
 	$2F,$73,$73,$73,$73,$73,$73,$30,
@@ -113,7 +113,7 @@ var
 	$aa, $24, $aa, $24, $fd, $42, $42, $42,		// 40..47
 	$42, $42, $a8, $0e, $75, $38, $36, $38,		// 48..55
 	$36, $38, $36, $f4, $36, $82, $aa, $38,		// 56..63
-	$aa, $9a, $9c, $f2, $09, $82, $82, $82,		// 64..71
+	$aa, $9a, $9c, $09, $09, $82, $82, $82,		// 64..71
 	$aa, $26, $94
 	);
 
