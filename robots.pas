@@ -210,9 +210,25 @@ end;
 
 (*-----------------------------------------------------------*)
 
+procedure restoreBlit;
+begin
+
+ SrcBlit(0, src0);
+
+ enemy0.kind:=0;
+ enemy1.kind:=0;
+ enemy2.kind:=0;
+ enemy3.kind:=0;
+ enemy4.kind:=0;
+
+end;
+
+
 procedure wellDoneMessage;
 var i, j: byte;
 begin
+
+  restoreBlit;
 
   txt:=' ';
 
@@ -233,7 +249,8 @@ end;
 
 procedure endGameMessage;
 begin
-
+	restoreBlit;
+ 
 	if power = 0 then begin
 	  txt:='           ';
 	  doText(11,10);
@@ -387,7 +404,7 @@ var j, py: byte;
 	v:=p[0];
 
 	if v = left_magnet_code then l_magnet:=py;
-	if v = right_magnet_code then r_magnet:=py;
+	if (room > 0) and (v = right_magnet_code) then r_magnet:=py;
 
 	if room = 0 then
 	 if v = robot_code then begin
@@ -976,7 +993,7 @@ begin
  clock:=0;
 
 
- room:= 2+2 + 0;
+ //room:= 2+2 + 2;
 
  newRoom;	// room = 0
 
@@ -1060,6 +1077,19 @@ begin
 //-----------------------------------------------------------
 
 
+	if next_level then begin
+
+	   while anyKey do;
+
+	   inc(lvl); level(lvl);
+
+	   room:=0;
+	   power:=6;
+
+	   newRoom;
+
+	end else
+
 	if death_Robot then begin
 
 
@@ -1088,7 +1118,7 @@ begin
 
 	  clrMagnet(0); clrMagnet(1);
 
-	  JoyScan(room);
+	  JoyScan;
 
 	  setMagnet(0); setMagnet(1);
 
@@ -1098,27 +1128,13 @@ begin
 	  testEnemy;
 
 
+	  if next_level then wellDoneMessage;
+
 	  if death_robot then endGameMessage;
 
 	  if next_room then begin inc(room); newRoom end;
 
 	  colorRobot;
-
-
-	  if next_level then begin
-
-	   wellDoneMessage;
-
-	   while anyKey do;
-
-	   inc(lvl); level(lvl);
-
-	   room:=0;
-	   power:=6;
-
-	   newRoom;
-
-	  end;
 
 
 	  if battery_x > 0 then flashBattery;		// battery blinking
