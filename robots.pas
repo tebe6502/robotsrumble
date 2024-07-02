@@ -250,7 +250,7 @@ end;
 procedure endGameMessage;
 begin
 	restoreBlit;
- 
+
 	if power = 0 then begin
 	  txt:='           ';
 	  doText(11,10);
@@ -382,7 +382,7 @@ end;
 (*-----------------------------------------------------------*)
 
 procedure newRoom;
-var j, py: byte;
+var j, py, adx: byte;
     ofs: word;
     m: Pbyte ;
     p: PByte register;
@@ -425,7 +425,7 @@ var j, py: byte;
 
 	   e.x:=i shl 3 + 8;
 	   e.y:=j shl 3;
-	   e.adx:=1;
+	   e.adx := adx; adx := -adx;
 
 	   if v = enemyeel_code then
 	    e.src := src4
@@ -495,6 +495,7 @@ begin
 
  atract:=0;		// disable attract mode
 
+ adx:=1;		// adx default value
 
  doStatus;
 
@@ -993,7 +994,7 @@ begin
  clock:=0;
 
 
- //room:= 2+2 + 2;
+ room:= 2+2 + 2;
 
  newRoom;	// room = 0
 
