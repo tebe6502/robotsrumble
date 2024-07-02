@@ -46,14 +46,14 @@ const
 	right_magnet_code = 24;
 	robot_code = 5;
 	battery_code = 11;
-	
+
 	box_corner = 45;
 	box_top = 46;
 	box_left = 47;
 	box_right = 48;
 	box_bottom = 49;
-	
-	
+
+
 	enemyrobot_code = 19;
 	enemyeel_code = 13;
 
@@ -165,7 +165,7 @@ begin
    ord('0')..ord('9'): dec(v, 21);
    ord('A')..ord('Z'): dec(v, 64);
   end;
-  
+
   inc(v, panel_ofset);
 
   tile_panel(v, x, y);
@@ -195,7 +195,7 @@ begin
    if (i=4) and (j=13) then TextColor($26);	// battery
 
    if (i=0) or (i=7) or (j=0) or (j=23) then TextColor($42);
-   
+
    v:=panel_map[i+j*8];
 
    if v < box_corner then begin
@@ -403,36 +403,36 @@ var j, py: byte;
 
 	if (v = enemyrobot_code) or (v = enemyeel_code) then
 	 if enemy_cnt < length(enemy) then begin
-	   
+
 	   e:=enemy[enemy_cnt];
 
 	   e.x:=i shl 3 + 8;
 	   e.y:=j shl 3;
 	   e.adx:=1;
-	   
+
 	   if v = enemyeel_code then
 	    e.src := src4
 	   else
 	    e.src := src6;
-	   
+
 	   e.frm:=0;
-	   
+
 	   e.kind := v;
 
 	   inc(enemy_cnt);
 	 end;
-	 
-	
+
+
 	yes:=false;
 	case v of
 	   5..6: yes:=true;	// robot
 	 28..29: yes:=true;
-	 
+
 	 19..20: yes:=true;	// enemyrobot
 	 41..42: yes:=true;
 
 	     13: yes:=true;	// enemyeel
-	 
+
 	end;
 
 	if yes then v:=empty_tile;
@@ -620,32 +620,32 @@ var tc: byte;
   procedure update(var spr: TEnemy);
   var a, x,y: byte;
   begin
-  
+
    if spr.kind <> 0 then begin
 
-   
+
     if spr.x and 7 = 0 then begin
-  
+
     x:=byte(spr.x - 8) shr 3 + 4;
     y:=spr.y shr 3 + 1;
 
     case spr.kind of
-  
+
      enemyrobot_code:
 	     begin
 
-		if spr.adx = 1 then 
+		if spr.adx = 1 then
 		  a := locate(x+2, y)
 		else
 		  a := locate(x-1, y);
 
 		if not(empty(a)) then begin spr.adx := -spr.adx; exit end;
 
-		if spr.adx = 1 then 
+		if spr.adx = 1 then
 		  a := locate(x+2, y+2)
 		else
 		  a := locate(x-1, y+2);
-     
+
 		if empty(a) then spr.adx := -spr.adx;
 
 	     end;
@@ -654,36 +654,40 @@ var tc: byte;
      enemyeel_code:
 	     begin
 
-		if spr.adx = 1 then 
+		if spr.adx = 1 then
 		  a := locate(x+2, y)
 		else
 		  a := locate(x-1, y);
 
-		if not(empty(a)) then spr.adx := -spr.adx; 
+		if not(empty(a)) then spr.adx := -spr.adx;
 
 	     end;
 
     end;
 
     end;  // if spr.x and 7
- 
- 
+
+
     death_robot := hitBox(spr.x, spr.y);
-    
+
     if death_robot then exit;
 
- 
-    if tc = 0 then     
-      spr.frm := (spr.frm + spr.adx) and 7;
 
     case spr.kind of
-     enemyrobot_code: SrcBlit(spr.blit, spr.src + spr.frm shl 4);
-       enemyeel_code: SrcBlit(spr.blit, spr.src + spr.frm);
+     enemyrobot_code: begin
+			if tc = 0 then spr.frm := (spr.frm + spr.adx) and 3;
+			SrcBlit(spr.blit, spr.src + spr.frm shl 4);
+		      end;
+
+       enemyeel_code: begin
+			if tc = 0 then spr.frm := (spr.frm + spr.adx) and 7;
+                        SrcBlit(spr.blit, spr.src + spr.frm);
+		      end;
     end;
 
 
-    inc(spr.x, spr.adx);  
-    
+    inc(spr.x, spr.adx);
+
    end;	// if spr.kind
 
   end;
@@ -946,7 +950,7 @@ begin
 
  robot_x:=48+48;
  robot_y:=0*8;
- 
+
  enemy0.blit:=1;
  enemy1.blit:=2;
  enemy2.blit:=3;
@@ -970,7 +974,7 @@ begin
  level(lvl);
 
  clock:=0;
- 
+
 
  room:= 2+2 + 0;
 
@@ -982,7 +986,7 @@ begin
 // initialize sprites
 
  IniBlit(0, src0, dst0);	// blit0
- 
+
  IniBlit(1, src4, dst0);	// blit1
  IniBlit(2, src4, dst0);	// blit2
  IniBlit(3, src4, dst0);	// blit3
@@ -1043,11 +1047,11 @@ begin
    DstBlit(4, dst0 + enemy3.y*320 + enemy3.x)
  else
    DstBlit(4, dst0 + 200*320);
-   
+
  if enemy4.kind <> 0 then
    DstBlit(5, dst0 + enemy4.y*320 + enemy4.x)
  else
-   DstBlit(5, dst0 + 200*320);   
+   DstBlit(5, dst0 + 200*320);
 
 
  RunBCB(blit0);
