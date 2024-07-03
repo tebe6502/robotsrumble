@@ -988,13 +988,13 @@ begin
  doStatusPanel;
 
 
- lvl:=1;
+// lvl:=1;
  level(lvl);
 
  clock:=0;
 
 
- room:= 2+2 + 2;
+ //room:= 2+2 + 2;
 
  newRoom;	// room = 0
 
@@ -1083,8 +1083,11 @@ begin
 	   while anyKey do;
 
 	   inc(lvl); level(lvl);
+	   
+	   clock:=0;
 
 	   room:=0;
+	   lives:=3;
 	   power:=6;
 
 	   newRoom;
@@ -1107,6 +1110,8 @@ begin
 		  dec(lives);
 
 		  if lives = 0 then begin level(lvl); lives:=3 end;
+		  
+		  clock:=0;
 
 		  room:=0;
 		  power:=6;
@@ -1147,7 +1152,7 @@ begin
    inc(tick);
 
 
-   if lo(clock) = 3 then begin
+   if lo(clock) >= 3 then begin
 
      dec(power);
 
