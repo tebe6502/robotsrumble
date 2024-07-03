@@ -657,14 +657,18 @@ var tc: byte;
 		else
 		  a := locate(x-1, y);
 
-		if not(empty(a)) then begin spr.adx := -spr.adx; exit end;
+		if not(empty(a)) then 
+		  spr.adx := -spr.adx
+		else begin
 
-		if spr.adx = 1 then
-		  a := locate(x+2, y+2)
-		else
-		  a := locate(x-1, y+2);
+		  if spr.adx = 1 then
+		    a := locate(x+2, y+2)
+		  else
+		    a := locate(x-1, y+2);
 
-		if empty(a) then spr.adx := -spr.adx;
+		  if empty(a) then spr.adx := -spr.adx;
+		  
+		end;
 
 	     end;
 
@@ -677,7 +681,10 @@ var tc: byte;
 		else
 		  a := locate(x-1, y);
 
-		if not(empty(a)) then spr.adx := -spr.adx;
+		if not(empty(a)) then 
+		  spr.adx := -spr.adx
+		else 
+		  if (spr.x = 19*8) or (spr.x = 5*8) then spr.adx := -spr.adx;
 
 	     end;
 
