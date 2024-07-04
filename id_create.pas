@@ -13,6 +13,7 @@ var
 
 	i,j: byte;
 
+(*---------------------------------------------------*)
 
 procedure level1;		// level #1
 const
@@ -71,7 +72,77 @@ end;
 
 (*---------------------------------------------------*)
 
-procedure level2;		// level #1
+procedure level2;		// level #2
+const
+	empty_tile = 0;
+
+	empty1_tile = 50;	// 50..52
+
+	empty2_tile = 69;
+	empty3_tile = 70;
+	empty4_tile = 71;
+
+	empty5_tile = 65;
+	empty6_tile = 66;
+	empty7_tile = 73;
+
+	downbar_tile = 49;	// common
+	death_tile = 14;
+
+	lava_tile = 38;
+
+	battery_tile = 11;	// 11..12
+	battery2_tile = 34;	// 34..35
+
+	elevator_tile = 30;	// 30..31
+	elevator2_tile = 32;	// 32..33
+begin
+
+ id[empty_tile] := id_empty;
+
+ id[empty1_tile] := id_empty;
+ id[empty1_tile+1] := id_empty;
+ id[empty1_tile+2] := id_empty;
+
+ id[empty2_tile] := id_empty;
+ id[empty2_tile+1] := id_empty;
+ id[empty2_tile+2] := id_empty;
+ id[empty2_tile+3] := id_empty;
+ id[empty2_tile+4] := id_empty;
+
+ id[empty5_tile] := id_empty;
+ id[empty6_tile] := id_empty;
+ id[empty7_tile] := id_empty;
+
+ id[downbar_tile] := id_downbar;
+
+ id[death_tile] := id_death;
+
+ id[lava_tile] := id_lava;
+
+ id[elevator_tile] := id_elevator;
+ id[elevator_tile+1] := id_elevator;
+
+ id[elevator2_tile] := id_elevator;
+ id[elevator2_tile+1] := id_elevator;
+
+ id[battery_tile] := id_battery;
+ id[battery_tile+1] := id_battery;
+ id[battery2_tile] := id_battery;
+ id[battery2_tile+1] := id_battery;
+
+
+ for j:=0 to 9 do begin
+  for i:=0 to 7 do write(id[i+j*8],',');
+
+  writeln;
+ end;
+
+end;
+
+(*---------------------------------------------------*)
+
+procedure level3;		// level #3
 const
 	empty_tile = 0;
 
@@ -140,9 +211,12 @@ begin
 end;
 
 
+
 begin
 
- level2;
+// level1;
+// level2;
+ level3;
 
  repeat until keypressed;
 
