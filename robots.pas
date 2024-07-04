@@ -657,7 +657,7 @@ var tc: byte;
 		else
 		  a := locate(x-1, y);
 
-		if not(empty(a)) then 
+		if not(empty(a)) then
 		  spr.adx := -spr.adx
 		else begin
 
@@ -667,7 +667,7 @@ var tc: byte;
 		    a := locate(x-1, y+2);
 
 		  if empty(a) then spr.adx := -spr.adx;
-		  
+
 		end;
 
 	     end;
@@ -681,9 +681,9 @@ var tc: byte;
 		else
 		  a := locate(x-1, y);
 
-		if not(empty(a)) then 
+		if not(empty(a)) then
 		  spr.adx := -spr.adx
-		else 
+		else
 		  if (spr.x = 19*8) or (spr.x = 5*8) then spr.adx := -spr.adx;
 
 	     end;
@@ -995,7 +995,7 @@ begin
  doStatusPanel;
 
 
-// lvl:=1;
+ lvl:=2;
  level(lvl);
 
  clock:=0;
@@ -1090,7 +1090,7 @@ begin
 	   while anyKey do;
 
 	   inc(lvl); level(lvl);
-	   
+
 	   clock:=0;
 
 	   room:=0;
@@ -1117,7 +1117,7 @@ begin
 		  dec(lives);
 
 		  if lives = 0 then begin level(lvl); lives:=3 end;
-		  
+
 		  clock:=0;
 
 		  room:=0;
