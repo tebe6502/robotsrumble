@@ -2,7 +2,6 @@
 // dlaczego dla makra  $define nie mozna wstawic kodu asm
 // nie moze byc dostepu do tablicy 'enemy[] od record'  jako enemy.x itd.
 
-// od wiersza 108 myli sie liczenie linii, przez ASM
 
 (*
 
