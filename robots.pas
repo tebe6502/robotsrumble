@@ -555,7 +555,7 @@ end;
 function empty(a: byte): Boolean;
 begin
 
- Result := (a = id_empty) or (a = id_death) or (a = id_elevator);
+ Result := (a = id_empty) or (a = id_death) or (a = id_elevator) or (a = id_elevator2);
 
 end;
 
@@ -593,7 +593,7 @@ begin
 
    a:=locate(x, y+1);
 
-   if (a = id_elevator) then
+   if (a = id_elevator) or (a = id_elevator2) then
     SetPaletteEntry(1, 40,40,40)
    else
     SetPaletteEntry(1, 255,255,255);
@@ -779,24 +779,26 @@ begin
   a := locate(x, y_+1);
   b := locate(x+1, y_+1);
 
-  if (a = id_elevator) and (b = id_elevator) then begin elevator:=true; dec(robot_y, 2) end;
+  if a = b then
+   if (a = id_elevator) or (a = id_elevator2) then begin elevator:=true; dec(robot_y, 2) end;
 
 
   if elevator then begin
-  
+
    if (robot_y and 7 <> 0) then exit;
 
-//   exit;
-
    y:=robot_y shr 3;
-   
-   a:=locate(x, y+4);
-   b:=locate(x+1, y+4);
-   
-   if (a=0) and (b=0) then exit;
 
-   
-   
+   a:=locate(x, y+3);
+   b:=locate(x+1, y+3);
+
+   if (a = id_elevator2) and (b = id_elevator2) then exit;
+
+   a:=locate(x, y);
+   b:=locate(x+1, y);
+
+   if (a = id_elevator2) and (b = id_elevator2) then exit;
+
 
    a:=locate(x-1, y+1);
    b:=locate(x-1, y+2);
@@ -982,7 +984,7 @@ begin
  lives:=3;
  power:=6;
 
- robot_x:=48+48;
+ robot_x:=48+48;//+48;
  robot_y:=0*8;
 
  enemy0.blit:=1;
@@ -1010,7 +1012,7 @@ begin
  clock:=0;
 
 
- room:= 2+2 + 1;
+ room:= 2+2 + 0;
 
  newRoom;	// room = 0
 

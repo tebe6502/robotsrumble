@@ -5,3 +5,5 @@ const
 	id_lava = 4;
 	id_elevator = 5;
 	id_battery = 6;
+
+	id_elevator2 = 7;

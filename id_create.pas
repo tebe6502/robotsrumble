@@ -15,14 +15,14 @@ var
 
 (*---------------------------------------------------*)
 
-procedure level1;		// level #1
+procedure level0;		// level #1
 const
 	empty_tile = 0;
 
 	empty2_tile = 62;
 	empty3_tile = 51;
 	empty4_tile = 71;
-	
+
 //	empty5_tile = 60;
 //	empty6_tile = 61;
 
@@ -55,8 +55,8 @@ begin
  id[elevator_tile] := id_elevator;
  id[elevator_tile+1] := id_elevator;
 
- id[elevator2_tile] := id_elevator;
- id[elevator2_tile+1] := id_elevator;
+ id[elevator2_tile] := id_elevator2;
+ id[elevator2_tile+1] := id_elevator2;
 
  id[battery_tile] := id_battery;
  id[battery_tile+1] := id_battery;
@@ -74,7 +74,7 @@ end;
 
 (*---------------------------------------------------*)
 
-procedure level2;		// level #2
+procedure level1;		// level #2
 const
 	empty_tile = 0;
 
@@ -144,15 +144,15 @@ end;
 
 (*---------------------------------------------------*)
 
-procedure level3;		// level #3
+procedure level2;		// level #3
 const
 	empty_tile = 0;
 
 	empty1_tile = 50;	// 50..55
 
-	empty2_tile = 68;	
+	empty2_tile = 68;
 	empty3_tile = 71;
-	
+
 
 	downbar_tile = 49;	// common
 	death_tile = 14;
@@ -210,7 +210,7 @@ end;
 
 begin
 
- level1;
+ level0;
 
  repeat until keypressed;
 
