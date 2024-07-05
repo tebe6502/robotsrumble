@@ -785,7 +785,7 @@ begin
 
   if elevator then begin
 
-   if (robot_y and 7 <> 0) then exit;
+   if (robot_y and 15 <> 0) then exit;
 
    y:=robot_y shr 3;
 
@@ -800,6 +800,7 @@ begin
    if (a = id_elevator2) and (b = id_elevator2) then exit;
 
 
+{
    a:=locate(x-1, y+1);
    b:=locate(x-1, y+2);
 
@@ -811,7 +812,7 @@ begin
    right := (not empty(a)) or (not empty(b));
 
    if left or right then exit;				// empty tile on both side
-
+}
   end;
 
  end;
@@ -1006,13 +1007,13 @@ begin
  doStatusPanel;
 
 
- lvl:=0;
+ lvl:=1;
  level(lvl);
 
  clock:=0;
 
 
- room:= 2+2 + 0;
+// room:= 2+2 + 1;
 
  newRoom;	// room = 0
 
