@@ -783,10 +783,20 @@ begin
 
 
   if elevator then begin
-
+  
    if (robot_y and 7 <> 0) then exit;
 
+//   exit;
+
    y:=robot_y shr 3;
+   
+   a:=locate(x, y+4);
+   b:=locate(x+1, y+4);
+   
+   if (a=0) and (b=0) then exit;
+
+   
+   
 
    a:=locate(x-1, y+1);
    b:=locate(x-1, y+2);
@@ -994,13 +1004,13 @@ begin
  doStatusPanel;
 
 
- lvl:=2;
+ lvl:=0;
  level(lvl);
 
  clock:=0;
 
 
- //room:= 2+2 + 2;
+ room:= 2+2 + 1;
 
  newRoom;	// room = 0
 

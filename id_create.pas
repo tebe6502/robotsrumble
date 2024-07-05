@@ -22,8 +22,9 @@ const
 	empty2_tile = 62;
 	empty3_tile = 51;
 	empty4_tile = 71;
-	empty5_tile = 60;
-	empty6_tile = 61;
+	
+//	empty5_tile = 60;
+//	empty6_tile = 61;
 
 	downbar_tile = 49;	// common
 	death_tile = 14;
@@ -41,8 +42,9 @@ begin
  id[empty2_tile] := id_empty;
  id[empty3_tile] := id_empty;
  id[empty4_tile] := id_empty;
- id[empty5_tile] := id_empty;
- id[empty6_tile] := id_empty;
+
+// id[empty5_tile] := id_empty;
+// id[empty6_tile] := id_empty;
 
  id[downbar_tile] := id_downbar;
 
@@ -146,15 +148,11 @@ procedure level3;		// level #3
 const
 	empty_tile = 0;
 
-	empty1_tile = 50;	// 50..52
+	empty1_tile = 50;	// 50..55
 
-	empty2_tile = 69;
-	empty3_tile = 70;
-	empty4_tile = 71;
-
-	empty5_tile = 65;
-	empty6_tile = 66;
-	empty7_tile = 73;
+	empty2_tile = 68;	
+	empty3_tile = 71;
+	
 
 	downbar_tile = 49;	// common
 	death_tile = 14;
@@ -173,16 +171,14 @@ begin
  id[empty1_tile] := id_empty;
  id[empty1_tile+1] := id_empty;
  id[empty1_tile+2] := id_empty;
+ id[empty1_tile+3] := id_empty;
+ id[empty1_tile+4] := id_empty;
+ id[empty1_tile+5] := id_empty;
 
  id[empty2_tile] := id_empty;
- id[empty2_tile+1] := id_empty;
- id[empty2_tile+2] := id_empty;
- id[empty2_tile+3] := id_empty;
- id[empty2_tile+4] := id_empty;
 
- id[empty5_tile] := id_empty;
- id[empty6_tile] := id_empty;
- id[empty7_tile] := id_empty;
+ id[empty3_tile] := id_empty;
+
 
  id[downbar_tile] := id_downbar;
 
@@ -214,9 +210,7 @@ end;
 
 begin
 
-// level1;
-// level2;
- level3;
+ level1;
 
  repeat until keypressed;
 
