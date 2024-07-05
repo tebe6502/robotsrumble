@@ -2,6 +2,20 @@
 // dlaczego dla makra  $define nie mozna wstawic kodu asm
 // nie moze byc dostepu do tablicy 'enemy[] od record'  jako enemy.x itd.
 
+{
+; optimize OK (robots.pas), line = 426
+
+	lda J
+	sta :STACKORIGIN+9
+	lda #$00
+	asl :STACKORIGIN+9
+	rol @
+	asl :STACKORIGIN+9
+	asl :STACKORIGIN+9
+	ldy #E.Y-DATAORIGIN
+	lda :STACKORIGIN+9
+	sta (:bp2),y
+}
 
 (*
 
@@ -348,7 +362,7 @@ begin
 	  fxs FX_MEMS #$00
 	end;
 
-	x:=(robot_x-8) shr 3;
+	x:=byte(robot_x-8) shr 3;
 	y:=robot_y shr 3;
 
 	p:=pointer(dpeek(88) + x + mul_40[y] + 4 + 40);
@@ -772,7 +786,7 @@ begin
   if left and right then begin inc(robot_y, 4); exit end;						// falling down
 
 
-  y_:=(robot_y-2) shr 3;										// elevator, move up
+  y_:=byte(robot_y-2) shr 3;										// elevator, move up
 
   elevator:=false;
 
@@ -820,7 +834,7 @@ begin
 
 	if (robot_y and 7 <> 0) then exit;
 	
-	if elevator and (robot_y and 7 <> 0) then exit;
+	//if elevator and (robot_y and 7 <> 0) then exit;
 
 
 
@@ -830,8 +844,9 @@ begin
 
    x:=robot_x shr 3 + left_magnet_px - 2;
 
+   b:=locate(x-1, y+1);
    a:=locate(x-1, y+2);
-   left := empty(a);
+   left := empty(a) and empty(b);
 
    if a = id_battery then powerUP;
 
@@ -842,7 +857,7 @@ begin
   left:=true;
 
  if left then
-  if (l_magnet >= y) and (l_magnet <= y+2) then if robot_x > left_magnet_px*8 then begin SrcBlit(0, src1); dec(robot_x); end;
+  if (l_magnet >= y) and (l_magnet <= byte(y+2)) then if robot_x > left_magnet_px*8 then begin SrcBlit(0, src1); dec(robot_x); end;
 
 
 
@@ -852,8 +867,9 @@ begin
 
    x:=robot_x shr 3 + left_magnet_px - 2;
 
+   b:=locate(x+2, y+1);
    a:=locate(x+2, y+2);
-   right := empty(a);
+   right := empty(a) and empty(b);
 
    if a = id_battery then powerUP;
 
@@ -864,7 +880,7 @@ begin
   right:=true;
 
  if right then
-  if (r_magnet >= y) and (r_magnet <= y+2) then if robot_x < (right_magnet_px-6)*8 then begin SrcBlit(0, src2); inc(robot_x) end;
+  if (r_magnet >= y) and (r_magnet <= byte(y+2)) then if robot_x < (right_magnet_px-6)*8 then begin SrcBlit(0, src2); inc(robot_x) end;
 
 end;
 
@@ -1016,7 +1032,7 @@ begin
  clock:=0;
 
 
- room:= 2+2 + 1;
+ room:= 2+2 ;//+ 1;
 
  newRoom;	// room = 0
 

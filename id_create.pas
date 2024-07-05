@@ -9,9 +9,11 @@ uses crt;
 {$i id.inc}
 
 var
-	id: array [0..100] of byte;
+	id: array [0..79] of byte;
 
 	i,j: byte;
+	
+	f: file;
 
 (*---------------------------------------------------*)
 
@@ -63,13 +65,16 @@ begin
  id[battery2_tile] := id_battery;
  id[battery2_tile+1] := id_battery;
 
-
+ assign(f,'map/lvl01_id.bin'); rewrite(f, 1);
+ blockwrite(f, id, sizeof(id));
+ close(f);
+{
  for j:=0 to 9 do begin
   for i:=0 to 7 do write(id[i+j*8],',');
 
   writeln;
  end;
-
+}
 end;
 
 (*---------------------------------------------------*)
@@ -133,13 +138,16 @@ begin
  id[battery2_tile] := id_battery;
  id[battery2_tile+1] := id_battery;
 
-
+ assign(f,'map/lvl02_id.bin'); rewrite(f, 1);
+ blockwrite(f, id, sizeof(id));
+ close(f);
+{ 
  for j:=0 to 9 do begin
   for i:=0 to 7 do write(id[i+j*8],',');
 
   writeln;
  end;
-
+}
 end;
 
 (*---------------------------------------------------*)
@@ -197,13 +205,16 @@ begin
  id[battery2_tile] := id_battery;
  id[battery2_tile+1] := id_battery;
 
-
+ assign(f,'map/lvl03_id.bin'); rewrite(f, 1);
+ blockwrite(f, id, sizeof(id));
+ close(f);
+{
  for j:=0 to 9 do begin
   for i:=0 to 7 do write(id[i+j*8],',');
 
   writeln;
  end;
-
+}
 end;
 
 
@@ -211,6 +222,10 @@ end;
 begin
 
  level0;
+ level1;
+ level2;
+ 
+ writeln('Done.');
 
  repeat until keypressed;
 
