@@ -819,6 +819,9 @@ begin
 
 
 	if (robot_y and 7 <> 0) then exit;
+	
+	if elevator and (robot_y and 7 <> 0) then exit;
+
 
 
  if robot_x and 7 = 0 then begin
@@ -1007,13 +1010,13 @@ begin
  doStatusPanel;
 
 
- lvl:=1;
+ lvl:=0;
  level(lvl);
 
  clock:=0;
 
 
-// room:= 2+2 + 1;
+ room:= 2+2 + 1;
 
  newRoom;	// room = 0
 
