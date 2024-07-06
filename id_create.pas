@@ -134,8 +134,8 @@ begin
  id[elevator_tile] := id_elevator;
  id[elevator_tile+1] := id_elevator;
 
- id[elevator2_tile] := id_elevator;
- id[elevator2_tile+1] := id_elevator;
+ id[elevator2_tile] := id_elevator2;
+ id[elevator2_tile+1] := id_elevator2;
 
  id[battery_tile] := id_battery;
  id[battery_tile+1] := id_battery;
@@ -206,8 +206,8 @@ begin
  id[elevator_tile] := id_elevator;
  id[elevator_tile+1] := id_elevator;
 
- id[elevator2_tile] := id_elevator;
- id[elevator2_tile+1] := id_elevator;
+ id[elevator2_tile] := id_elevator2;
+ id[elevator2_tile+1] := id_elevator2;
 
  id[battery_tile] := id_battery;
  id[battery_tile+1] := id_battery;

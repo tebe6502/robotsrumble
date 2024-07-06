@@ -106,9 +106,9 @@ var
 
 	txt: TString;
 
-	enemy0, enemy1, enemy2, enemy3, enemy4, enemy5: TEnemy;
+	enemy0, enemy1, enemy2, enemy3, enemy4, enemy5, enemy6: TEnemy;
 
-	enemy: array [0..5] of PTEnemy;
+	enemy: array [0..6] of PTEnemy;
 
 
 (*-----------------------------------------------------------*)
@@ -235,9 +235,11 @@ begin
  enemy3.kind:=0;
  enemy4.kind:=0;
  enemy5.kind:=0;
+ enemy6.kind:=0;
 
 end;
 
+(*-----------------------------------------------------------*)
 
 procedure wellDoneMessage;
 var i, j: byte;
@@ -441,13 +443,13 @@ var j, py, adx: byte;
 	   e.x:=i shl 3 + 8;
 	   e.y:=j shl 3;
 
+
 	   case v of
-	      enemyeel_code: begin e.src := src4; e.adx := adx end;
-	    enemyrobot_code: begin e.src := src6; e.adx := adx end;
+	      enemyeel_code: begin e.src := src4; e.adx := adx; adx := -adx end;
+	    enemyrobot_code: begin e.src := src6; e.adx := adx; adx := -adx end;
 	          bomb_code: begin e.src := src9; e.adx:=0 end;
 	   end;
 
-	   adx := -adx;
 
 	   e.frm:=0;
 
@@ -512,6 +514,7 @@ begin
  enemy3.kind:=0;
  enemy4.kind:=0;
  enemy5.kind:=0;
+ enemy6.kind:=0;
 
  atract:=0;		// disable attract mode
 
@@ -576,7 +579,7 @@ end;
 function empty(a: byte): Boolean;
 begin
 
- Result := (a = id_empty) or (a = id_death) or (a = id_elevator) or (a = id_elevator2) or (a = id_brick_left) or (a = id_brick_right);
+ Result := (a = id_empty) or (a = id_death) or (a = id_elevator) or (a = id_elevator2) or (a = id_battery) or (a = id_brick_left) or (a = id_brick_right);
 
 end;
 
@@ -625,6 +628,7 @@ begin
   b:=locate(x+1, y+1);
 
   if empty(a) and empty(b) then begin
+
    tile(empty_tile, x, y);
    tile(empty_tile, x+1, y);
 
@@ -681,15 +685,16 @@ end;
 
 function hitBox(x,y: byte): Boolean;
 begin
-
+// !!! wymaga poprawki optymalizacji !!!
  Result:=true;
 
- if ( byte(robot_x - x + 15 - 1) >= byte(15 + 15 - 1) ) then exit(false);
+ if ( byte(robot_x+1 - x+1 + 14-1 ) >= byte(14 + 14 - 1) ) then exit(false);
 
- if ( byte(robot_y - y + 15 - 1) >= byte(15 + 15 - 1) ) then exit(false);
+ if ( byte(robot_y+1 - y+1 + 14-1 ) >= byte(14 + 14 - 1) ) then exit(false);
 
 end;
 
+(*-----------------------------------------------------------*)
 
 procedure testEnemy;
 var tc: byte;
@@ -717,8 +722,10 @@ var tc: byte;
 		  a := locate(x+2, y)
 		else
 		  a := locate(x-1, y);
-
-		if not(empty(a)) then
+		  
+		if not empty(a) then spr.adx := -spr.adx;  
+{
+		if not empty(a) then
 		  spr.adx := -spr.adx
 		else begin
 
@@ -730,7 +737,7 @@ var tc: byte;
 		  if empty(a) then spr.adx := -spr.adx;
 
 		end;
-
+}
 	     end;
 
 
@@ -742,7 +749,7 @@ var tc: byte;
 		else
 		  a := locate(x-1, y);
 
-		if not(empty(a)) then
+		if not empty(a) then
 		  spr.adx := -spr.adx
 		else
 		  if (spr.x = 19*8) or (spr.x = 5*8) then spr.adx := -spr.adx;
@@ -759,8 +766,13 @@ var tc: byte;
 		if empty(a) and empty(b) then begin
 		 inc(spr.y, 4);
 		 inc(spr.adx);		// bomb falling down
-		end else
+		end else begin
+
+		 if spr.adx > 0 then spr.kind := 0;//explode_code;
+
 		 spr.adx := 0;		// bomb stand
+		 
+		end; 
 
 	     end;
 
@@ -769,11 +781,11 @@ var tc: byte;
     end;  // if spr.x and 7
 
 
-    if spr.kind = bomb_code then begin
+    if spr.kind = bomb_code then begin		// move bomb
 
      if spr.adx = 0 then begin
 
-       yes := hitBox(spr.x+4, spr.y);
+       yes := hitBox(spr.x + 4, spr.y);
 
        if yes then
        if (robot_x < spr.x) then
@@ -826,12 +838,11 @@ begin
   if not death_robot then update(enemy3);
   if not death_robot then update(enemy4);
   if not death_robot then update(enemy5);
+  if not death_robot then update(enemy6);
 
 end;
 
 (*-----------------------------------------------------------*)
-
-
 
 procedure testRobot;
 var a, b, x, y, y_: byte;
@@ -894,7 +905,7 @@ begin
 
   if elevator then begin
 
-   if (robot_y and 15 <> 0) then exit;
+//   if (robot_y and 7 <> 0) then exit;
 
 //   y:=robot_y shr 3;
 
@@ -907,7 +918,6 @@ begin
    b:=locate(x+1, y);
 
    if (a = id_elevator2) and (b = id_elevator2) then exit;
-
 
 {
    a:=locate(x-1, y+1);
@@ -939,10 +949,14 @@ begin
    b:=locate(x-1, y+1);
    a:=locate(x-1, y+2);
    left := empty(a) and empty(b);
-
-   if a = id_battery then powerUP;
-
-   if left and magnet_field(l_magnet) and (a = id_brick_right) then move_brick(x-2,y+2, -1);
+   
+   if left and magnet_field(l_magnet) then begin
+  
+     if (a = id_battery) or (b = id_battery) then powerUP;
+     
+     if a = id_brick_right then move_brick(x-2, y+2, -1);
+     
+   end;  
 
    a:=locate(x, y+2);
    if a = id_death then death_Robot:=true;
@@ -951,13 +965,13 @@ begin
   left:=true;
 
  if left then
-  if magnet_field(l_magnet) then if robot_x > left_magnet_px*8 then begin SrcBlit(0, src1); dec(robot_x); end;
+  if magnet_field(l_magnet) then if robot_x > left_magnet_px*8 then begin SrcBlit(0, src1); dec(robot_x) end;
 
 
 
  if robot_x and 7 = 0 then begin
 
-   y:=robot_y shr 3;
+//   y:=robot_y shr 3;
 
    x:=robot_x shr 3 + left_magnet_px - 2;
 
@@ -965,9 +979,13 @@ begin
    a:=locate(x+2, y+2);
    right := empty(a) and empty(b);
 
-   if a = id_battery then powerUP;
+   if right and magnet_field(r_magnet) then begin
+     
+     if (a = id_battery) or (b = id_battery) then powerUP;
 
-   if right and magnet_field(r_magnet) and (a = id_brick_left) then move_brick(x+2,y+2, 1);
+     if a = id_brick_left then move_brick(x+2,y+2, 1);
+
+   end;
 
    a:=locate(x+1, y+2);
    if a = id_death then death_Robot:=true;
@@ -999,7 +1017,6 @@ begin
 	p[cmap_width]:=tick;
 
 	p[cmap_width + 4]:=tick;
-
 
 end;
 
@@ -1109,6 +1126,7 @@ begin
  enemy3.blit:=4;
  enemy4.blit:=5;
  enemy5.blit:=6;
+ enemy6.blit:=7;
 
  enemy[0]:=@enemy0;
  enemy[1]:=@enemy1;
@@ -1116,6 +1134,7 @@ begin
  enemy[3]:=@enemy3;
  enemy[4]:=@enemy4;
  enemy[5]:=@enemy5;
+ enemy[6]:=@enemy6;
 
 (*-----------------------------------------------------------*)
 
@@ -1130,7 +1149,7 @@ begin
  clock:=0;
 
 
- room:= 2+2 ;//+ 1;
+ room:= 2+2 + 1;
 
  newRoom;	// room = 0
 
@@ -1146,6 +1165,7 @@ begin
  IniBlit(3, src4, dst0);	// blit3
  IniBlit(4, src4, dst0);	// blit4
  IniBlit(5, src4, dst0);	// blit5
+ IniBlit(6, src4, dst0);	// blit6
 
 (*-----------------------------------------------------------*)
 (*                       MAIN LOOP                           *)
@@ -1164,7 +1184,8 @@ begin
  ClrBlit(2, blt_copy_0 + blt_next);
  ClrBlit(3, blt_copy_0 + blt_next);
  ClrBlit(4, blt_copy_0 + blt_next);
- ClrBlit(5, blt_copy_0 + blt_stop);
+ ClrBlit(5, blt_copy_0 + blt_next);
+ ClrBlit(6, blt_copy_0 + blt_stop);
 
 
  RunBCB(Blit0);
@@ -1211,6 +1232,11 @@ begin
    DstBlit(6, dst0 + enemy5.y*320 + enemy5.x)
  else
    DstBlit(6, dst0 + 200*320);
+
+ if enemy6.kind <> 0 then
+   DstBlit(7, dst0 + enemy6.y*320 + enemy6.x)
+ else
+   DstBlit(7, dst0 + 200*320);
 
 
  RunBCB(blit0);
