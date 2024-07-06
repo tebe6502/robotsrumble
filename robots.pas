@@ -685,7 +685,7 @@ end;
 
 function hitBox(x,y: byte): Boolean;
 begin
-// !!! wymaga poprawki optymalizacji !!!
+// !!! optymalizacja MP wymaga poprawki  !!!
  Result:=true;
 
  if ( byte(robot_x+1 - x+1 + 14-1 ) >= byte(14 + 14 - 1) ) then exit(false);
@@ -714,7 +714,7 @@ var tc: byte;
     y:=spr.y shr 3 + 1;
 
     case spr.kind of
-
+(*
      enemyrobot_code:
 	     begin
 
@@ -739,9 +739,9 @@ var tc: byte;
 		end;
 }
 	     end;
+*)
 
-
-     enemyeel_code:
+     enemyrobot_code, enemyeel_code:
 	     begin
 
 		if spr.adx = 1 then
@@ -788,10 +788,10 @@ var tc: byte;
        yes := hitBox(spr.x + 4, spr.y);
 
        if yes then
-       if (robot_x < spr.x) then
-         inc(spr.x)
-        else
- ;//      dec(spr.x);
+        if (robot_x < spr.x) then
+           inc(spr.x)
+         else
+           dec(spr.x);
 
      end;
 
@@ -845,8 +845,9 @@ end;
 (*-----------------------------------------------------------*)
 
 procedure testRobot;
-var a, b, x, y, y_: byte;
+var a, b, x, y, y_, v: byte;
     left, right: Boolean;
+    p: PByte;
 
 
   function magnet_field(yp: byte): Boolean;
