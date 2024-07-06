@@ -7,3 +7,6 @@ const
 	id_battery = 6;
 
 	id_elevator2 = 7;
+
+	id_brick_left = 8;
+	id_brick_right = 9;

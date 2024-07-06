@@ -28,7 +28,8 @@ const
 	src6 = bmp + 16*6;
 	src7 = bmp + 16*7;
 	src8 = bmp + 16*8;
-	src9 = bmp + 16*9;
+	
+	src9 = bmp + 16*12;
 
 	dst0 = VBXE_OVRADR+8*320+24;
 	
