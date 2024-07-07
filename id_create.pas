@@ -161,6 +161,8 @@ const
 	empty_tile = 0;
 
 	empty1_tile = 50;	// 50..55
+	
+	empty2_tile = 62;
 
 	empty3_tile = 71;
 
@@ -188,6 +190,8 @@ begin
  id[empty1_tile+3] := id_empty;
  id[empty1_tile+4] := id_empty;
  id[empty1_tile+5] := id_empty;
+
+ id[empty2_tile] := id_empty;
 
  id[empty3_tile] := id_empty;
 

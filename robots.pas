@@ -445,7 +445,17 @@ var j, py, adx: byte;
 
 
 	   case v of
-	      enemyeel_code: begin e.src := src4; e.adx := adx; adx := -adx end;
+	      enemyeel_code: begin 
+				e.src := src4; 
+				e.adx := adx; 
+				
+				if (lvl = 2) and (j > 12) then 
+				 adx := 0
+				else
+				 adx := -adx;
+				
+			     end;
+	      
 	    enemyrobot_code: begin e.src := src6; e.adx := adx; adx := -adx end;
 	          bomb_code: begin e.src := src9; e.adx:=0 end;
 	   end;
@@ -495,6 +505,8 @@ var j, py, adx: byte;
 
 
 begin
+
+ pause;
 
  SetPaletteEntry(1, 255,255,255);
 
@@ -685,11 +697,10 @@ end;
 
 function hitBox(x,y: byte): Boolean;
 begin
-// !!! optymalizacja MP wymaga poprawki  !!!
+
  Result:=true;
 
  if ( byte(robot_x+1 - x+1 + 14-1 ) >= byte(14 + 14 - 1) ) then exit(false);
-
  if ( byte(robot_y+1 - y+1 + 14-1 ) >= byte(14 + 14 - 1) ) then exit(false);
 
 end;
@@ -706,8 +717,8 @@ var i: byte;
 
     Result:=true; 
 
-    if ( byte(e.x+1 - x + 16-1 ) >= byte(16 + 16 - 1) ) then exit(false);
-    if ( byte(e.y+1 - y + 16-1 ) >= byte(16 + 16 - 1) ) then exit(false);
+    if ( byte(e.x+1 - x+1 + 14-1 ) >= byte(14 + 14 - 1) ) then exit(false);
+    if ( byte(e.y+1 - y+1 + 14-1 ) >= byte(14 + 14 - 1) ) then exit(false);
 
   end;
 
@@ -826,11 +837,11 @@ var tc: byte;
     end;  // if spr.x and 7
 
 
-    if spr.kind = bomb_code then begin		// robot moves bomb
+    if spr.kind = bomb_code then begin		// bomb shift ->
 
      if spr.adx = 0 then begin
 
-       yes := hitBox(spr.x + 4, spr.y);
+       yes := hitBox(spr.x + 2, spr.y);		// +4 robot przylega do bomby ; +2 -> 4px odstep od bomby
 
        if yes then
         if (robot_x < spr.x) then
@@ -986,9 +997,7 @@ begin
 	if (robot_y and 7 <> 0) then exit;
 
 
- if robot_x and 7 = 0 then begin			// test move left
-
-//   y:=robot_y shr 3;
+ if robot_x and 7 = 0 then begin			// robot move left
 
    x:=robot_x shr 3 + left_magnet_px - 2;
 
@@ -1010,14 +1019,12 @@ begin
  end else
   left:=true;
 
- if left then
-  if magnet_field(l_magnet) then if robot_x > left_magnet_px*8 then begin SrcBlit(0, src1); dec(robot_x) end;
+// if left then
+//  if magnet_field(l_magnet) then if robot_x > left_magnet_px*8 then begin SrcBlit(0, src1); dec(robot_x) end;
 
 
 
- if robot_x and 7 = 0 then begin			// test move right
-
-//   y:=robot_y shr 3;
+ if robot_x and 7 = 0 then begin			// robot move right
 
    x:=robot_x shr 3 + left_magnet_px - 2;
 
@@ -1039,8 +1046,26 @@ begin
  end else
   right:=true;
 
+// if right then
+//  if magnet_field(r_magnet) then if robot_x < (right_magnet_px-6)*8 then begin SrcBlit(0, src2); inc(robot_x) end;
+
+
+ v:=0; 
+
+ if left then
+  if magnet_field(l_magnet) then if robot_x > left_magnet_px*8 then dec(v);
+
  if right then
-  if magnet_field(r_magnet) then if robot_x < (right_magnet_px-6)*8 then begin SrcBlit(0, src2); inc(robot_x) end;
+  if magnet_field(r_magnet) then if robot_x < (right_magnet_px-6)*8 then inc(v);
+
+
+ case v of
+    0: SrcBlit(0, src0);	// 0
+    1: SrcBlit(0, src2);	// +1
+  255: SrcBlit(0, src1);	// -1
+ end;
+
+ inc(robot_x, v);
 
 end;
 
@@ -1195,7 +1220,7 @@ begin
  clock:=0;
 
 
- room:= 2+2 + 1;
+// room:= 2;//+2 + 1;
 
  newRoom;	// room = 0
 
