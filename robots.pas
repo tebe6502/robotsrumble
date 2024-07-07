@@ -696,12 +696,46 @@ end;
 
 (*-----------------------------------------------------------*)
 
+function testBomb(x,y: byte): shortint;
+var i: byte;
+    e: PTEnemy;
+
+
+  function hitEnemy: Boolean;
+  begin
+
+    Result:=true; 
+
+    if ( byte(e.x+1 - x + 16-1 ) >= byte(16 + 16 - 1) ) then exit(false);
+    if ( byte(e.y+1 - y + 16-1 ) >= byte(16 + 16 - 1) ) then exit(false);
+
+  end;
+
+
+begin
+
+ Result:=-1;
+
+ for i:=High(enemy) downto 0 do begin
+ 
+  e:=enemy[i]; 
+
+  if (e.kind <> 0) and (e.kind <> bomb_code) then 
+    if hitEnemy then exit(i);
+
+ end;
+
+end;
+
+(*-----------------------------------------------------------*)
+
 procedure testEnemy;
 var tc: byte;
 
 
   procedure update(var spr: TEnemy);
   var a,b, x,y: byte;
+      h: shortint;
       yes: Boolean;
   begin
 
@@ -766,6 +800,17 @@ var tc: byte;
 		if empty(a) and empty(b) then begin
 		 inc(spr.y, 4);
 		 inc(spr.adx);		// bomb falling down
+		 
+		 if spr.y and 7 = 0 then begin
+
+		   h := testBomb(spr.x, spr.y);
+
+		   if h >=0 then begin	// bomb hit enemy
+		     spr.kind:=0; enemy[h].kind:=0;
+		   end;
+		   
+		 end;
+
 		end else begin
 
 		 if spr.adx > 0 then spr.kind := 0;//explode_code;
@@ -781,7 +826,7 @@ var tc: byte;
     end;  // if spr.x and 7
 
 
-    if spr.kind = bomb_code then begin		// move bomb
+    if spr.kind = bomb_code then begin		// robot moves bomb
 
      if spr.adx = 0 then begin
 
@@ -941,7 +986,7 @@ begin
 	if (robot_y and 7 <> 0) then exit;
 
 
- if robot_x and 7 = 0 then begin
+ if robot_x and 7 = 0 then begin			// test move left
 
 //   y:=robot_y shr 3;
 
@@ -970,7 +1015,7 @@ begin
 
 
 
- if robot_x and 7 = 0 then begin
+ if robot_x and 7 = 0 then begin			// test move right
 
 //   y:=robot_y shr 3;
 
