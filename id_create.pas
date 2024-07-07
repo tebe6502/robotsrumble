@@ -227,6 +227,78 @@ begin
 }
 end;
 
+(*---------------------------------------------------*)
+
+procedure level3;		// level #4
+const
+	empty_tile = 0;
+
+	empty1_tile = 50;	// 50..55
+	
+	empty2_tile = 62;
+
+	empty3_tile = 71;
+
+	brick_tile = 9;		// 9..10
+
+	downbar_tile = 49;	// common
+	death_tile = 14;
+
+	lava_tile = 38;
+
+	battery_tile = 11;	// 11..12
+	battery2_tile = 34;	// 34..35
+
+	elevator_tile = 30;	// 30..31
+	elevator2_tile = 32;	// 32..33
+begin
+
+ fillbyte(id, sizeof(id), 0);
+
+ id[empty_tile] := id_empty;
+
+ id[empty1_tile] := id_empty;
+ id[empty1_tile+1] := id_empty;
+ id[empty1_tile+2] := id_empty;
+ id[empty1_tile+3] := id_empty;
+ id[empty1_tile+4] := id_empty;
+ id[empty1_tile+5] := id_empty;
+
+ id[empty2_tile] := id_empty;
+
+ id[empty3_tile] := id_empty;
+
+ id[brick_tile]	:= id_brick_left;
+ id[brick_tile+1] := id_brick_right;
+
+ id[downbar_tile] := id_downbar;
+
+ id[death_tile] := id_death;
+
+ id[lava_tile] := id_lava;
+
+ id[elevator_tile] := id_elevator;
+ id[elevator_tile+1] := id_elevator;
+
+ id[elevator2_tile] := id_elevator2;
+ id[elevator2_tile+1] := id_elevator2;
+
+ id[battery_tile] := id_battery;
+ id[battery_tile+1] := id_battery;
+ id[battery2_tile] := id_battery;
+ id[battery2_tile+1] := id_battery;
+
+ assign(f,'map/lvl04_id.bin'); rewrite(f, 1);
+ blockwrite(f, id, sizeof(id));
+ close(f);
+{
+ for j:=0 to 9 do begin
+  for i:=0 to 7 do write(id[i+j*8],',');
+
+  writeln;
+ end;
+}
+end;
 
 
 begin
@@ -234,6 +306,7 @@ begin
  level0;
  level1;
  level2;
+ level3;
 
  writeln('Done.');
 

@@ -1214,7 +1214,7 @@ begin
  doStatusPanel;
 
 
- lvl:=2;
+ lvl:=3;
  level(lvl);
 
  clock:=0;
