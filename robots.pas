@@ -43,7 +43,7 @@ type
 	TPos = record
 		x,y: byte;
 	       end;
-	       
+
 	TEnemy = record
 		 x,y: byte;
 		 blit: byte;
@@ -71,8 +71,9 @@ const
 	box_right = 48;
 	box_bottom = 49;
 
-	teleport_in_code = 15;
-	teleport_out_code = 70;
+	teleport_in_code = 70;
+	teleport_out_code = 15;
+
 	enemyrobot_code = 19;
 	enemyeel_code = 13;
 	bomb_code = 21;
@@ -99,7 +100,7 @@ const
 var
 	vram: TVBXEMemoryStream;
 
-	robot, battery, teleport_in, teleport_out: TPos;
+	robot, battery, teleport_out: TPos;
 
 	room, lvl, lives, power, enemy_cnt: byte;
 
@@ -444,17 +445,11 @@ var j, py, adx: byte;
 		  battery.y := j+1;
 		end;
 
-	  teleport_in_code:
-		begin
-		  teleport_in.x := i+4;
-		  teleport_in.y := j+1;
-		end;	
-
 	  teleport_out_code:
 		begin
-		  teleport_out.x := i+4;
-		  teleport_out.y := j+1;
-		end;			
+		  teleport_out.x := i shl 3 + 8;
+		  teleport_out.y := j shl 3 - 8;
+		end;
 	end;
 
 
@@ -617,8 +612,26 @@ end;
 
 function empty(a: byte): Boolean;
 begin
+{
+ Result := (a = id_empty) or
+	   (a = id_death) or
+	   (a = id_elevator) or
+	   (a = id_elevator2) or
+	   (a = id_battery) or
+	   (a = id_brick_left) or
+	   (a = id_brick_right) or
+	   (a = id_teleport_in) or
+	   (a = id_teleport_out);
+}
 
- Result := (a = id_empty) or (a = id_death) or (a = id_elevator) or (a = id_elevator2) or (a = id_battery) or (a = id_brick_left) or (a = id_brick_right);
+ case a of
+  id_empty,
+  id_death,
+  id_elevator..id_teleport_out: Result := true;
+ else
+  Result := false
+ end;
+
 
 end;
 
@@ -809,7 +822,7 @@ var tc: byte;
 		  b := locate(x-1, y+1);
 		end;
 
-		if (empty(a) = false) or (empty(b) = false) then 
+		if (empty(a) = false) or (empty(b) = false) then
 		  spr.adx := -spr.adx
 		else
 		  if (spr.x = 19*8) or (spr.x = 5*8) then spr.adx := -spr.adx;
@@ -932,7 +945,7 @@ end;
 (*-----------------------------------------------------------*)
 
 procedure testRobot;
-var a, b, x, y, y_, v: byte;
+var a,b,c, x, y, y_, v: byte;
     left, right: Boolean;
     p: PByte;
 
@@ -954,15 +967,19 @@ begin
 
   x:=robot.x shr 3 + left_magnet_px - 2;
 
-  a:=locate(x, y+1);
-  b:=locate(x+1, y+1);
+
+
+  a:=locate(x, y+2);
+  b:=locate(x+1, y+2);
 
   if (a=b) and (a = id_teleport_in) then begin
-    halt;
+   SrcBlit(0, src0);
    robot.x := teleport_out.x;
-   robot.y := teleport_out.y;   
-  end;  
-  
+   robot.y := teleport_out.y;
+
+   exit;
+  end;
+
 
 
 
@@ -970,9 +987,9 @@ begin
   b := locate(x+1, y+3);
 
 
-  if (a = b) and (a = id_floor) then begin 
+  if (a = b) and (a = id_floor) then begin
    floor_fall(x,y+3);
-   
+
    a:=id_empty;
    b:=id_empty;
   end;
@@ -1007,7 +1024,7 @@ begin
   a := locate(x, y_+1);
   b := locate(x+1, y_+1);
 
-  if a = b then 
+  if a = b then
    if (a = id_elevator) or (a = id_elevator2) then begin elevator:=true; dec(robot.y, 2) end;
 
 
@@ -1040,7 +1057,7 @@ begin
 
    if left or right then exit;				// empty tile on both side
 }
-  end;  
+  end;
 
  end;
 
@@ -1086,7 +1103,7 @@ begin
    if right and magnet_field(r_magnet) then begin
 
      if (a = id_battery) or (b = id_battery) then powerUP;
-     
+
      if a = id_brick_left then move_brick(x+2,y+2, 1);
 
    end;
@@ -1239,7 +1256,7 @@ begin
  lives:=3;
  power:=6;
 
- robot.x:=48+48 - 8;//+48;
+ robot.x:=48+48-24;//+48;
  robot.y:=0*8;
 
  enemy0.blit:=1;
@@ -1271,7 +1288,7 @@ begin
  clock:=0;
 
 
- room:= 4;//+2 + 1;
+ room:= 6;//+2 + 1;
 
  newRoom;	// room = 0
 
