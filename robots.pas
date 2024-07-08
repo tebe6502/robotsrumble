@@ -76,6 +76,7 @@ const
 
 	enemyrobot_code = 19;
 	enemyeel_code = 13;
+	enemyfire_code = 17;
 	bomb_code = 21;
 
 	lmag_tile_code = 1;		// 1,2,3,4
@@ -100,7 +101,7 @@ const
 var
 	vram: TVBXEMemoryStream;
 
-	robot, battery, teleport_out: TPos;
+	robot, battery, teleport: TPos;
 
 	room, lvl, lives, power, enemy_cnt: byte;
 
@@ -235,7 +236,7 @@ end;
 procedure restoreBlit;
 begin
 
- SrcBlit(0, src0);
+ SrcBlit(0, src_robot);
 
  enemy0.kind:=0;
  enemy1.kind:=0;
@@ -447,25 +448,25 @@ var j, py, adx: byte;
 
 	  teleport_out_code:
 		begin
-		  teleport_out.x := i shl 3 + 8;
-		  teleport_out.y := j shl 3 - 8;
+		  teleport.x := i shl 3 + 8;
+		  teleport.y := j shl 3 - 8;
 		end;
 	end;
 
 
 
-	if (v = enemyrobot_code) or (v = enemyeel_code) or (v = bomb_code) then
+	if (v = enemyrobot_code) or (v = enemyeel_code) or (v = enemyfire_code) or (v = bomb_code) then
 	 if enemy_cnt < length(enemy) then begin
 
 	   e:=enemy[enemy_cnt];
 
-	   e.x:=i shl 3 + 8;
-	   e.y:=j shl 3;
+	   e.x := i shl 3 + 8;
+	   e.y := j shl 3;
 
 
 	   case v of
 	      enemyeel_code: begin
-				e.src := src4;
+				e.src := src_enemyeel;
 				e.adx := adx;
 
 				if (lvl = 2) and (j > 12) then
@@ -475,8 +476,11 @@ var j, py, adx: byte;
 
 			     end;
 
-	    enemyrobot_code: begin e.src := src6; e.adx := adx; adx := -adx end;
-	          bomb_code: begin e.src := src9; e.adx:=0 end;
+	     enemyfire_code: begin e.src := src_enemyfire; e.adx := adx end;
+
+	    enemyrobot_code: begin e.src := src_enemyrobot; e.adx := adx; adx := -adx end;
+	    
+	          bomb_code: begin e.src := src_bomb; e.adx:=0 end;
 	   end;
 
 
@@ -499,6 +503,9 @@ var j, py, adx: byte;
 	 21..22: yes:=true;	// bomb
 	 43..44: yes:=true;
 
+	 17..18: yes:=true;	// enemyfire
+	 39..40: yes:=true;
+	 
 //	 70..71: yes:=true;	// teleport_in_code
 //	 15..16: yes:=true;	// teleport_out_code
 
@@ -529,6 +536,10 @@ var j, py, adx: byte;
 begin
 
  pause;
+
+ vram.position:=VBXE_OVRADR;	// CLEAR VBXE MEM
+ vram.size:=320*256;		// VBXE_OVRADR .. VBXE_OVRADR + 320*256
+ vram.clear;
 
  SetPaletteEntry(1, 255,255,255);
 
@@ -811,7 +822,7 @@ var tc: byte;
 
     case spr.kind of
 
-     enemyrobot_code:
+     enemyrobot_code, enemyfire_code:
 	     begin
 
 		if spr.adx = 1 then begin
@@ -917,6 +928,13 @@ var tc: byte;
 			inc(spr.x, spr.adx);
 		      end;
 
+      enemyfire_code: begin
+			if tc = 0 then spr.frm := (spr.frm + rnd) and 1;
+                        SrcBlit(spr.blit, spr.src + spr.frm shl 4);
+
+			inc(spr.x, spr.adx);
+		      end;
+
            bomb_code: begin
 			if tc = 0 then spr.frm := (spr.frm + 1) and 1;
                         SrcBlit(spr.blit, spr.src + spr.frm shl 4);
@@ -958,7 +976,7 @@ var a,b,c, x, y, y_, v: byte;
 
 begin
 
- SrcBlit(0, src0);
+ SrcBlit(0, src_robot);
 
  y:=robot.y shr 3;
 
@@ -973,9 +991,9 @@ begin
   b:=locate(x+1, y+2);
 
   if (a=b) and (a = id_teleport_in) then begin
-   SrcBlit(0, src0);
-   robot.x := teleport_out.x;
-   robot.y := teleport_out.y;
+   SrcBlit(0, src_robot);
+   robot.x := teleport.x;
+   robot.y := teleport.y;
 
    exit;
   end;
@@ -1032,31 +1050,22 @@ begin
 
 //   if (robot.y and 7 <> 0) then exit;
 
-//   y:=robot.y shr 3;
-
    a:=locate(x, y+3);
    b:=locate(x+1, y+3);
 
    if (a = id_elevator2) and (b = id_elevator2) then exit;
+
+   a:=locate(x, y+4);
+   b:=locate(x+1, y+4);
+
+   if (a = id_elevator2) and (b = id_elevator2) then exit;
+
 
    a:=locate(x, y);
    b:=locate(x+1, y);
 
    if (a = id_elevator2) and (b = id_elevator2) then exit;
 
-{
-   a:=locate(x-1, y+1);
-   b:=locate(x-1, y+2);
-
-   left := (not empty(a)) or (not empty(b));
-
-   a:=locate(x+2, y+1);
-   b:=locate(x+2, y+2);
-
-   right := (not empty(a)) or (not empty(b));
-
-   if left or right then exit;				// empty tile on both side
-}
   end;
 
  end;
@@ -1128,9 +1137,9 @@ begin
 
 
  case v of
-    0: SrcBlit(0, src0);	// 0
-    1: SrcBlit(0, src2);	// +1
-  255: SrcBlit(0, src1);	// -1
+    0: SrcBlit(0, src_robot);		// 0
+    1: SrcBlit(0, src_robot_right);	// +1
+  255: SrcBlit(0, src_robot_left);	// -1
  end;
 
  inc(robot.x, v);
@@ -1297,14 +1306,14 @@ begin
 
 // initialize sprites
 
- IniBlit(0, src0, dst0);	// blit0
+ IniBlit(0, src_robot, dst0);	// blit0
 
- IniBlit(1, src4, dst0);	// blit1
- IniBlit(2, src4, dst0);	// blit2
- IniBlit(3, src4, dst0);	// blit3
- IniBlit(4, src4, dst0);	// blit4
- IniBlit(5, src4, dst0);	// blit5
- IniBlit(6, src4, dst0);	// blit6
+ IniBlit(1, src_empty, dst0);	// blit1
+ IniBlit(2, src_empty, dst0);	// blit2
+ IniBlit(3, src_empty, dst0);	// blit3
+ IniBlit(4, src_empty, dst0);	// blit4
+ IniBlit(5, src_empty, dst0);	// blit5
+ IniBlit(6, src_empty, dst0);	// blit6
 
 (*-----------------------------------------------------------*)
 (*                       MAIN LOOP                           *)

@@ -19,30 +19,18 @@ const
 	blt_next	= %1000;
 	blt_stop	= %0000;
 
-	src0 = bmp + 0;
-	src1 = bmp + 16;
-	src2 = bmp + 16*2;
-	src3 = bmp + 16*3;
-	src4 = bmp + 16*4;
-	src5 = bmp + 16*5;
-	src6 = bmp + 16*6;
-	src7 = bmp + 16*7;
-	src8 = bmp + 16*8;
-	
-	src9 = bmp + 16*12;
+	src_robot = bmp + 0;
+	src_robot_right = bmp + 16*2;
+	src_robot_left = bmp + 16;
+
+	src_empty = bmp + 16*3;
+
+	src_enemyeel = bmp + 16*4;
+	src_enemyrobot = bmp + 16*6;	
+	src_enemyfire = bmp + 16*10;
+	src_bomb = bmp + 16*12;
 
 	dst0 = VBXE_OVRADR+8*320+24;
-	
-	
-	dst1 = VBXE_OVRADR+16*2*320+24;
-	dst2 = VBXE_OVRADR+16*3*320+24;
-	dst3 = VBXE_OVRADR+16*4*320+24;
-	dst4 = VBXE_OVRADR+16*5*320+24;
-	dst5 = VBXE_OVRADR+16*6*320+24;
-	dst6 = VBXE_OVRADR+16*7*320+24;
-	dst7 = VBXE_OVRADR+16*8*320+24;
-	dst8 = VBXE_OVRADR+16*9*320+24;
-	dst9 = VBXE_OVRADR+16*10*320+24;
 
 var
 	blit0: TBCB absolute VBXE_BCBADR+VBXE_WINDOW;		// blity kolejno jeden za drugim

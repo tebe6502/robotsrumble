@@ -234,7 +234,7 @@ const
 	empty_tile = 0;
 
 	empty1_tile = 60;	// 60..61
-	empty2_tile = 68;	// 68..72
+	empty2_tile = 68;	// 68..69
 	empty3_tile = 50;	// 50..51
 
 	empty5_tile = 58;
@@ -243,7 +243,7 @@ const
 
 	floor_tile = 23;
 
-	teleport_in_tile = 70;
+	teleport_in_tile = 71;
 	teleport_out_tile = 15;
 
 	downbar_tile = 49;	// common
@@ -268,7 +268,7 @@ begin
 // id[empty1_tile+1] := id_empty;
 
  id[empty2_tile] := id_empty;
-// id[empty2_tile+1] := id_empty;
+ id[empty2_tile+1] := id_empty;
 // id[empty2_tile+2] := id_empty;
 // id[empty2_tile+3] := id_empty;
 // id[empty2_tile+4] := id_empty;
