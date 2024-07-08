@@ -10,3 +10,8 @@ const
 
 	id_brick_left = 8;
 	id_brick_right = 9;
+	
+	id_floor = 10;
+	
+	id_teleport_in = 11;
+	id_teleport_out = 12;

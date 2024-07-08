@@ -40,6 +40,10 @@ uses crt, atari, joystick, control, ctm, vsprite, vbxe;
 {$r robots.rc}
 
 type
+	TPos = record
+		x,y: byte;
+	       end;
+	       
 	TEnemy = record
 		 x,y: byte;
 		 blit: byte;
@@ -67,6 +71,8 @@ const
 	box_right = 48;
 	box_bottom = 49;
 
+	teleport_in_code = 15;
+	teleport_out_code = 70;
 	enemyrobot_code = 19;
 	enemyeel_code = 13;
 	bomb_code = 21;
@@ -93,8 +99,9 @@ const
 var
 	vram: TVBXEMemoryStream;
 
-	robot_x, robot_y, room, lvl, lives, power, enemy_cnt: byte;
-	battery_x, battery_y: byte;
+	robot, battery, teleport_in, teleport_out: TPos;
+
+	room, lvl, lives, power, enemy_cnt: byte;
 
 	next_room, next_level: Boolean;
 	death_robot: Boolean;
@@ -366,8 +373,8 @@ begin
 	  fxs FX_MEMS #$00
 	end;
 
-	x:=byte(robot_x-8) shr 3;
-	y:=robot_y shr 3;
+	x:=byte(robot.x-8) shr 3;
+	y:=robot.y shr 3;
 
 	p:=pointer(dpeek(88) + x + mul_40[y] + 4 + 40);
 
@@ -425,14 +432,31 @@ var j, py, adx: byte;
 
 	if room = 0 then
 	 if v = robot_code then begin
-	  robot_x := i shl 3 + 8;// - 1;
-	  robot_y := j shl 3;
+	  robot.x := i shl 3 + 8;// - 1;
+	  robot.y := j shl 3;
 	 end;
 
-	if v = battery_code then begin
-	 battery_x:=i+4;
-	 battery_y:=j+1;
+
+	case v of
+	  battery_code:
+		begin
+		  battery.x := i+4;
+		  battery.y := j+1;
+		end;
+
+	  teleport_in_code:
+		begin
+		  teleport_in.x := i+4;
+		  teleport_in.y := j+1;
+		end;	
+
+	  teleport_out_code:
+		begin
+		  teleport_out.x := i+4;
+		  teleport_out.y := j+1;
+		end;			
 	end;
+
 
 
 	if (v = enemyrobot_code) or (v = enemyeel_code) or (v = bomb_code) then
@@ -480,6 +504,9 @@ var j, py, adx: byte;
 	 21..22: yes:=true;	// bomb
 	 43..44: yes:=true;
 
+//	 70..71: yes:=true;	// teleport_in_code
+//	 15..16: yes:=true;	// teleport_out_code
+
 	     13: yes:=true;	// enemyeel
 	end;
 
@@ -516,7 +543,7 @@ begin
  l_magnet := $ff;
  r_magnet := $ff;
 
- battery_x:=0;
+ battery.x:=0;
 
  enemy_cnt := 0;
 
@@ -538,10 +565,10 @@ begin
  ofs:=22*24* room + 24;
 
 
- if (lvl=0) and (room=6) then inc(robot_x, 8);
+ if (lvl=0) and (room=6) then inc(robot.x, 8);
 
- if (lvl=1) and (room=2) then dec(robot_x, 8);
- if (lvl=1) and (room=3) then inc(robot_x, 8);
+ if (lvl=1) and (room=2) then dec(robot.x, 8);
+ if (lvl=1) and (room=3) then inc(robot.x, 8);
 
 
  m:=pointer(VBXE_WINDOW+4*4);		// color_map pointer, skip row #0
@@ -613,6 +640,17 @@ end;
 
 (*-----------------------------------------------------------*)
 
+procedure floor_fall(x,y: byte);
+var a, b: byte;
+begin
+
+   tile(empty_tile, x, y);
+   tile(empty_tile, x+1, y);
+
+end;
+
+(*-----------------------------------------------------------*)
+
 procedure move_brick(x,y: byte; adx: shortint);
 var a, b: byte;
 begin
@@ -662,11 +700,11 @@ begin
 
  if next_level then begin SetPaletteEntry(1, 200,30,10); exit; end;
 
- if robot_x and 7 = 0 then begin
+ if robot.x and 7 = 0 then begin
 
-   y:=robot_y shr 3;
+   y:=robot.y shr 3;
 
-   x:=robot_x shr 3 + left_magnet_px - 2;
+   x:=robot.x shr 3 + left_magnet_px - 2;
 
    a:=locate(x, y+1);
 
@@ -684,11 +722,11 @@ end;
 
 procedure powerUP;
 begin
-      tile(empty_tile, battery_x, battery_y);
-      tile(empty_tile, battery_x+1, battery_y);
+      tile(empty_tile, battery.x, battery.y);
+      tile(empty_tile, battery.x+1, battery.y);
 
-      tile(empty_tile, battery_x, battery_y+1);
-      tile(empty_tile, battery_x+1, battery_y+1);
+      tile(empty_tile, battery.x, battery.y+1);
+      tile(empty_tile, battery.x+1, battery.y+1);
 
       doPowerFull;
 end;
@@ -700,8 +738,8 @@ begin
 
  Result:=true;
 
- if ( byte(robot_x+1 - x+1 + 14-1 ) >= byte(14 + 14 - 1) ) then exit(false);
- if ( byte(robot_y+1 - y+1 + 14-1 ) >= byte(14 + 14 - 1) ) then exit(false);
+ if ( byte(robot.x+1 - x+1 + 14-1 ) >= byte(14 + 14 - 1) ) then exit(false);
+ if ( byte(robot.y+1 - y+1 + 14-1 ) >= byte(14 + 14 - 1) ) then exit(false);
 
 end;
 
@@ -759,34 +797,27 @@ var tc: byte;
     y:=spr.y shr 3 + 1;
 
     case spr.kind of
-(*
+
      enemyrobot_code:
 	     begin
 
-		if spr.adx = 1 then
-		  a := locate(x+2, y)
-		else
+		if spr.adx = 1 then begin
+		  a := locate(x+2, y);
+		  b := locate(x+2, y+1);
+		end else begin
 		  a := locate(x-1, y);
-
-		if not empty(a) then spr.adx := -spr.adx;
-{
-		if not empty(a) then
-		  spr.adx := -spr.adx
-		else begin
-
-		  if spr.adx = 1 then
-		    a := locate(x+2, y+2)
-		  else
-		    a := locate(x-1, y+2);
-
-		  if empty(a) then spr.adx := -spr.adx;
-
+		  b := locate(x-1, y+1);
 		end;
-}
-	     end;
-*)
 
-     enemyrobot_code, enemyeel_code:
+		if (empty(a) = false) or (empty(b) = false) then 
+		  spr.adx := -spr.adx
+		else
+		  if (spr.x = 19*8) or (spr.x = 5*8) then spr.adx := -spr.adx;
+
+	     end;
+
+
+     enemyeel_code:
 	     begin
 
 		if spr.adx = 1 then
@@ -795,9 +826,9 @@ var tc: byte;
 		  a := locate(x-1, y);
 
 		if not empty(a) then
-		  spr.adx := -spr.adx;
-		//else
-		 // if (spr.x = 19*8) or (spr.x = 5*8) then spr.adx := -spr.adx;
+		  spr.adx := -spr.adx
+		else
+		  if (spr.x = 19*8) or (spr.x = 5*8) then spr.adx := -spr.adx;
 
 	     end;
 
@@ -844,7 +875,7 @@ var tc: byte;
        yes := hitBox(spr.x + 2, spr.y);		// +4 robot przylega do bomby ; +2 -> 4px odstep od bomby
 
        if yes then
-        if (robot_x < spr.x) then
+        if (robot.x < spr.x) then
            inc(spr.x)
          else
            dec(spr.x);
@@ -916,26 +947,46 @@ begin
 
  SrcBlit(0, src0);
 
- y:=robot_y shr 3;
+ y:=robot.y shr 3;
 
 
- if (robot_x and 7 = 0) then begin
+ if (robot.x and 7 = 0) then begin
 
-  x:=robot_x shr 3 + left_magnet_px - 2;
+  x:=robot.x shr 3 + left_magnet_px - 2;
+
+  a:=locate(x, y+1);
+  b:=locate(x+1, y+1);
+
+  if (a=b) and (a = id_teleport_in) then begin
+    halt;
+   robot.x := teleport_out.x;
+   robot.y := teleport_out.y;   
+  end;  
+  
+
+
 
   a := locate(x, y+3);
   b := locate(x+1, y+3);
 
 
+  if (a = b) and (a = id_floor) then begin 
+   floor_fall(x,y+3);
+   
+   a:=id_empty;
+   b:=id_empty;
+  end;
+
+
   if (a = id_death) or (b = id_death) then begin 				// robot failed
-    inc(robot_y, 8);
+    inc(robot.y, 8);
 
     death_robot:=true;
 
     exit;
   end;
 
-  if a = id_downbar then begin next_room:=true; dec(robot_y, 20*8); exit end;	// next room
+  if a = id_downbar then begin next_room:=true; dec(robot.y, 20*8); exit end;	// next room
 
 
   if (a = id_battery) and (b = id_battery) then powerUP;
@@ -946,25 +997,25 @@ begin
 
   if (a = id_lava) and (y >= 18) then next_level:=true;
 
-  if left and right then begin inc(robot_y, 4); exit end;						// falling down
+  if left and right then begin inc(robot.y, 4); exit end;						// falling down
 
 
-  y_:=byte(robot_y-2) shr 3;										// elevator, move up
+  y_:=byte(robot.y-2) shr 3;										// elevator, move up
 
   elevator:=false;
 
   a := locate(x, y_+1);
   b := locate(x+1, y_+1);
 
-  if a = b then
-   if (a = id_elevator) or (a = id_elevator2) then begin elevator:=true; dec(robot_y, 2) end;
+  if a = b then 
+   if (a = id_elevator) or (a = id_elevator2) then begin elevator:=true; dec(robot.y, 2) end;
 
 
   if elevator then begin
 
-//   if (robot_y and 7 <> 0) then exit;
+//   if (robot.y and 7 <> 0) then exit;
 
-//   y:=robot_y shr 3;
+//   y:=robot.y shr 3;
 
    a:=locate(x, y+3);
    b:=locate(x+1, y+3);
@@ -989,17 +1040,17 @@ begin
 
    if left or right then exit;				// empty tile on both side
 }
-  end;
+  end;  
 
  end;
 
 
-	if (robot_y and 7 <> 0) then exit;
+	if (robot.y and 7 <> 0) then exit;
 
 
- if robot_x and 7 = 0 then begin			// robot move left
+ if robot.x and 7 = 0 then begin			// robot move left
 
-   x:=robot_x shr 3 + left_magnet_px - 2;
+   x:=robot.x shr 3 + left_magnet_px - 2;
 
    b:=locate(x-1, y+1);
    a:=locate(x-1, y+2);
@@ -1020,13 +1071,13 @@ begin
   left:=true;
 
 // if left then
-//  if magnet_field(l_magnet) then if robot_x > left_magnet_px*8 then begin SrcBlit(0, src1); dec(robot_x) end;
+//  if magnet_field(l_magnet) then if robot.x > left_magnet_px*8 then begin SrcBlit(0, src1); dec(robot.x) end;
 
 
 
- if robot_x and 7 = 0 then begin			// robot move right
+ if robot.x and 7 = 0 then begin			// robot move right
 
-   x:=robot_x shr 3 + left_magnet_px - 2;
+   x:=robot.x shr 3 + left_magnet_px - 2;
 
    b:=locate(x+2, y+1);
    a:=locate(x+2, y+2);
@@ -1035,7 +1086,7 @@ begin
    if right and magnet_field(r_magnet) then begin
 
      if (a = id_battery) or (b = id_battery) then powerUP;
-
+     
      if a = id_brick_left then move_brick(x+2,y+2, 1);
 
    end;
@@ -1047,16 +1098,16 @@ begin
   right:=true;
 
 // if right then
-//  if magnet_field(r_magnet) then if robot_x < (right_magnet_px-6)*8 then begin SrcBlit(0, src2); inc(robot_x) end;
+//  if magnet_field(r_magnet) then if robot.x < (right_magnet_px-6)*8 then begin SrcBlit(0, src2); inc(robot.x) end;
 
 
  v:=0;
 
  if left then
-  if magnet_field(l_magnet) then if robot_x > left_magnet_px*8 then dec(v);
+  if magnet_field(l_magnet) then if robot.x > left_magnet_px*8 then dec(v);
 
  if right then
-  if magnet_field(r_magnet) then if robot_x < (right_magnet_px-6)*8 then inc(v);
+  if magnet_field(r_magnet) then if robot.x < (right_magnet_px-6)*8 then inc(v);
 
 
  case v of
@@ -1065,7 +1116,7 @@ begin
   255: SrcBlit(0, src1);	// -1
  end;
 
- inc(robot_x, v);
+ inc(robot.x, v);
 
 end;
 
@@ -1079,7 +1130,7 @@ begin
 	 fxs FX_MEMS #$81
 	end;
 
-	p:=cmap_adr[battery_y] + battery_x shl 2 + 1;
+	p:=cmap_adr[battery.y] + battery.x shl 2 + 1;
 
 	p[0]:=tick;
 
@@ -1188,8 +1239,8 @@ begin
  lives:=3;
  power:=6;
 
- robot_x:=48+48 - 16;//+48;
- robot_y:=0*8;
+ robot.x:=48+48 - 8;//+48;
+ robot.y:=0*8;
 
  enemy0.blit:=1;
  enemy1.blit:=2;
@@ -1220,7 +1271,7 @@ begin
  clock:=0;
 
 
-// room:= 2;//+2 + 1;
+ room:= 4;//+2 + 1;
 
  newRoom;	// room = 0
 
@@ -1271,7 +1322,7 @@ begin
  if (death_robot = false) and (power < 2) and (tick and 7 < 3) then
    DstBlit(0, dst0 + 200*320)			// robot blinks -> move outside the visible screen area
  else
-   DstBlit(0, dst0 + robot_y*320 + robot_x);	// mask = $ff ; copy = 1
+   DstBlit(0, dst0 + robot.y*320 + robot.x);	// mask = $ff ; copy = 1
 
 
  if enemy0.kind <> 0 then
@@ -1335,9 +1386,9 @@ begin
 	if death_Robot then begin
 
 
-		if robot_y > 0 then begin
+		if robot.y > 0 then begin
 
-		  dec(robot_y, 2);
+		  dec(robot.y, 2);
 
 		end else begin
 
@@ -1381,7 +1432,7 @@ begin
 	  colorRobot;
 
 
-	  if battery_x > 0 then flashBattery;		// battery blinking
+	  if battery.x > 0 then flashBattery;		// battery blinking
 
 	end;
 

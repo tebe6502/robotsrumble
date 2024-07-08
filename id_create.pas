@@ -236,8 +236,17 @@ const
 	empty1_tile = 60;	// 60..61
 	empty2_tile = 68;	// 68..72
 	empty3_tile = 50;	// 50..51
+	
+	empty4_tile = 15;
+	
+	empty5_tile = 58;	
 
 	brick_tile = 9;		// 9..10
+	
+	floor_tile = 23;
+	
+	teleport_in_tile = 70;
+	teleport_out_tile = 15;
 
 	downbar_tile = 49;	// common
 	death_tile = 14;
@@ -252,7 +261,15 @@ const
 begin
 
  fillbyte(id, sizeof(id), 0);
+ 
+ id[teleport_in_tile] := id_teleport_in;
+ id[teleport_in_tile+1] := id_teleport_in;
 
+ id[teleport_out_tile] := id_teleport_out;
+ id[teleport_out_tile+1] := id_teleport_out;
+
+ id[floor_tile] := id_floor;
+ 
  id[empty_tile] := id_empty;
 
  id[empty1_tile] := id_empty;
@@ -267,6 +284,11 @@ begin
  id[empty3_tile] := id_empty;
  id[empty3_tile+1] := id_empty;
 
+ id[empty4_tile] := id_empty;
+ id[empty4_tile+1] := id_empty;
+
+ id[empty5_tile] := id_empty;
+ 
  id[brick_tile]	:= id_brick_left;
  id[brick_tile+1] := id_brick_right;
 
