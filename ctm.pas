@@ -48,6 +48,38 @@ var
 	
 	panel_fnt: array of byte = [ {$bin2csv map\panel_fnt.zx0} ];		// fonty reprezentujace panel, litery, cyfry -> fnt[panel_ofset]...
 
+
+(*-----------------------------------------------------------*)
+
+	title_map: array of byte = [ {$bin2csv map\title.zx0} ];		// mapa levelu #1 -> map
+	title_fnt: array of byte = [ {$bin2csv map\title_fnt.zx0} ];		// fonty 0..63 dla levelu #1 -> fnt[0]...
+
+	title_cmap1: array [0..79] of byte = (		// color1
+	$46, $24, $aa, $24, $aa, $a8, $a8, $a7,		// 0..7
+	$a7, $56, $36, $0e, $0e, $56, $c8, $82,		// 8..15
+	$82, $98, $06, $26, $24, $24, $24, $9e,		// 16..23
+	$aa, $24, $aa, $24, $0e, $0a, $ee, $ee,		// 24..31
+	$fe, $fe, $0e, $0e, $48, $98, $22, $c8,		// 32..39
+	$aa, $24, $aa, $24, $fd, $42, $42, $42,		// 40..47
+	$42, $42, $a8, $0e, $75, $38, $36, $38,		// 48..55
+	$36, $38, $36, $f4, $82, $82, $aa, $04,		// 56..63
+	$14, $f2, $f2, $f2, $09, $09, $0e, $82,		// 64..71
+	$aa, $26, $94, $00, $00, $00, $00, $00
+	);
+
+	title_cmap2: array [0..79] of byte = (		// color2
+	$00, $00, $00, $00, $00, $00, $00, $00,
+	$00, $0e, $0e, $00, $00, $0e, $00, $00,
+	$00, $00, $00, $00, $00, $00, $00, $00,
+	$00, $00, $00, $00, $00, $00, $00, $00,
+	$00, $00, $00, $00, $00, $00, $00, $00,
+	$00, $00, $00, $00, $00, $00, $00, $00,
+	$00, $00, $00, $00, $00, $0e, $0a, $0e,
+	$0a, $0e, $0a, $00, $00, $00, $00, $00,
+	$00, $00, $00, $00, $00, $00, $00, $00,
+	$00, $00, $00, $00, $00, $00, $00, $00
+	);
+
 (*-----------------------------------------------------------*)
 
 	lvl_1_map: array of byte = [ {$bin2csv map\lvl01.zx0} ];		// mapa levelu #1 -> map
@@ -189,7 +221,7 @@ var
 
 (*-----------------------------------------------------------*)
 
-	procedure titleFnt;
+	function titleFnt: byte;
 	procedure level(l: byte);
 
 
@@ -198,12 +230,13 @@ implementation
 uses atari;
 
 
-procedure titleFnt;
+function titleFnt: byte;
 var a, i,j: byte;
 begin
 
  a:=sdmctl;
  sdmctl:=0;
+ dmactl:=0;
 
  pause;
 
@@ -211,9 +244,7 @@ begin
  unZX0(@panel_fnt, pointer(fnt+panel_ofset*8));
 
 
- pause;
-
- sdmctl:=a;
+ Result:=a;
 
 end;
 
@@ -225,13 +256,22 @@ begin
 
  a:=sdmctl;
  sdmctl:=0;
+ dmactl:=0;
 
  pause;
 
 
  case l of
+ 
+    0: begin
+	unZX0(@title_map, @map);
+	unZX0(@title_fnt, pointer(fnt));
 
-   0: begin
+	move(lvl_1_cmap1, cmap1, sizeof(cmap1));
+	move(lvl_1_cmap2, cmap2, sizeof(cmap2));
+      end;
+
+   1: begin
 	unZX0(@lvl_1_map, @map);
 	unZX0(@lvl_1_fnt, pointer(fnt));
 
@@ -240,7 +280,7 @@ begin
 	move(lvl_1_id, id, sizeof(id));
       end;
 
-   1: begin
+   2: begin
 	unZX0(@lvl_2_map, @map);
 	unZX0(@lvl_2_fnt, pointer(fnt));
 
@@ -249,7 +289,7 @@ begin
 	move(lvl_2_id, id, sizeof(id));
       end;
 
-   2: begin
+   3: begin
 	unZX0(@lvl_3_map, @map);
 	unZX0(@lvl_3_fnt, pointer(fnt));
 
@@ -258,7 +298,7 @@ begin
 	move(lvl_3_id, id, sizeof(id));
       end;
 
-   3: begin
+   4: begin
 	unZX0(@lvl_4_map, @map);
 	unZX0(@lvl_4_fnt, pointer(fnt));
 

@@ -199,40 +199,6 @@ end;
 
 (*-----------------------------------------------------------*)
 
-procedure doStatusPanel;
-var i,j, v: byte;
-begin
-
- for j:=0 to 23 do
-  for i:=0 to 7 do begin
-
-   TextColor($61 + j shr 2);
-
-   if (j=3) or (j=10) then TextColor($7c);	// robots ; lvl
-
-   if (j=4) or (j=7) then TextColor($48);	// rumble ; planet
-
-   if j >= 12 then TextColor($0e);
-
-   if (i=3) and (j=13) then TextColor($7a);	// battery
-   if (i=4) and (j=13) then TextColor($26);	// battery
-
-   if (i=0) or (i=7) or (j=0) or (j=23) then TextColor($42);
-
-   v:=panel_map[i+j*8];
-
-   if v < box_corner then begin
-    //TextColor($42);
-    tile(v, i+28, j);
-   end else
-    tile_panel(v, i+28, j);
-
-  end;
-
-end;
-
-(*-----------------------------------------------------------*)
-
 procedure restoreBlit;
 begin
 
@@ -611,12 +577,61 @@ begin
  end;
 
 
- p:=@map + 155*24;			// row #23
+ if lvl <> 0 then 
+  p:=@map + 155*24;			// end of map -> row #23
+  
  row;
 
  if room = 0 then robotLifeIcons;
 
  next_room:=false;
+end;
+
+(*-----------------------------------------------------------*)
+
+procedure doStatusPanel;
+var a, i,j, v: byte;
+begin
+
+ a:=titleFnt;
+
+ level(0);
+
+ room:=0;
+ newRoom;
+
+
+ for j:=0 to 23 do
+  for i:=0 to 7 do begin
+
+   TextColor($61 + j shr 2);
+
+   if (j=3) or (j=10) then TextColor($7c);	// robots ; lvl
+
+   if (j=4) or (j=7) then TextColor($48);	// rumble ; planet
+
+   if j >= 12 then TextColor($0e);
+
+   if (i=3) and (j=13) then TextColor($7a);	// battery
+   if (i=4) and (j=13) then TextColor($26);	// battery
+
+   if (i=0) or (i=7) or (j=0) or (j=23) then TextColor($42);
+
+   v:=panel_map[i+j*8];
+
+   if v < box_corner then begin
+    //TextColor($42);
+    tile(v, i+28, j);
+   end else
+    tile_panel(v, i+28, j);
+
+  end;
+  
+
+ for power:=5 downto 0 do doStatusPower;
+
+ sdmctl:=a;
+
 end;
 
 (*-----------------------------------------------------------*)
@@ -1286,20 +1301,15 @@ begin
 
 (*-----------------------------------------------------------*)
 
- titleFnt;
 
  doStatusPanel;
 
 
- lvl:=3;
- level(lvl);
-
- clock:=0;
+ while true do;
 
 
- room:= 6;//+2 + 1;
-
- newRoom;	// room = 0
+// room:= 6;//+2 + 1;
+// newRoom;	// room = 0
 
 
 (*---------------- VBXE bank = VBXE_BCBADR ------------------*)
