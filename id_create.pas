@@ -161,7 +161,7 @@ const
 	empty_tile = 0;
 
 	empty1_tile = 50;	// 50..55
-	
+
 	empty2_tile = 62;
 
 	empty3_tile = 71;
@@ -233,11 +233,9 @@ procedure level3;		// level #4
 const
 	empty_tile = 0;
 
-	empty1_tile = 50;	// 50..55
-	
-	empty2_tile = 62;
-
-	empty3_tile = 71;
+	empty1_tile = 60;	// 60..61
+	empty2_tile = 68;	// 68..72
+	empty3_tile = 50;	// 50..51
 
 	brick_tile = 9;		// 9..10
 
@@ -259,14 +257,15 @@ begin
 
  id[empty1_tile] := id_empty;
  id[empty1_tile+1] := id_empty;
- id[empty1_tile+2] := id_empty;
- id[empty1_tile+3] := id_empty;
- id[empty1_tile+4] := id_empty;
- id[empty1_tile+5] := id_empty;
 
  id[empty2_tile] := id_empty;
+ id[empty2_tile+1] := id_empty;
+ id[empty2_tile+2] := id_empty;
+ id[empty2_tile+3] := id_empty;
+ id[empty2_tile+4] := id_empty;
 
  id[empty3_tile] := id_empty;
+ id[empty3_tile+1] := id_empty;
 
  id[brick_tile]	:= id_brick_left;
  id[brick_tile+1] := id_brick_right;

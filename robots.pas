@@ -445,17 +445,17 @@ var j, py, adx: byte;
 
 
 	   case v of
-	      enemyeel_code: begin 
-				e.src := src4; 
-				e.adx := adx; 
-				
-				if (lvl = 2) and (j > 12) then 
+	      enemyeel_code: begin
+				e.src := src4;
+				e.adx := adx;
+
+				if (lvl = 2) and (j > 12) then
 				 adx := 0
 				else
 				 adx := -adx;
-				
+
 			     end;
-	      
+
 	    enemyrobot_code: begin e.src := src6; e.adx := adx; adx := -adx end;
 	          bomb_code: begin e.src := src9; e.adx:=0 end;
 	   end;
@@ -715,7 +715,7 @@ var i: byte;
   function hitEnemy: Boolean;
   begin
 
-    Result:=true; 
+    Result:=true;
 
     if ( byte(e.x+1 - x+1 + 14-1 ) >= byte(14 + 14 - 1) ) then exit(false);
     if ( byte(e.y+1 - y+1 + 14-1 ) >= byte(14 + 14 - 1) ) then exit(false);
@@ -728,10 +728,10 @@ begin
  Result:=-1;
 
  for i:=High(enemy) downto 0 do begin
- 
-  e:=enemy[i]; 
 
-  if (e.kind <> 0) and (e.kind <> bomb_code) then 
+  e:=enemy[i];
+
+  if (e.kind <> 0) and (e.kind <> bomb_code) then
     if hitEnemy then exit(i);
 
  end;
@@ -767,8 +767,8 @@ var tc: byte;
 		  a := locate(x+2, y)
 		else
 		  a := locate(x-1, y);
-		  
-		if not empty(a) then spr.adx := -spr.adx;  
+
+		if not empty(a) then spr.adx := -spr.adx;
 {
 		if not empty(a) then
 		  spr.adx := -spr.adx
@@ -795,9 +795,9 @@ var tc: byte;
 		  a := locate(x-1, y);
 
 		if not empty(a) then
-		  spr.adx := -spr.adx
-		else
-		  if (spr.x = 19*8) or (spr.x = 5*8) then spr.adx := -spr.adx;
+		  spr.adx := -spr.adx;
+		//else
+		 // if (spr.x = 19*8) or (spr.x = 5*8) then spr.adx := -spr.adx;
 
 	     end;
 
@@ -811,7 +811,7 @@ var tc: byte;
 		if empty(a) and empty(b) then begin
 		 inc(spr.y, 4);
 		 inc(spr.adx);		// bomb falling down
-		 
+
 		 if spr.y and 7 = 0 then begin
 
 		   h := testBomb(spr.x, spr.y);
@@ -819,7 +819,7 @@ var tc: byte;
 		   if h >=0 then begin	// bomb hit enemy
 		     spr.kind:=0; enemy[h].kind:=0;
 		   end;
-		   
+
 		 end;
 
 		end else begin
@@ -827,8 +827,8 @@ var tc: byte;
 		 if spr.adx > 0 then spr.kind := 0;//explode_code;
 
 		 spr.adx := 0;		// bomb stand
-		 
-		end; 
+
+		end;
 
 	     end;
 
@@ -1004,14 +1004,14 @@ begin
    b:=locate(x-1, y+1);
    a:=locate(x-1, y+2);
    left := empty(a) and empty(b);
-   
+
    if left and magnet_field(l_magnet) then begin
-  
+
      if (a = id_battery) or (b = id_battery) then powerUP;
-     
+
      if a = id_brick_right then move_brick(x-2, y+2, -1);
-     
-   end;  
+
+   end;
 
    a:=locate(x, y+2);
    if a = id_death then death_Robot:=true;
@@ -1033,7 +1033,7 @@ begin
    right := empty(a) and empty(b);
 
    if right and magnet_field(r_magnet) then begin
-     
+
      if (a = id_battery) or (b = id_battery) then powerUP;
 
      if a = id_brick_left then move_brick(x+2,y+2, 1);
@@ -1050,7 +1050,7 @@ begin
 //  if magnet_field(r_magnet) then if robot_x < (right_magnet_px-6)*8 then begin SrcBlit(0, src2); inc(robot_x) end;
 
 
- v:=0; 
+ v:=0;
 
  if left then
   if magnet_field(l_magnet) then if robot_x > left_magnet_px*8 then dec(v);
