@@ -23,7 +23,7 @@ Robots Rumble
 
 https://www.file-hunter.com/MSXdev/index.php?id=roborumble
 
-- kazdy level sklada się z 78 tilesow (78 znakow), od
+- kazdy level sklada się z 80 tilesow (80 znakow)
 - 'cmap1', 'cmap2' to mapa kolorów dla tilesow
 - 'id' to identyfikator tilesow
 
