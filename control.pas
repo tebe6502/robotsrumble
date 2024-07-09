@@ -21,8 +21,8 @@ var
 	joy, joyDelay, l_magnet, r_magnet: byte;
 
 
+	function anyKey: Boolean; assembler;
 	procedure JoyScan;
-
 
 
 implementation
@@ -31,7 +31,6 @@ uses keycode, joystick, atari;
 
 
 (*-----------------------------------------------------------*)
-
 
 function allow(m: byte; dy: byte): Boolean;
 var p: PByte register;
@@ -64,9 +63,26 @@ begin
 
 end;
 
-
 (*-----------------------------------------------------------*)
 
+function anyKey: Boolean; assembler;
+asm
+	lda #1
+	sta Result
+
+	lda $d20f
+	and #4
+	bne skp
+
+	beq stop
+
+skp	lda trig0
+	bne @exit
+
+stop	sta Result
+end;
+
+(*-----------------------------------------------------------*)
 
 Procedure JoyScan;
 var onKey: byte = $80;

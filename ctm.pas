@@ -12,9 +12,11 @@ const
 	panel_ofset = 80;
 
 var
-	map: array [0..24*156-1] of byte;		// 24*156
+	map: array [0..24*156-1] of byte absolute $1000;		// 24*156
 
-	cmap1, cmap2, id: array [0..79] of byte;
+	cmap1: array [0..79] of byte absolute $1f00;
+	cmap2: array [0..79] of byte absolute $1f50;
+	id: array [0..79] of byte absolute $1fa0;
 
 //	panel_map: array of byte = [ {$bin2csv map\panel.bin} ];		// panel po prawej stronie ekranu
 										// dane wygenerowane przez 'panel_update.pas'
@@ -221,7 +223,6 @@ var
 
 (*-----------------------------------------------------------*)
 
-	function titleFnt: byte;
 	procedure level(l: byte);
 
 
@@ -230,36 +231,14 @@ implementation
 uses atari;
 
 
-function titleFnt: byte;
-var a, i,j: byte;
-begin
-
- a:=sdmctl;
- sdmctl:=0;
- dmactl:=0;
-
- pause;
-
-
- unZX0(@panel_fnt, pointer(fnt+panel_ofset*8));
-
-
- Result:=a;
-
-end;
-
-
+(*-----------------------------------------------------------*)
 
 procedure level(l: byte);
 var a: byte;
 begin
 
- a:=sdmctl;
  sdmctl:=0;
  dmactl:=0;
-
- pause;
-
 
  case l of
 
@@ -299,6 +278,16 @@ begin
 	move(lvl_4_id, id, sizeof(id));
       end;
 
+
+    7: begin
+//        unZX0(@lvl_4_map, @map);
+	unZX0(@lvl_1_fnt, pointer(fnt));
+
+	move(lvl_1_cmap1, cmap1, sizeof(cmap1));
+	move(lvl_1_cmap2, cmap2, sizeof(cmap2));
+       end;
+    
+    8: unZX0(@panel_fnt, pointer(fnt+panel_ofset*8));
  
     9: begin
 	unZX0(@title_map, @map);
@@ -309,13 +298,7 @@ begin
 	fillbyte(cmap2, sizeof(cmap2), 0);
       end;
 
-
  end;
-
-
- pause;
-
- sdmctl:=a;
 
 end;
 

@@ -400,7 +400,7 @@ var j, py, adx: byte;
 
 	if room = 0 then
 	 if v = robot_code then begin
-	  robot.x := i shl 3 + 8;// - 1;
+	  robot.x := i shl 3 + 8;
 	  robot.y := j shl 3;
 	 end;
 
@@ -496,6 +496,9 @@ begin
 
  pause;
 
+ sdmctl:=0;
+ dmactl:=0;
+
  vram.position:=VBXE_OVRADR;	// CLEAR VBXE MEM
  vram.size:=320*256;		// VBXE_OVRADR .. VBXE_OVRADR + 320*256
  vram.clear;
@@ -529,7 +532,7 @@ begin
 
  ofs:=22*24* room + 24;
 
-
+ if (lvl = 0) and (room=2) then inc(robot.x, 16);
  if (lvl = 0) and (room=6) then inc(robot.x, 8);
 
  if (lvl = 1) and (room=2) then dec(robot.x, 8);
@@ -570,7 +573,7 @@ begin
  end;
 
 
- if lvl <> 0 then
+ if lvl < 5 then
   p:=@map + 155*24;			// end of map -> row #23
 
  row;
@@ -578,6 +581,35 @@ begin
  if (room = 0) and (lvl < 5) then robotLifeIcons;
 
  next_room:=false;
+ 
+ sdmctl:=(normal or enable);
+end;
+
+
+(*-----------------------------------------------------------*)
+
+procedure CompletedGame;
+begin
+ pause;
+
+ sdmctl:=0;
+ dmactl:=0;
+
+ vram.position:=VBXE_OVRADR;	// CLEAR VBXE MEM
+ vram.size:=320*256;		// VBXE_OVRADR .. VBXE_OVRADR + 320*256
+ vram.clear;
+ 
+// lvl:=7;
+ level(7);
+ room:=0;
+ 
+ power:=6;
+ 
+ newRoom;
+
+
+ while anyKey do;
+
 end;
 
 (*-----------------------------------------------------------*)
@@ -586,7 +618,7 @@ procedure doTitle;
 var a, i,j, v: byte;
 begin
 
- a:=titleFnt;
+ level(8);	// panel
 
  lvl:=9;
  level(lvl);
@@ -632,7 +664,9 @@ begin
  txt:='RUMBLE';
  doText(16,2);
 
- sdmctl:=a;
+ sdmctl:=(normal or enable);
+ 
+ while anyKey do;
 
 end;
 
@@ -640,26 +674,12 @@ end;
 
 function empty(a: byte): Boolean;
 begin
-{
- Result := (a = id_empty) or
-	   (a = id_death) or
-	   (a = id_elevator) or
-	   (a = id_elevator2) or
-	   (a = id_battery) or
-	   (a = id_brick_left) or
-	   (a = id_brick_right) or
-	   (a = id_teleport_in) or
-	   (a = id_teleport_out);
-}
 
  case a of
-  id_empty,
-  id_death,
-  id_elevator..id_teleport_out: Result := true;
+  id_empty, id_death, id_elevator..id_teleport_out: Result := true;
  else
   Result := false
  end;
-
 
 end;
 
@@ -1232,94 +1252,38 @@ begin
 
 end;
 
-(*-----------------------------------------------------------*)
-
-function anyKey: Boolean; assembler;
-asm
-	lda #1
-	sta Result
-
-	lda $d20f
-	and #4
-	bne skp
-
-	beq stop
-
-skp	lda trig0
-	bne @exit
-
-stop	sta Result
-end;
-
 
 (*-----------------------------------------------------------*)
 
-{$i initvbxe.inc}
+{$i initgame.inc}
 
 (*-----------------------------------------------------------*)
 
 begin
 
- asm
-  lda:cmp:req 20
-  lda #0
-  sta $10		; irq disable
-  sta irqen
- end;
+ InitGame;
 
- TextColor($0c);	// color1
- TextBackground($00);	// color2
-
- InitVBXE;
-
- robot.x:=48+48-24;//+48;
- robot.y:=0*8;
-
- enemy0.blit:=1;
- enemy1.blit:=2;
- enemy2.blit:=3;
- enemy3.blit:=4;
- enemy4.blit:=5;
- enemy5.blit:=6;
- enemy6.blit:=7;
-
- enemy[0]:=@enemy0;
- enemy[1]:=@enemy1;
- enemy[2]:=@enemy2;
- enemy[3]:=@enemy3;
- enemy[4]:=@enemy4;
- enemy[5]:=@enemy5;
- enemy[6]:=@enemy6;
+// CompletedGame;
 
 (*-----------------------------------------------------------*)
 
+ while true do begin
 
- doTitle;
+  doTitle;
 
+  lvl:=0;
+  clock:=0;
+ 
+  lives:=3;
+  power:=6;
 
- while true do;
-
+  level(lvl);
 
 // room:= 6;//+2 + 1;
-// newRoom;	// room = 0
-
-
- lives:=3;
- power:=6;
-
-
-(*---------------- VBXE bank = VBXE_BCBADR ------------------*)
-
-// initialize sprites
-
- IniBlit(0, src_robot, dst0);	// blit0
-
- IniBlit(1, src_empty, dst0);	// blit1
- IniBlit(2, src_empty, dst0);	// blit2
- IniBlit(3, src_empty, dst0);	// blit3
- IniBlit(4, src_empty, dst0);	// blit4
- IniBlit(5, src_empty, dst0);	// blit5
- IniBlit(6, src_empty, dst0);	// blit6
+  room:=0;
+ 
+  newRoom;
+  
 
 (*-----------------------------------------------------------*)
 (*                       MAIN LOOP                           *)
@@ -1430,7 +1394,7 @@ begin
 
 		  dec(lives);
 
-		  if lives = 0 then begin level(lvl); lives:=3 end;
+		  if lives = 0 then Break;//begin level(lvl); lives:=3 end;
 
 		  clock:=0;
 
@@ -1455,7 +1419,12 @@ begin
 	  testEnemy;
 
 
-	  if next_level then wellDoneMessage;
+	  if next_level then
+	   if lvl = 3 then 
+	    CompletedGame
+	   else	   
+	    wellDoneMessage;
+	    
 
 	  if death_robot then endGameMessage;
 
@@ -1492,6 +1461,7 @@ begin
 
  until false;
 
+end;
 
  VBXEOff;
 
