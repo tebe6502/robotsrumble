@@ -589,7 +589,7 @@ end;
 
 (*-----------------------------------------------------------*)
 
-procedure doStatusPanel;
+procedure doTitle;
 var a, i,j, v: byte;
 begin
 
@@ -629,6 +629,14 @@ begin
   
 
  for power:=5 downto 0 do doStatusPower;
+
+ TextColor($36);
+ txt:='ROBOTS';
+ doText(10,2);
+ 
+ TextColor($7a);
+ txt:='RUMBLE';
+ doText(16,2);
 
  sdmctl:=a;
 
@@ -1302,7 +1310,7 @@ begin
 (*-----------------------------------------------------------*)
 
 
- doStatusPanel;
+ doTitle;
 
 
  while true do;
