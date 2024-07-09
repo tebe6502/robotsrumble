@@ -55,16 +55,16 @@ var
 	title_fnt: array of byte = [ {$bin2csv map\title_fnt.zx0} ];		// fonty 0..63 dla levelu #1 -> fnt[0]...
 
 	title_cmap1: array [0..79] of byte = (		// color1
-	$46, $24, $aa, $24, $aa, $a8, $a8, $a7,		// 0..7
+	$46, $24, $aa, $24, $aa, $0e, $a8, $a7,		// 0..7
 	$a7, $56, $36, $0e, $0e, $56, $c8, $82,		// 8..15
 	$82, $98, $06, $26, $24, $24, $24, $9e,		// 16..23
-	$aa, $24, $aa, $24, $0e, $0a, $ee, $ee,		// 24..31
+	$aa, $24, $aa, $24, $0e, $aa, $ee, $ee,		// 24..31
 	$fe, $fe, $0e, $0e, $48, $98, $22, $c8,		// 32..39
 	$aa, $24, $aa, $24, $fd, $42, $42, $42,		// 40..47
-	$42, $42, $a8, $0e, $0e, $76, $36, $0e,		// 48..55
-	$26, $a8, $36, $26, $82, $82, $0e, $0e,		// 56..63
+	$42, $42, $74, $74, $0e, $76, $0e, $0e,		// 48..55
+	$26, $a8, $45, $26, $26, $25, $0e, $0e,		// 56..63
 	$14, $f2, $f2, $f2, $09, $09, $0e, $82,		// 64..71
-	$aa, $26, $94, $00, $00, $00, $00, $00
+	$aa, $26, $94, $00, $00, $00, $00, $00		// 72..
 	);
 {
 	title_cmap2: array [0..79] of byte = (		// color2
@@ -262,17 +262,8 @@ begin
 
 
  case l of
- 
-    0: begin
-	unZX0(@title_map, @map);
-	unZX0(@title_fnt, pointer(fnt));
 
-	move(title_cmap1, cmap1, sizeof(cmap1));
-
-	fillbyte(cmap2, sizeof(cmap2), 0);
-      end;
-
-   1: begin
+   0: begin
 	unZX0(@lvl_1_map, @map);
 	unZX0(@lvl_1_fnt, pointer(fnt));
 
@@ -281,7 +272,7 @@ begin
 	move(lvl_1_id, id, sizeof(id));
       end;
 
-   2: begin
+   1: begin
 	unZX0(@lvl_2_map, @map);
 	unZX0(@lvl_2_fnt, pointer(fnt));
 
@@ -290,7 +281,7 @@ begin
 	move(lvl_2_id, id, sizeof(id));
       end;
 
-   3: begin
+   2: begin
 	unZX0(@lvl_3_map, @map);
 	unZX0(@lvl_3_fnt, pointer(fnt));
 
@@ -299,7 +290,7 @@ begin
 	move(lvl_3_id, id, sizeof(id));
       end;
 
-   4: begin
+   3: begin
 	unZX0(@lvl_4_map, @map);
 	unZX0(@lvl_4_fnt, pointer(fnt));
 
@@ -307,6 +298,17 @@ begin
 	move(lvl_4_cmap2, cmap2, sizeof(cmap2));
 	move(lvl_4_id, id, sizeof(id));
       end;
+
+ 
+    9: begin
+	unZX0(@title_map, @map);
+	unZX0(@title_fnt, pointer(fnt));
+
+	move(title_cmap1, cmap1, sizeof(cmap1));
+
+	fillbyte(cmap2, sizeof(cmap2), 0);
+      end;
+
 
  end;
 

@@ -460,22 +460,15 @@ var j, py, adx: byte;
 
 	yes:=false;
 	case v of
-	   5..6: yes:=true;	// robot
-	 28..29: yes:=true;
+	 5..6, 28..29: if lvl < 5 then yes:=true;	// robot
 
-	 19..20: yes:=true;	// enemyrobot
-	 41..42: yes:=true;
+	 19..20, 41..42: yes:=true;	// enemyrobot
 
-	 21..22: yes:=true;	// bomb
-	 43..44: yes:=true;
+	 21..22, 43..44: yes:=true;	// bomb
 
-	 17..18: yes:=true;	// enemyfire
-	 39..40: yes:=true;
+	 17..18, 39..40: yes:=true;	// enemyfire
 
-//	 70..71: yes:=true;	// teleport_in_code
-//	 15..16: yes:=true;	// teleport_out_code
-
-	     13: yes:=true;	// enemyeel
+	     13: yes:=true;		// enemyeel
 	end;
 
 	if yes then v:=empty_tile;
@@ -537,10 +530,10 @@ begin
  ofs:=22*24* room + 24;
 
 
- if (lvl=0) and (room=6) then inc(robot.x, 8);
+ if (lvl = 0) and (room=6) then inc(robot.x, 8);
 
- if (lvl=1) and (room=2) then dec(robot.x, 8);
- if (lvl=1) and (room=3) then inc(robot.x, 8);
+ if (lvl = 1) and (room=2) then dec(robot.x, 8);
+ if (lvl = 1) and (room=3) then inc(robot.x, 8);
 
 
  m:=pointer(VBXE_WINDOW+4*4);		// color_map pointer, skip row #0
@@ -582,7 +575,7 @@ begin
 
  row;
 
- if room = 0 then robotLifeIcons;
+ if (room = 0) and (lvl < 5) then robotLifeIcons;
 
  next_room:=false;
 end;
@@ -595,7 +588,8 @@ begin
 
  a:=titleFnt;
 
- level(0);
+ lvl:=9;
+ level(lvl);
 
  room:=0;
  newRoom;
@@ -1071,8 +1065,6 @@ begin
 
   if elevator then begin
 
-//   if (robot.y and 7 <> 0) then exit;
-
    a:=locate(x, y+3);
    b:=locate(x+1, y+3);
 
@@ -1119,9 +1111,6 @@ begin
  end else
   left:=true;
 
-// if left then
-//  if magnet_field(l_magnet) then if robot.x > left_magnet_px*8 then begin SrcBlit(0, src1); dec(robot.x) end;
-
 
 
  if robot.x and 7 = 0 then begin			// robot move right
@@ -1146,8 +1135,6 @@ begin
  end else
   right:=true;
 
-// if right then
-//  if magnet_field(r_magnet) then if robot.x < (right_magnet_px-6)*8 then begin SrcBlit(0, src2); inc(robot.x) end;
 
 
  v:=0;
@@ -1285,9 +1272,6 @@ begin
 
  InitVBXE;
 
- lives:=3;
- power:=6;
-
  robot.x:=48+48-24;//+48;
  robot.y:=0*8;
 
@@ -1318,6 +1302,10 @@ begin
 
 // room:= 6;//+2 + 1;
 // newRoom;	// room = 0
+
+
+ lives:=3;
+ power:=6;
 
 
 (*---------------- VBXE bank = VBXE_BCBADR ------------------*)
