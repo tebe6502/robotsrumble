@@ -445,7 +445,7 @@ var j, py, adx: byte;
 	     enemyfire_code: begin e.src := src_enemyfire; e.adx := adx end;
 
 	    enemyrobot_code: begin e.src := src_enemyrobot; e.adx := adx; adx := -adx end;
-	    
+
 	          bomb_code: begin e.src := src_bomb; e.adx:=0 end;
 	   end;
 
@@ -471,7 +471,7 @@ var j, py, adx: byte;
 
 	 17..18: yes:=true;	// enemyfire
 	 39..40: yes:=true;
-	 
+
 //	 70..71: yes:=true;	// teleport_in_code
 //	 15..16: yes:=true;	// teleport_out_code
 
@@ -577,9 +577,9 @@ begin
  end;
 
 
- if lvl <> 0 then 
+ if lvl <> 0 then
   p:=@map + 155*24;			// end of map -> row #23
-  
+
  row;
 
  if room = 0 then robotLifeIcons;
@@ -626,14 +626,14 @@ begin
     tile_panel(v, i+28, j);
 
   end;
-  
+
 
  for power:=5 downto 0 do doStatusPower;
 
  TextColor($36);
  txt:='ROBOTS';
  doText(10,2);
- 
+
  TextColor($7a);
  txt:='RUMBLE';
  doText(16,2);
