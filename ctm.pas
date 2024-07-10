@@ -53,6 +53,8 @@ var
 
 (*-----------------------------------------------------------*)
 
+	completed_map: array of byte = [ {$bin2csv map\completed.zx0} ];
+
 	title_map: array of byte = [ {$bin2csv map\title.zx0} ];		// mapa levelu #1 -> map
 	title_fnt: array of byte = [ {$bin2csv map\title_fnt.zx0} ];		// fonty 0..63 dla levelu #1 -> fnt[0]...
 
@@ -279,17 +281,18 @@ begin
       end;
 
 
-    7: begin
-//        unZX0(@lvl_4_map, @map);
+    7: begin						// completed game, well done
+        unZX0(@completed_map, @map);
 	unZX0(@lvl_1_fnt, pointer(fnt));
 
 	move(lvl_1_cmap1, cmap1, sizeof(cmap1));
-	move(lvl_1_cmap2, cmap2, sizeof(cmap2));
+
+	fillbyte(cmap2, sizeof(cmap2), 0);
        end;
     
-    8: unZX0(@panel_fnt, pointer(fnt+panel_ofset*8));
+    8: unZX0(@panel_fnt, pointer(fnt+panel_ofset*8));	// panel
  
-    9: begin
+    9: begin						// start screen
 	unZX0(@title_map, @map);
 	unZX0(@title_fnt, pointer(fnt));
 

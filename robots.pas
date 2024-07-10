@@ -308,15 +308,18 @@ procedure doStatus;
 var v: byte;
 begin
 
+ txt:='';
+
  TextColor($0e);
 
  v:=6 - room;
 
- str(v, txt);
+ if lvl < 5 then str(v, txt);
  doText(32, 10);	// room
 
- str(lives, txt);
+ if lvl < 5 then str(lives, txt);
  doText(34, 10);	// lives
+ 
 
  case lvl of
   0: txt:='EARTH2';
@@ -1263,13 +1266,13 @@ begin
 
  InitGame;
 
-// CompletedGame;
-
 (*-----------------------------------------------------------*)
 
  while true do begin
 
   doTitle;
+
+  CompletedGame;
 
   lvl:=0;
   clock:=0;
