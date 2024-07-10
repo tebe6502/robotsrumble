@@ -67,6 +67,8 @@ end;
 
 function anyKey: Boolean; assembler;
 asm
+	lda:cmp:req 20
+
 	lda #1
 	sta Result
 

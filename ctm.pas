@@ -50,10 +50,9 @@ var
 	
 	panel_fnt: array of byte = [ {$bin2csv map\panel_fnt.zx0} ];		// fonty reprezentujace panel, litery, cyfry -> fnt[panel_ofset]...
 
+	completed_map: array of byte = [ {$bin2csv map\completed.zx0} ];
 
 (*-----------------------------------------------------------*)
-
-	completed_map: array of byte = [ {$bin2csv map\completed.zx0} ];
 
 	title_map: array of byte = [ {$bin2csv map\title.zx0} ];		// mapa levelu #1 -> map
 	title_fnt: array of byte = [ {$bin2csv map\title_fnt.zx0} ];		// fonty 0..63 dla levelu #1 -> fnt[0]...

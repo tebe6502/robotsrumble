@@ -602,10 +602,13 @@ begin
  vram.size:=320*256;		// VBXE_OVRADR .. VBXE_OVRADR + 320*256
  vram.clear;
  
-// lvl:=7;
+ lvl:=7;
  level(7);
- room:=0;
  
+ cmap1[63] := $45;		// color modification
+ cmap1[74] := $aa;
+ 
+ room:=0;
  power:=6;
  
  newRoom;
