@@ -1,6 +1,6 @@
 
 procedure InitGame;
-var a, i,j: byte;
+var i,j: byte;
 begin
 
 {
@@ -14,7 +14,6 @@ begin
  end;
 }
 
- a:=sdmctl;
  sdmctl:=0;
  dmactl:=0;
 
@@ -61,6 +60,8 @@ begin
  for j:=0 to 23 do
   for i:=0 to 39 do tile(empty_tile, i, j);
 
+ for i:=0 to 255 do
+  mul320[i] := dst0 + i*320;
 
 // robot.x:=48+48-24;//+48;
 // robot.y:=0*8;
@@ -80,10 +81,5 @@ begin
  enemy[4]:=@enemy4;
  enemy[5]:=@enemy5;
  enemy[6]:=@enemy6;
-
-
- pause;
-
- sdmctl:=a;
 
 end;

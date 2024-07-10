@@ -117,6 +117,9 @@ var
 
 	enemy0, enemy1, enemy2, enemy3, enemy4, enemy5, enemy6: TEnemy;
 
+
+	[striped] mul320: array [0..255] of cardinal absolute $0c00;	// dst0 + i*320 -> i = [0..255]
+
 	enemy: array [0..6] of PTEnemy;
 
 
@@ -1324,41 +1327,41 @@ begin
  if (death_robot = false) and (power < 2) and (tick and 7 < 3) then
    DstBlit(0, dst0 + 200*320)			// robot blinks -> move outside the visible screen area
  else
-   DstBlit(0, dst0 + robot.y*320 + robot.x);	// mask = $ff ; copy = 1
+   DstBlit(0, mul320[robot.y] + robot.x);	// mask = $ff ; copy = 1
 
 
  if enemy0.kind <> 0 then
-   DstBlit(1, dst0 + enemy0.y*320 + enemy0.x)
+   DstBlit(1, mul320[enemy0.y] + enemy0.x)
  else
    DstBlit(1, dst0 + 200*320);
 
  if enemy1.kind <> 0 then
-   DstBlit(2, dst0 + enemy1.y*320 + enemy1.x)
+   DstBlit(2, mul320[enemy1.y] + enemy1.x)
  else
    DstBlit(2, dst0 + 200*320);
 
  if enemy2.kind <> 0 then
-   DstBlit(3, dst0 + enemy2.y*320 + enemy2.x)
+   DstBlit(3, mul320[enemy2.y] + enemy2.x)
  else
    DstBlit(3, dst0 + 200*320);
 
  if enemy3.kind <> 0 then
-   DstBlit(4, dst0 + enemy3.y*320 + enemy3.x)
+   DstBlit(4, mul320[enemy3.y] + enemy3.x)
  else
    DstBlit(4, dst0 + 200*320);
 
  if enemy4.kind <> 0 then
-   DstBlit(5, dst0 + enemy4.y*320 + enemy4.x)
+   DstBlit(5, mul320[enemy4.y] + enemy4.x)
  else
    DstBlit(5, dst0 + 200*320);
 
  if enemy5.kind <> 0 then
-   DstBlit(6, dst0 + enemy5.y*320 + enemy5.x)
+   DstBlit(6, mul320[enemy5.y] + enemy5.x)
  else
    DstBlit(6, dst0 + 200*320);
 
  if enemy6.kind <> 0 then
-   DstBlit(7, dst0 + enemy6.y*320 + enemy6.x)
+   DstBlit(7, mul320[enemy6.y] + enemy6.x)
  else
    DstBlit(7, dst0 + 200*320);
 
