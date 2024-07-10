@@ -178,13 +178,8 @@ end;
 
 (*-----------------------------------------------------------*)
 
-procedure doText(x,y: byte);
-var i: byte;
-    v: byte;
+function charCode(v: byte): byte;
 begin
-
- for i:=1 to length(txt) do begin
-  v:=byte(txt[i]);
 
   case v of
              ord(' '): v:=0;
@@ -193,6 +188,19 @@ begin
   end;
 
   inc(v, panel_ofset);
+  
+  Result:=v;
+
+end;
+
+
+procedure doText(x,y: byte);
+var i: byte;
+    v: byte;
+begin
+
+ for i:=1 to length(txt) do begin
+  v:=CharCode(byte(txt[i]));
 
   tile_panel(v, x, y);
   inc(x);
@@ -589,94 +597,6 @@ begin
  next_room:=false;
  
  sdmctl:=(normal or enable);
-end;
-
-
-(*-----------------------------------------------------------*)
-
-procedure CompletedGame;
-begin
- pause;
-
- sdmctl:=0;
- dmactl:=0;
-
- vram.position:=VBXE_OVRADR;	// CLEAR VBXE MEM
- vram.size:=320*256;		// VBXE_OVRADR .. VBXE_OVRADR + 320*256
- vram.clear;
- 
- lvl:=7;
- level(7);
- 
- cmap1[63] := $45;		// color modification
- cmap1[74] := $aa;
- 
- room:=0;
- power:=6;
- 
- newRoom;
-
-
- while anyKey do;
-
-end;
-
-(*-----------------------------------------------------------*)
-
-procedure doTitle;
-var a, i,j, v: byte;
-begin
-
- level(8);	// panel
-
- lvl:=9;
- level(lvl);
-
- room:=0;
- newRoom;
-
-
- for j:=0 to 23 do
-  for i:=0 to 7 do begin
-
-   TextColor($61 + j shr 2);
-
-   if (j=3) or (j=10) then TextColor($7c);	// robots ; lvl
-
-   if (j=4) or (j=7) then TextColor($48);	// rumble ; planet
-
-   if j >= 12 then TextColor($0e);
-
-   if (i=3) and (j=13) then TextColor($7a);	// battery
-   if (i=4) and (j=13) then TextColor($26);	// battery
-
-   if (i=0) or (i=7) or (j=0) or (j=23) then TextColor($42);
-
-   v:=panel_map[i+j*8];
-
-   if v < box_corner then begin
-    //TextColor($42);
-    tile(v, i+28, j);
-   end else
-    tile_panel(v, i+28, j);
-
-  end;
-
-
- for power:=5 downto 0 do doStatusPower;
-
- TextColor($36);
- txt:='ROBOTS';
- doText(10,2);
-
- TextColor($7a);
- txt:='RUMBLE';
- doText(16,2);
-
- sdmctl:=(normal or enable);
- 
- while anyKey do;
-
 end;
 
 (*-----------------------------------------------------------*)
@@ -1265,6 +1185,9 @@ end;
 (*-----------------------------------------------------------*)
 
 {$i initgame.inc}
+{$i sprites.inc}
+{$i title.inc}
+{$i completed.inc}
 
 (*-----------------------------------------------------------*)
 
@@ -1278,19 +1201,24 @@ begin
 
   doTitle;
 
-  CompletedGame;
+//  CompletedGame;
 
-  lvl:=0;
+  TextBackground($00);
+ 
   clock:=0;
  
   lives:=3;
   power:=6;
+  
+  robot.x:=48+24;
+  robot.y:=0;
 
+  lvl:=3;
+  room:=6;
+   
   level(lvl);
 
-// room:= 6;//+2 + 1;
-  room:=0;
- 
+
   newRoom;
   
 
@@ -1300,77 +1228,11 @@ begin
 
  repeat
 
- pause;
+   pause;
 
-//-------------------- clear sprites ------------------------
-
-						// EraseBlit initialize blt_control
- ClrBlit(0, blt_copy_0 + blt_next);		// mask = $00 ; copy = 0
-
- ClrBlit(1, blt_copy_0 + blt_next);
- ClrBlit(2, blt_copy_0 + blt_next);
- ClrBlit(3, blt_copy_0 + blt_next);
- ClrBlit(4, blt_copy_0 + blt_next);
- ClrBlit(5, blt_copy_0 + blt_next);
- ClrBlit(6, blt_copy_0 + blt_stop);
-
-
- RunBCB(Blit0);
- while BlitterBusy do;
-
-
-//--------------------- set sprites -------------------------
-
-						// MoveBlit modifing blt_control initialize first by EraseBlit
-
-
- if (death_robot = false) and (power < 2) and (tick and 7 < 3) then
-   DstBlit(0, dst0 + 200*320)			// robot blinks -> move outside the visible screen area
- else
-   DstBlit(0, mul320[robot.y] + robot.x);	// mask = $ff ; copy = 1
-
-
- if enemy0.kind <> 0 then
-   DstBlit(1, mul320[enemy0.y] + enemy0.x)
- else
-   DstBlit(1, dst0 + 200*320);
-
- if enemy1.kind <> 0 then
-   DstBlit(2, mul320[enemy1.y] + enemy1.x)
- else
-   DstBlit(2, dst0 + 200*320);
-
- if enemy2.kind <> 0 then
-   DstBlit(3, mul320[enemy2.y] + enemy2.x)
- else
-   DstBlit(3, dst0 + 200*320);
-
- if enemy3.kind <> 0 then
-   DstBlit(4, mul320[enemy3.y] + enemy3.x)
- else
-   DstBlit(4, dst0 + 200*320);
-
- if enemy4.kind <> 0 then
-   DstBlit(5, mul320[enemy4.y] + enemy4.x)
- else
-   DstBlit(5, dst0 + 200*320);
-
- if enemy5.kind <> 0 then
-   DstBlit(6, mul320[enemy5.y] + enemy5.x)
- else
-   DstBlit(6, dst0 + 200*320);
-
- if enemy6.kind <> 0 then
-   DstBlit(7, mul320[enemy6.y] + enemy6.x)
- else
-   DstBlit(7, dst0 + 200*320);
-
-
- RunBCB(blit0);
- while BlitterBusy do;				// EraseBlit + MoveBlit works together
+   doSprites;
 
 //-----------------------------------------------------------
-
 
 	if next_level then begin
 
@@ -1429,9 +1291,10 @@ begin
 
 
 	  if next_level then
-	   if lvl = 3 then 
-	    CompletedGame
-	   else	   
+	   if lvl = 3 then begin
+	    CompletedGame;
+	    Break
+	   end else	   
 	    wellDoneMessage;
 	    
 
