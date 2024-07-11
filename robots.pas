@@ -1,3 +1,6 @@
+// animacje teleportow
+// wybuch bomby
+
 
 // dlaczego dla makra  $define nie mozna wstawic kodu asm
 // nie moze byc dostepu do tablicy 'enemy[] od record'  jako enemy.x itd.
@@ -188,7 +191,7 @@ begin
   end;
 
   inc(v, panel_ofset);
-  
+
   Result:=v;
 
 end;
@@ -330,7 +333,7 @@ begin
 
  if lvl < 5 then str(lives, txt);
  doText(34, 10);	// lives
- 
+
 
  case lvl of
   0: txt:='EARTH2';
@@ -595,7 +598,7 @@ begin
  if (room = 0) and (lvl < 5) then robotLifeIcons;
 
  next_room:=false;
- 
+
  sdmctl:=(normal or enable);
 end;
 
@@ -1204,23 +1207,23 @@ begin
 //  CompletedGame;
 
   TextBackground($00);
- 
+
   clock:=0;
- 
+
   lives:=3;
   power:=6;
-  
+
   robot.x:=48+24;
   robot.y:=0;
 
   lvl:=3;
   room:=6;
-   
+
   level(lvl);
 
 
   newRoom;
-  
+
 
 (*-----------------------------------------------------------*)
 (*                       MAIN LOOP                           *)
@@ -1294,9 +1297,9 @@ begin
 	   if lvl = 3 then begin
 	    CompletedGame;
 	    Break
-	   end else	   
+	   end else
 	    wellDoneMessage;
-	    
+
 
 	  if death_robot then endGameMessage;
 
