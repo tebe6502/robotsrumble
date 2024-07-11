@@ -1,4 +1,3 @@
-// animacje teleportow
 // wybuch bomby
 
 

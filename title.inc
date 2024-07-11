@@ -2,7 +2,7 @@
 procedure doTitle;
 
 const
-     scrol = '         CODING   TEBE      CONCEPT AND GRAPHICS   MIGUETELO      MUSIC AND SFX   UCTUMI      MADTEAM 2024';
+     scrol = '         CODING   TEBE      CONCEPT AND GRAPHICS   MIGUETELO      MUSIC AND SFX            MADTEAM 2024';
 
 var a, i,j, v: byte;
     w: word;
