@@ -529,6 +529,7 @@ begin
  r_magnet := $ff;
 
  battery.x:=0;
+ teleport.x:=0;
 
  enemy_cnt := 0;
 
@@ -1191,6 +1192,7 @@ end;
 {$i sprites.inc}
 {$i title.inc}
 {$i completed.inc}
+{$i teleport.inc}
 
 (*-----------------------------------------------------------*)
 
@@ -1217,7 +1219,7 @@ begin
   robot.y:=0;
 
   lvl:=3;
-  room:=6;
+//  room:=6;
 
   level(lvl);
 
@@ -1291,6 +1293,8 @@ begin
 	  testRobot;
 
 	  testEnemy;
+	  
+	  if teleport.x > 0 then teleportAnimation;
 
 
 	  if next_level then
