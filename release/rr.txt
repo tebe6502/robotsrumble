@@ -20,4 +20,3 @@ Program was written in Mad Pascal. Tested only with Altirra (PAL System).
 
 TODO:
 - add music
-- add loading screen

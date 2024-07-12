@@ -1,10 +1,16 @@
 
 uses crt, zx0, atari, vbxe;
 
+{$r robots.rc}
+
 const
+	bmp = VBXE_OVRADR+320*256;	// adres bitmapy w pamięci VBXE, ladowana przez RESOURCE $R
+	bmp2 = bmp + 256*16;
+
+
 	dlist = $0600;
 	
-	bmp = $a800;
+	scr = $a800;
 	
 	cmap = $7000;
 	
@@ -40,7 +46,7 @@ begin
  dmactl:=0;
  
 
- unZX0(@loading, pointer(bmp)); 
+ unZX0(@loading, pointer(scr)); 
  unZX0(@loading_cmp, pointer(cmap)); 
   
  
@@ -51,8 +57,8 @@ begin
  p[2]:=$70;
  
  p[3]:=$4f;
- p[4]:=lo(bmp);
- p[5]:=hi(bmp);
+ p[4]:=lo(scr);
+ p[5]:=hi(scr);
  
  inc(p, 6);
  for i:=0 to 62 do p[i]:=$0f;
@@ -60,8 +66,8 @@ begin
  inc(p,63);
  
  p[0]:=$4f;
- p[1]:=lo(bmp+$0800);
- p[2]:=hi(bmp+$0800); 
+ p[1]:=lo(scr+$0800);
+ p[2]:=hi(scr+$0800); 
  
  inc(p, 3);
  for i:=0 to 126 do p[i]:=$0f;
@@ -109,9 +115,9 @@ begin
  
  sdmctl:=(narrow or enable);
  dmactl:=sdmctl;
-	
- 
- while true do;
- 
+
+ pause;
+
+
  end.
  

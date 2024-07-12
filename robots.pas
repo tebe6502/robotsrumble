@@ -1,5 +1,4 @@
 // lepszy licznik czasu dla PAL/NTSC
-// ekran loading
 
 // !!! wczytywane bitmapy XBMP muszą miec szerokość podzielną przez 4
 
@@ -38,11 +37,10 @@ prawy/lewy magnes, baterie etc.
 *)
 
 
-uses crt, atari, joystick, control, ctm, vsprite, vbxe;
+uses crt, graph, atari, joystick, control, ctm, vsprite, vbxe;
 
 {$define romoff}
 
-{$r robots.rc}
 
 type
 	TPos = record

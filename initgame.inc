@@ -3,28 +3,22 @@ procedure InitGame;
 var i,j: byte;
 begin
 
-{
- if VBXE.GraphResult <> VBXE.grOK then begin
-  writeln('VBXE not detected');
-  writeln;
-  writeln('Press any key to continue');
-
-  repeat until keypressed;
-  halt;
- end;
-}
-
  sdmctl:=0;
  dmactl:=0;
 
  pause;
 
+ InitGraph(0);
+
+ pause;
+
+
  asm
-  lda:cmp:req 20
   lda #0
   sta $10		; irq disable
   sta irqen
  end;
+
 
  TextColor($0c);	// color1
  TextBackground($00);	// color2
