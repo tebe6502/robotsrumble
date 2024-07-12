@@ -6,6 +6,7 @@ uses crt, vbxe;
 
 const
 	bmp = VBXE_OVRADR+320*256;	// adres bitmapy w pamięci VBXE, ladowana przez RESOURCE $R
+	bmp2 = bmp + 256*16;
 
 	blt_copy_0	= 0;	// default
 	blt_copy_1	= 1;	// src <> 0 -> dst
@@ -82,6 +83,7 @@ var
 	procedure ClrBlit(spr: byte; ctr: byte);
 	procedure DstBlit(spr: byte; dst: cardinal);
 	procedure SrcBlit(spr: byte; src: cardinal);
+	procedure SizeBlit(spr: byte; src: word; siz: byte);
 	
 	
 implementation
@@ -122,6 +124,25 @@ begin
  a.blt_zoom:=$00;
 
 // a.blt_control:=ctr;// or 1;
+
+end;
+
+
+procedure SizeBlit(spr: byte; src: word; siz: byte);
+var a: ^TBCB;
+begin
+
+	asm
+	  fxs FX_MEMS #$80
+	end;
+
+
+ a:=blits[spr];
+
+ a.src_step_y:=src;
+
+ a.blt_width:=byte(siz-1);
+ a.blt_height:=siz-1;
 
 end;
 

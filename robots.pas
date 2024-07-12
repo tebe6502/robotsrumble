@@ -1,4 +1,7 @@
-// wybuch bomby
+// lepszy licznik czasu dla PAL/NTSC
+// ekran loading
+
+// !!! wczytywane bitmapy XBMP muszą miec szerokość podzielną przez 4
 
 
 // dlaczego dla makra  $define nie mozna wstawic kodu asm
@@ -73,13 +76,15 @@ const
 	box_right = 48;
 	box_bottom = 49;
 
-	teleport_in_code = 70;
+//	teleport_in_code = 70;
 	teleport_out_code = 15;
 
 	enemyrobot_code = 19;
 	enemyeel_code = 13;
 	enemyfire_code = 17;
 	bomb_code = 21;
+	
+	explode_code = $ff;
 
 	lmag_tile_code = 1;		// 1,2,3,4
 	rmag_tile_code = 24;		// 24,25,26,27
@@ -762,7 +767,8 @@ begin
 
   e:=enemy[i];
 
-  if (e.kind <> 0) and (e.kind <> bomb_code) then
+  if e.kind <> 0 then
+   if  (e.kind <> bomb_code) and (e.kind <> explode_code) then
     if hitEnemy then exit(i);
 
  end;
@@ -834,23 +840,35 @@ var tc: byte;
 
 		if empty(a) and empty(b) then begin
 		 inc(spr.y, 4);
-		 inc(spr.adx);		// bomb falling down
+		 inc(spr.adx);			// bomb falling down
 
 		 if spr.y and 7 = 0 then begin
 
 		   h := testBomb(spr.x, spr.y);
 
-		   if h >=0 then begin	// bomb hit enemy
-		     spr.kind:=0; enemy[h].kind:=0;
+		   if h >=0 then begin		// bomb hit enemy
+		     spr.kind := explode_code;
+		     spr.frm:=0;
+		     inc(spr.x, 3);
+		     inc(spr.y, 3);
+		     SizeBlit(spr.blit, 360, 21);
+
+		     enemy[h].kind:=0;
 		   end;
 
 		 end;
 
 		end else begin
 
-		 if spr.adx > 0 then spr.kind := 0;//explode_code;
+		 if spr.adx > 0 then begin
+		   spr.kind := explode_code;
+		   spr.frm:=0;
+		   inc(spr.x, 3);
+		   inc(spr.y, 3);		   
+		   SizeBlit(spr.blit, 360, 21);		   
+		 end;
 
-		 spr.adx := 0;		// bomb stand
+		 spr.adx := 0;			// bomb stand
 
 		end;
 
@@ -860,6 +878,10 @@ var tc: byte;
 
     end;  // if spr.x and 7
 
+
+    if spr.kind = explode_code then		// do nothing
+    
+    else
 
     if spr.kind = bomb_code then begin		// bomb shift ->
 
@@ -876,37 +898,48 @@ var tc: byte;
      end;
 
     end else
-     death_robot := hitBox(spr.x, spr.y);
+     death_robot := hitBox(spr.x, spr.y);	// collision robot -> enemy
 
 
     if death_robot then exit;
 
 
     case spr.kind of
+    
+        explode_code: begin
+			SrcBlit(spr.blit, bmp2 + spr.frm * 21);
+			 
+			if tc = 0 then begin
+			 inc(spr.frm);
+			 if spr.frm > 16 then begin spr.kind := 0; SizeBlit(spr.blit, 256, 16) end;
+			end;
+			
+		      end;
+     
      enemyrobot_code: begin
-			if tc = 0 then spr.frm := (spr.frm + spr.adx) and 3;
 			SrcBlit(spr.blit, spr.src + spr.frm shl 4);
+			if tc = 0 then spr.frm := (spr.frm + spr.adx) and 3;
 
 			inc(spr.x, spr.adx);
 		      end;
 
        enemyeel_code: begin
-			if tc = 0 then spr.frm := (spr.frm + spr.adx) and 7;
                         SrcBlit(spr.blit, spr.src + spr.frm);
+			if tc = 0 then spr.frm := (spr.frm + spr.adx) and 7;
 
 			inc(spr.x, spr.adx);
 		      end;
 
       enemyfire_code: begin
-			if tc = 0 then spr.frm := (spr.frm + rnd) and 1;
                         SrcBlit(spr.blit, spr.src + spr.frm shl 4);
+			if tc = 0 then spr.frm := (spr.frm + rnd) and 1;
 
 			inc(spr.x, spr.adx);
 		      end;
 
            bomb_code: begin
-			if tc = 0 then spr.frm := (spr.frm + 1) and 1;
                         SrcBlit(spr.blit, spr.src + spr.frm shl 4);
+			if tc = 0 then spr.frm := (spr.frm + 1) and 1;
 		      end;
     end;
 
@@ -1205,25 +1238,22 @@ begin
 
   doTitle;
 
-//  CompletedGame;
-
   TextBackground($00);
-
-  clock:=0;
 
   lives:=3;
   power:=6;
 
-  robot.x:=48+24;
-  robot.y:=0;
+//  robot.x:=48+24+8;
+//  robot.y:=0;
 
-  lvl:=3;
-//  room:=6;
+  lvl:=0;
+  room:=0;
 
   level(lvl);
 
-
   newRoom;
+
+  clock:=0;
 
 
 (*-----------------------------------------------------------*)
@@ -1247,7 +1277,7 @@ begin
 	   clock:=0;
 
 	   room:=0;
-	   lives:=3;
+	   //lives:=3;
 	   power:=6;
 
 	   newRoom;
@@ -1269,7 +1299,7 @@ begin
 
 		  dec(lives);
 
-		  if lives = 0 then Break;//begin level(lvl); lives:=3 end;
+		  if lives = 0 then Break;
 
 		  clock:=0;
 

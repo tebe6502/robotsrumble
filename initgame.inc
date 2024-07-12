@@ -63,8 +63,6 @@ begin
  for i:=0 to 255 do
   mul320[i] := dst0 + i*320;
 
-// robot.x:=48+48-24;//+48;
-// robot.y:=0*8;
 
  enemy0.blit:=1;
  enemy1.blit:=2;
