@@ -4,7 +4,7 @@ Robots Rumble - Atari VBXE
 
 Code: Tebe/Madteam
 Graphics: Miguetelo
-Music: ...
+Music: Miker
 
 Loading screen: David Saavedra (flipation)
 
@@ -14,9 +14,9 @@ You need to recharge your energy picking up the batteries.
 
 Keys: Q-A Up-Down left magnet. P-L Up-Down right magnet.
 
-Joystick: Up-Down left magnet. Up-Down + FIRE right magnet. 
+Joystick: Up-Down left magnet. Up-Down + FIRE right magnet.
 
 Program was written in Mad Pascal. Tested only with Altirra (PAL System).
 
 TODO:
-- add music
+- add music/sfx

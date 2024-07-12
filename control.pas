@@ -120,6 +120,8 @@ BEGIN
 	get_key;
 
 	a:=porta and $0f;//joy_1;
+	
+					//onKey:=onKey and %00111111;
 
 
 	if a = joy then begin

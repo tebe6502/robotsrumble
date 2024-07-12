@@ -73,5 +73,12 @@ begin
  enemy[4]:=@enemy4;
  enemy[5]:=@enemy5;
  enemy[6]:=@enemy6;
+ 
+ msx_play := false;
+
+ msx.modul:=pointer(sapr_modul);
+ msx.player:=pointer(sapr_player);
+
+ SetIntVec(iVBL, @newVBL);
 
 end;

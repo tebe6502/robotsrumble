@@ -2,7 +2,7 @@
 procedure doTitle;
 
 const
-     scrol = '         CODING   TEBE      CONCEPT AND GRAPHICS   MIGUETELO      MUSIC AND SFX            MADTEAM 2024';
+     scrol = '         CODING   TEBE      CONCEPT AND GRAPHICS   MIGUETELO      MUSIC AND SFX   MIKER      MADTEAM 2024';
 
 var a, i,j, v: byte;
     w: word;
@@ -64,16 +64,16 @@ begin
 
  TextColor($0a);
  TextBackground($00);
- 
+
  for i:=0 to 17 do tile_panel(5+i, 7+i, 5);
  fillbyte(pointer(fnt+5*8), 19*8, 0);
-  
- 
+
+
 // stripe animation
 
  TextColor($00);
  TextBackground($82);
- 
+
  j:=9;
  for i:=0 to 6 do begin
   tile_panel(64,j,1);
@@ -88,39 +88,39 @@ begin
  tile_panel(65,13+9,2);
 
  tile_panel(64,9,2);
- 
- 
+
+
  p:=pointer(fnt+64*8);
  for i:=0 to 15 do p[i]:=$f0;
 
- 
+
  pause;
  sdmctl:=(normal or enable);
- 
- 
+
+
  a:=0;
  j:=0;
- 
+
  while anyKey do begin
 
 
 // -----------------------------------
 // char 64-65 modyfication -> stripe
-// ----------------------------------- 
+// -----------------------------------
 
-  case a and 7 of			
+  case a and 7 of
    0: begin
        for i:=15 downto 0 do p[i]:=$f0;
-       
+
        inc(j);
        if j > length(scrol) then j:=1;
-       
+
        v:=charCode(byte(scrol[j]));
-       
+
        w := fnt + v shl 3;
-       
+
        for i:=7 downto 0 do poke(fnt+23*8+i, peek(w+i));
-       
+
       end;
 
    1..4:
@@ -129,7 +129,7 @@ begin
 	 sec
 	 rol $e000+65*8+#
 	 rol $e000+64*8+#
-	 .endr  
+	 .endr
 	end;
 
    else
@@ -138,15 +138,15 @@ begin
 	 clc
 	 rol $e000+65*8+#
 	 rol $e000+64*8+#
-	 .endr  
+	 .endr
 	end;
-	
+
    end;
 
 
-// ----------------------------------- 
+// -----------------------------------
 // scroll char 5..23
-// ----------------------------------- 
+// -----------------------------------
 
   	asm
 	 .rept 8
@@ -169,12 +169,12 @@ begin
 	 rol $e000+7*8+#
 	 rol $e000+6*8+#
 	 rol $e000+5*8+#
-	 .endr  
+	 .endr
 	end;
- 
-  
+
+
    inc(a);
-  
+
  end;
 
 end;

@@ -37,10 +37,13 @@ prawy/lewy magnes, baterie etc.
 *)
 
 
-uses crt, graph, atari, joystick, control, ctm, vsprite, vbxe;
+uses crt, graph, atari, joystick, control, ctm, vsprite, vbxe, saplzss;
 
 {$define romoff}
 
+//{$r robots.rc}
+
+{$r lzss.rc}
 
 type
 	TPos = record
@@ -59,6 +62,9 @@ type
 	PTEnemy = ^TEnemy;
 
 const
+	sapr_modul = $f000;
+	sapr_player = $c000;
+
 	cmap_width = 160;		// color map width 40 * 4 = 160
 
 	brick_tile = 9;
@@ -81,7 +87,7 @@ const
 	enemyeel_code = 13;
 	enemyfire_code = 17;
 	bomb_code = 21;
-	
+
 	explode_code = $ff;
 
 	lmag_tile_code = 1;		// 1,2,3,4
@@ -106,11 +112,13 @@ const
 var
 	vram: TVBXEMemoryStream;
 
+	msx: TLZSSPlay;
+
 	robot, battery, teleport: TPos;
 
 	room, lvl, lives, power, enemy_cnt: byte;
 
-	next_room, next_level: Boolean;
+	next_room, next_level, msx_play: Boolean;
 	death_robot: Boolean;
 	elevator: Boolean;
 
@@ -862,8 +870,8 @@ var tc: byte;
 		   spr.kind := explode_code;
 		   spr.frm:=0;
 		   inc(spr.x, 3);
-		   inc(spr.y, 3);		   
-		   SizeBlit(spr.blit, 360, 21);		   
+		   inc(spr.y, 3);
+		   SizeBlit(spr.blit, 360, 21);
 		 end;
 
 		 spr.adx := 0;			// bomb stand
@@ -878,7 +886,7 @@ var tc: byte;
 
 
     if spr.kind = explode_code then		// do nothing
-    
+
     else
 
     if spr.kind = bomb_code then begin		// bomb shift ->
@@ -903,17 +911,17 @@ var tc: byte;
 
 
     case spr.kind of
-    
+
         explode_code: begin
 			SrcBlit(spr.blit, bmp2 + spr.frm * 21);
-			 
+
 			if tc = 0 then begin
 			 inc(spr.frm);
 			 if spr.frm > 16 then begin spr.kind := 0; SizeBlit(spr.blit, 256, 16) end;
 			end;
-			
+
 		      end;
-     
+
      enemyrobot_code: begin
 			SrcBlit(spr.blit, spr.src + spr.frm shl 4);
 			if tc = 0 then spr.frm := (spr.frm + spr.adx) and 3;
@@ -1215,6 +1223,27 @@ begin
 
 end;
 
+(*-----------------------------------------------------------*)
+
+procedure newVBL; interrupt; assembler;
+asm
+	lda msx_play
+	beq @+
+
+	dec portb
+
+	lda MSX
+	ldy MSX+1
+	jsr SAPLZSS.TLZSSPLAY.Decode
+
+	lda MSX
+	ldy MSX+1
+	jsr SAPLZSS.TLZSSPLAY.Play
+
+	inc portb
+@
+	jmp xitvbv
+end;
 
 (*-----------------------------------------------------------*)
 
@@ -1234,7 +1263,17 @@ begin
 
  while true do begin
 
+	msx_play:=false;
+	msx.stop(0);
+
   doTitle;
+
+	msx.init(0);
+	msx_play:=true;
+
+	msx.decode;		// first use
+	msx.play;		// first use
+
 
   TextBackground($00);
 
@@ -1320,7 +1359,7 @@ begin
 	  testRobot;
 
 	  testEnemy;
-	  
+
 	  if teleport.x > 0 then teleportAnimation;
 
 

@@ -9,7 +9,7 @@ uses crt, saplzss;
 
 const
 
-sapr_player = $8000;	// ..$02FF player, $0300..$0BFF buffers
+sapr_player = $f000;	// ..$02FF player, $0300..$0BFF buffers
 sapr_modul  = $2000;
 
 var
