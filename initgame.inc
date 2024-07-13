@@ -54,7 +54,10 @@ begin
  for j:=0 to 23 do
   for i:=0 to 39 do tile(empty_tile, i, j);
 
- for i:=0 to 255 do
+ for i:=0 to high(mul40) do
+  mul40[i] := dpeek(88) + i*40;
+ 
+ for i:=0 to high(mul320) do
   mul320[i] := dst0 + i*320;
 
 

@@ -6,20 +6,6 @@
 // dlaczego dla makra  $define nie mozna wstawic kodu asm
 // nie moze byc dostepu do tablicy 'enemy[] od record'  jako enemy.x itd.
 
-{
-; optimize OK (robots.pas), line = 426
-
-	lda J
-	sta :STACKORIGIN+9
-	lda #$00
-	asl :STACKORIGIN+9
-	rol @
-	asl :STACKORIGIN+9
-	asl :STACKORIGIN+9
-	ldy #E.Y-DATAORIGIN
-	lda :STACKORIGIN+9
-	sta (:bp2),y
-}
 
 (*
 
@@ -41,7 +27,7 @@ uses crt, graph, atari, joystick, control, ctm, vsprite, vbxe, saplzss;
 
 {$define romoff}
 
-//{$r robots.rc}
+{$r robots.rc}
 
 {$r lzss.rc}
 
@@ -95,7 +81,7 @@ const
 
 	cmap_adr: array of pointer = [ {$eval 24,"VBXE_WINDOW+:1*cmap_width"} ];
 
-	mul_40: array of word = [ {$eval 24,":1*40"} ];
+//	mul_40: array of word = [ {$eval 24,":1*40"} ];
 
 //	mul_320: array of word = [ {$eval 256,":1*320"} ];
 
@@ -130,7 +116,7 @@ var
 
 	enemy0, enemy1, enemy2, enemy3, enemy4, enemy5, enemy6: TEnemy;
 
-
+	[striped] mul40: array [0..30] of word absolute $0b00;		// dpeek(88) + i*40 -> [0..29]
 	[striped] mul320: array [0..255] of cardinal absolute $0c00;	// dst0 + i*320 -> i = [0..255]
 
 	enemy: array [0..6] of PTEnemy;
@@ -146,7 +132,7 @@ begin
 	  fxs FX_MEMS #$00
 	end;
 
-	p:=pointer(dpeek(88) + mul_40[y] + x);
+	p:=pointer(mul40[y] + x);
 
 
 	p[0] := t ;//+ panel_ofset;
@@ -173,7 +159,7 @@ begin
 	  fxs FX_MEMS #$00
 	end;
 
-	p:=pointer(dpeek(88) + mul_40[y] + x);
+	p:=pointer(mul40[y] + x);
 
 	p[0] := t;
 
@@ -371,7 +357,7 @@ begin
 	x:=byte(robot.x-8) shr 3;
 	y:=robot.y shr 3;
 
-	p:=pointer(dpeek(88) + x + mul_40[y] + 4 + 40);
+	p:=pointer(mul40[y] + x + 4 + 40);
 
 	p[0]:=empty_tile;
 	p[1]:=empty_tile;
@@ -636,7 +622,7 @@ begin
 	  fxs FX_MEMS #$00
 	end;
 
-  p:=pointer(dpeek(88) + mul_40[y] + x);
+  p:=pointer(mul40[y] + x);
 
   Result:=id[ p[0] ];
 
