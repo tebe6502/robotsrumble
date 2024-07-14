@@ -5,7 +5,9 @@ https://www.file-hunter.com/MSXdev/index.php?id=roborumble
 **Robots Rumble - Atari VBXE**
 
 Code: Tebe/Madteam
+
 Graphics: Miguetelo
+
 Music: Uctumi (SID) / Miker (POKEY)
 
 Loading screen: David Saavedra (flipation)
