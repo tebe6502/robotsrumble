@@ -1,5 +1,7 @@
 
-uses crt, zx0, atari, vbxe;
+uses crt, graph, zx0, atari, vbxe;
+
+{$define basicoff}
 
 {$r robots.rc}
 
@@ -30,12 +32,21 @@ var
 begin
 
  if VBXE.GraphResult <> VBXE.grOK then begin
+ 
+  InitGraph(0);
+ 
   writeln('VBXE not detected');
   writeln;
   writeln('Press any key to continue');
 
   repeat until keypressed;
-  halt;
+  
+  asm
+	pla
+	pla
+	rts
+  end;
+  
  end;
 
  SetMapStep(160);
