@@ -27,7 +27,7 @@ uses crt, graph, atari, joystick, control, ctm, vsprite, vbxe, saplzss;
 
 {$define romoff}
 
-{$r robots.rc}
+//{$r robots.rc}
 
 {$r lzss.rc}
 
