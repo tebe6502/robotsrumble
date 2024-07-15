@@ -4,7 +4,7 @@
 
 
 // dlaczego dla makra  $define nie mozna wstawic kodu asm
-// nie moze byc dostepu do tablicy 'enemy[] od record'  jako enemy.x itd.
+// nie moze byc dostepu do tablicy 'enemy[] of ^record' jako enemy.x itd.
 
 
 (*
