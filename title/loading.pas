@@ -31,24 +31,6 @@ var
 
 begin
 
- if VBXE.GraphResult <> VBXE.grOK then begin
- 
-  InitGraph(0);
- 
-  writeln('VBXE not detected');
-  writeln;
-  writeln('Press any key to continue');
-
-  repeat until keypressed;
-  
-  asm
-	pla
-	pla
-	rts
-  end;
-  
- end;
-
  SetMapStep(160);
 
  pause;
