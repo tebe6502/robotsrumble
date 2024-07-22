@@ -1,4 +1,17 @@
 
+procedure InitMsx(modul: pointer);
+begin
+
+ msx_play := false;
+
+ fillchar(pointer(sapr_player+$300), $900, 0);		// clear sapr-lzss buffer
+ 
+ msx.modul:=modul;
+ msx.player:=pointer(sapr_player);
+
+end;
+
+
 procedure InitGame;
 var i,j: byte;
 begin
@@ -76,11 +89,8 @@ begin
  enemy[4]:=@enemy4;
  enemy[5]:=@enemy5;
  enemy[6]:=@enemy6;
- 
- msx_play := false;
 
- msx.modul:=pointer(sapr_modul);
- msx.player:=pointer(sapr_player);
+ initMsx( pointer(sapr_modul1) );
 
  SetIntVec(iVBL, @newVBL);
 

@@ -1,0 +1,8 @@
+r_sfx.rmt
+
+poz 00 - śmierć
+poz 02 - robot "leci do góry"
+poz 04 - wybuch bomby
+poz 06 - ruch robota lewo/prawo (to może byc (na jednych lub drugim POKEYu)
+poz 08 - mało czasu (jedyne zapętlone)
+poz 0a - zebranie baterii

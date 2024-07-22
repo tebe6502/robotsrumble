@@ -27,7 +27,7 @@ uses crt, graph, atari, joystick, control, ctm, vsprite, vbxe, saplzss;
 
 {$define romoff}
 
-//{$r robots.rc}
+{$r robots.rc}
 
 {$r lzss.rc}
 
@@ -48,7 +48,7 @@ type
 	PTEnemy = ^TEnemy;
 
 const
-	sapr_modul = $f000;
+	sapr_modul1 = $f000;
 	sapr_player = $c000;
 
 	cmap_width = 160;		// color map width 40 * 4 = 160

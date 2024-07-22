@@ -23,6 +23,8 @@ var
 
 
 begin
+	fillchar(pointer(sapr_player+$300), $900, 0);
+
 	while true do begin
 
 	msx.modul:=pointer(sapr_modul);
