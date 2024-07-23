@@ -15,7 +15,7 @@ var
 
 
 begin
-	while true do begin
+	//while true do begin
 
 	msx.player:=pointer(rmt_player);
 	msx.modul:=pointer(rmt_modul);
@@ -23,6 +23,10 @@ begin
 	msx.init(0);	// 0,2,4,6,8,10
 
 	writeln('Pascal RMT player example');
+
+	repeat until keypressed;
+	ch:=readkey();
+
 
 	repeat
 		pause;
@@ -34,6 +38,6 @@ begin
 
 	msx.stop;
 
-	end;
+	//end;
 
 end.
