@@ -1,7 +1,7 @@
 uses crt;
 
 var
-	audc1, audf1, audc2, audf2, audc3, audf3, audc4, audf4, audctl: array [0..16383] of byte;
+	audc1, audf1, audc2, audf2, audc3, audf3, audc4, audf4, audctl, audc, audf: array [0..16383] of byte;
 	sap: file of byte;
 	bin: file;
 
@@ -13,10 +13,88 @@ var
 	i, x: integer;
 
 	head: byte;
+{
+; Command:
+;
+;1. TIME,AUDF,AUDC          ; graj TIME ilość ramek, zapisz rejestry AUDF, AUDC
+;2. REPF,TIME,COUNT,AUDC    ; powtórz COUNT razy: graj TIME ilosc ramek, zainicjuj AUDC, wpisuj AUDF COUNT razy
+;3. REPC,TIME,COUNT,AUDF    ; powtórz COUNT razy: graj TIME ilosc ramek, zainicjuj AUDF, wpisuj AUDC COUNT razy
+;4. LOOP                    ; powtórz ten sam dźwięk od komendy na pozycji loop
+;5. RTS                     ; koniec opisu dźwięku
+;6. JSR nnnnn               ; wywołaj SFX nr. nn i po jego zakończeniu wróć kontynuuj odtwarzanie obecnego
+;7. JMP nnnnn               ; skocz do SFX nr.
+;
+; Code:
+;
+; TIME = $01..$0f
+; REPF = $c0
+; REPC = $80
+; LOOP = $00,NUM
+; RTS  = $00,$ff
+; JSR  = $a0,SFX
+; JMP  = $e0,SFX
+}
+
+procedure toSFX(len: integer);
+var rpt,i, j, l: integer;
+begin
+
+ assign(sfx, 'sfx1.inc'); rewrite(sfx);
+
+ i:=0;
+ l:=0;
+ 
+ while i < len do begin
+
+   rpt:=0;
+   
+   while audf4[i] = audf4[i+1] do begin
+     audf[rpt]:=audf4[i]; 
+     audc[rpt]:=audc4[i];  
+     
+     audf[rpt+1]:=audf4[i+1]; 
+     audc[rpt+1]:=audc4[i+1];  
+     
+     inc(rpt); 
+     inc(i);
+
+   end;
+
+   
+   if rpt = 0 then begin
+    writeln(sfx, #9'$01,$' + hexStr(audc4[i],2) + ',$' + hexStr(audf4[i],2)+ ',');
+    inc(i);
+    
+    inc(l, 3);
+   end else begin
+
+    writeln(sfx, #9'$c0,$01,$' + hexStr(rpt+1, 2) + ',$' + hexStr(audf[0],2) + ',');
+    
+    inc(l, 4+rpt+1);
+    
+    write(sfx, #9);
+    for j:=0 to rpt do write(sfx, '$' + hexStr(audc[j], 2) + ',');
+    writeln(sfx);
+
+   end;
+  
+ end;
+
+ writeln(sfx, #9'$00,$ff');
+ 
+ inc(l,2);
+
+ closefile(sfx);
+ 
+ writeln(l);
+ 
+end;
+
+
 
 begin
 
- assign(sap, 'sfx0.sap'); reset(sap, 1);
+ assign(sap, 'sfx1.sap'); reset(sap, 1);
 
 {
 
@@ -48,10 +126,11 @@ TIME
 
  close(sap);
 
-
+{
  assign(bin, 'sfx.bin'); rewrite(bin, 1);
  blockwrite(bin, txt[1], length(txt));
  close(bin);
+}
 
  i:=1;
  x:=0;
@@ -77,17 +156,10 @@ TIME
 
  end;
 
-{
- assign(bin, 'sfx_audc4.bin'); rewrite(bin, 1);
- blockwrite(bin, audc4, x);
- close(bin);
 
- assign(bin, 'sfx_audf4.bin'); rewrite(bin, 1);
- blockwrite(bin, audf4, x);
- close(bin);
-}
 
- assign(sfx, 'sfx0.inc'); rewrite(sfx);
+
+ assign(sfx, 'sfx.inc'); rewrite(sfx);
 
  for i:=0 to x-1 do
    writeln(sfx, #9'$01,$' + hexStr(audc4[i],2) + ',$' + hexStr(audf4[i],2)+ ',');
@@ -95,6 +167,10 @@ TIME
  writeln(sfx, #9'$00,$ff');
 
  closefile(sfx);
+
+
+
+ toSFX(x);
 
 
  repeat until keypressed;

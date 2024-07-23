@@ -1,4 +1,4 @@
-uses crt, xSFX;
+uses crt, atari, xSFX;
 
 // if you want play SFX on SECOND POKEY
 //uses sfx_config;
@@ -6,7 +6,7 @@ uses crt, xSFX;
 const
 	sfx1: array of byte =	// upadek Preliminary Monte
 	[
-	{$i sfx0.inc}
+	{$i sfx1.inc}
 	];
 
 var
@@ -14,6 +14,10 @@ var
 	sfx: TSFX;
 
 begin
+	writeln(high(sfx1));
+	
+	//audctl:=1;
+	
 	sfx.clear;
 	sfx.add(@sfx1);
 
