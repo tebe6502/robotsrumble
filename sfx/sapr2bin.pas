@@ -1,4 +1,4 @@
-uses crt;
+uses crt, sysutils;
 
 var
 	audc1, audf1, audc2, audf2, audc3, audf3, audc4, audf4, audctl, audc, audf: array [0..16383] of byte;
@@ -35,66 +35,11 @@ var
 ; JMP  = $e0,SFX
 }
 
-procedure toSFX(len: integer);
-var rpt,i, j, l: integer;
+
+procedure reg(fn: string);
 begin
 
- assign(sfx, 'sfx1.inc'); rewrite(sfx);
-
- i:=0;
- l:=0;
- 
- while i < len do begin
-
-   rpt:=0;
-   
-   while audf4[i] = audf4[i+1] do begin
-     audf[rpt]:=audf4[i]; 
-     audc[rpt]:=audc4[i];  
-     
-     audf[rpt+1]:=audf4[i+1]; 
-     audc[rpt+1]:=audc4[i+1];  
-     
-     inc(rpt); 
-     inc(i);
-
-   end;
-
-   
-   if rpt = 0 then begin
-    writeln(sfx, #9'$01,$' + hexStr(audc4[i],2) + ',$' + hexStr(audf4[i],2)+ ',');
-    inc(i);
-    
-    inc(l, 3);
-   end else begin
-
-    writeln(sfx, #9'$c0,$01,$' + hexStr(rpt+1, 2) + ',$' + hexStr(audf[0],2) + ',');
-    
-    inc(l, 4+rpt+1);
-    
-    write(sfx, #9);
-    for j:=0 to rpt do write(sfx, '$' + hexStr(audc[j], 2) + ',');
-    writeln(sfx);
-
-   end;
-  
- end;
-
- writeln(sfx, #9'$00,$ff');
- 
- inc(l,2);
-
- closefile(sfx);
- 
- writeln(l);
- 
-end;
-
-
-
-begin
-
- assign(sap, 'sfx1.sap'); reset(sap, 1);
+ assign(sap, fn); reset(sap, 1);
 
 {
 
@@ -126,11 +71,6 @@ TIME
 
  close(sap);
 
-{
- assign(bin, 'sfx.bin'); rewrite(bin, 1);
- blockwrite(bin, txt[1], length(txt));
- close(bin);
-}
 
  i:=1;
  x:=0;
@@ -157,20 +97,94 @@ TIME
  end;
 
 
+ fn:=ChangeFileExt(fn, '.inc');
+
+ assign(sfx, fn); rewrite(sfx);
 
 
- assign(sfx, 'sfx.inc'); rewrite(sfx);
+ for i:=0 to x-1 do begin
 
- for i:=0 to x-1 do
-   writeln(sfx, #9'$01,$' + hexStr(audc4[i],2) + ',$' + hexStr(audf4[i],2)+ ',');
+   if i mod 8=0 then begin writeln(sfx); write(sfx, #9) end;
 
- writeln(sfx, #9'$00,$ff');
+   write( sfx, '$' + hexStr(audc4[i],2) + ',$' + hexStr(audf4[i],2) + ',' );
+
+ end;
+
+ writeln(sfx,'255');
+
 
  closefile(sfx);
 
 
+end;
 
- toSFX(x);
+
+{
+procedure toSFX(len: integer);
+var rpt,i, j, l: integer;
+begin
+
+ assign(sfx, 'sfx1.inc'); rewrite(sfx);
+
+ i:=0;
+ l:=0;
+
+ while i < len do begin
+
+   rpt:=0;
+
+   while audf4[i] = audf4[i+1] do begin
+     audf[rpt]:=audf4[i];
+     audc[rpt]:=audc4[i];
+
+     audf[rpt+1]:=audf4[i+1];
+     audc[rpt+1]:=audc4[i+1];
+
+     inc(rpt);
+     inc(i);
+
+   end;
+
+
+   if rpt = 0 then begin
+    writeln(sfx, #9'$01,$' + hexStr(audc4[i],2) + ',$' + hexStr(audf4[i],2)+ ',');
+    inc(i);
+
+    inc(l, 3);
+   end else begin
+
+    writeln(sfx, #9'$c0,$01,$' + hexStr(rpt+1, 2) + ',$' + hexStr(audf[0],2) + ',');
+
+    inc(l, 4+rpt+1);
+
+    write(sfx, #9);
+    for j:=0 to rpt do write(sfx, '$' + hexStr(audc[j], 2) + ',');
+    writeln(sfx);
+
+   end;
+
+ end;
+
+ writeln(sfx, #9'$00,$ff');
+
+ inc(l,2);
+
+ closefile(sfx);
+
+ writeln(l);
+
+end;
+}
+
+
+begin
+
+ reg('sfx0.sap');
+ reg('sfx1.sap');
+ reg('sfx2.sap');
+ reg('sfx3.sap');
+ reg('sfx4.sap');
+ reg('sfx5.sap');
 
 
  repeat until keypressed;
