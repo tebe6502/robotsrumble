@@ -13,6 +13,66 @@ var
 	i, x: integer;
 
 	head: byte;
+
+
+
+procedure toSFX(len: integer);
+var rpt,i, j, l: integer;
+begin
+
+ assign(sfx, 'sfx.inc'); rewrite(sfx);
+
+ i:=0;
+ l:=0;
+
+ while i < len do begin
+
+   rpt:=0;
+
+   while audc4[i] = audc4[i+1] do begin
+     audf[rpt]:=audf4[i];
+     audc[rpt]:=audc4[i];
+
+     audf[rpt+1]:=audf4[i+1];
+     audc[rpt+1]:=audc4[i+1];
+
+     inc(rpt);
+     inc(i);
+
+   end;
+
+
+   if rpt = 0 then begin
+    writeln(sfx, #9'$01,$' + hexStr(audf4[i],2) + ',$' + hexStr(audc4[i],2)+ ',');
+    inc(i);
+
+    inc(l, 3);
+   end else begin
+
+    writeln(sfx, #9'$c0,$01,$' + hexStr(rpt+1, 2) + ',$' + hexStr(audc[0],2) + ',');
+
+    inc(l, 4+rpt+1);
+
+    write(sfx, #9);
+    for j:=0 to rpt do write(sfx, '$' + hexStr(audf[j], 2) + ',');
+    writeln(sfx);
+
+   end;
+
+ end;
+
+ writeln(sfx, #9'$00,$ff');
+
+ inc(l,2);
+
+ closefile(sfx);
+
+ writeln(l);
+
+end;
+
+
+
 {
 ; Command:
 ;
@@ -113,69 +173,12 @@ TIME
 
  writeln(sfx,'255,255');
 
-
  closefile(sfx);
-
+ 
+ 
+// toSFX(x);
 
 end;
-
-
-{
-procedure toSFX(len: integer);
-var rpt,i, j, l: integer;
-begin
-
- assign(sfx, 'sfx1.inc'); rewrite(sfx);
-
- i:=0;
- l:=0;
-
- while i < len do begin
-
-   rpt:=0;
-
-   while audf4[i] = audf4[i+1] do begin
-     audf[rpt]:=audf4[i];
-     audc[rpt]:=audc4[i];
-
-     audf[rpt+1]:=audf4[i+1];
-     audc[rpt+1]:=audc4[i+1];
-
-     inc(rpt);
-     inc(i);
-
-   end;
-
-
-   if rpt = 0 then begin
-    writeln(sfx, #9'$01,$' + hexStr(audc4[i],2) + ',$' + hexStr(audf4[i],2)+ ',');
-    inc(i);
-
-    inc(l, 3);
-   end else begin
-
-    writeln(sfx, #9'$c0,$01,$' + hexStr(rpt+1, 2) + ',$' + hexStr(audf[0],2) + ',');
-
-    inc(l, 4+rpt+1);
-
-    write(sfx, #9);
-    for j:=0 to rpt do write(sfx, '$' + hexStr(audc[j], 2) + ',');
-    writeln(sfx);
-
-   end;
-
- end;
-
- writeln(sfx, #9'$00,$ff');
-
- inc(l,2);
-
- closefile(sfx);
-
- writeln(l);
-
-end;
-}
 
 
 begin
@@ -186,7 +189,6 @@ begin
  reg('sfx3.sap');
  reg('sfx4.sap');
  reg('sfx5.sap');
-
 
  repeat until keypressed;
 

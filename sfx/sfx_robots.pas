@@ -6,7 +6,7 @@ uses crt, atari, xSFX;
 const
 	sfx1: array of byte =	// upadek Preliminary Monte
 	[
-	{$i sfx1.inc}
+	{$i sfx.inc}
 	];
 
 var
