@@ -48,7 +48,10 @@ type
 
 const
 	sapr_modul1 = $f000;
-	sapr_modul2 = $f700;
+	sapr_modul2 = $f6f0;
+	sapr_modul3 = $f900;
+	sapr_modul4 = $fb00;
+	sapr_modul5 = $fd00;
 
 	sapr_player = $c000;
 
@@ -136,10 +139,13 @@ var
 (*-----------------------------------------------------------*)
 (*-----------------------------------------------------------*)
 
+procedure InitMsx(modul: pointer); forward;
+
+
 procedure addSFX(a: pointer);
 begin
 
- if (play_sfx4 or play_sfx2) = false then		// time tick tock
+ if (play_sfx2 or play_sfx4) = false then		// (bomb explode) or (time tick tock)
 
   if a <> oldSFX then begin
    pSFX := a;
@@ -280,6 +286,10 @@ begin
 	restoreBlit;
 
 	if power = 0 then begin
+	
+	  play_sfx2:=false;
+	  play_sfx4:=false;
+	  
 	  txt:='           ';
 	  doText(11,10);
 	  doText(11,12);
@@ -287,6 +297,9 @@ begin
 	  txt:=' POWER OFF ';
 	end else
 	if lives=1 then begin
+	  
+	  initMsx( pointer(sapr_modul3) );
+ 
 	  txt:='           ';
 	  doText(11,10);
 	  doText(11,12);
@@ -1294,6 +1307,10 @@ skp
 	ldy MSX+1
 	jsr SAPLZSS.TLZSSPLAY.Decode
 
+;	lda SAPLZSS.TLZSSPLAY.Decode.Result
+;	eor #1
+;	sta msx_play
+
 	lda MSX
 	ldy MSX+1
 	jsr SAPLZSS.TLZSSPLAY.Play
@@ -1323,16 +1340,13 @@ begin
 
  while true do begin
 
-	msx_play:=false;
-	msx.stop(0);
+	initMsx( pointer(sapr_modul2) );
+
+ 	msx.decode;		// first use
+	msx.play;		// first use
+
 
   doTitle;
-
-	msx.init(0);
-	msx_play:=true;
-
-	msx.decode;		// first use
-	msx.play;		// first use
 
 
   TextBackground($00);
@@ -1340,12 +1354,13 @@ begin
   lives:=3;
   power:=6;
 
-//  robot.x:=48+24+8;
+//  robot.x:=48+24+56;
 //  robot.y:=64;
 
   lvl:=0;
   room:=0;
 
+  initMsx( pointer(sapr_modul1) );
   level(lvl);
 
   newRoom;
@@ -1367,8 +1382,11 @@ begin
 
 	if next_level then begin
 
+	   initMsx( pointer(sapr_modul4) );
+ 
 	   while anyKey do;
 
+	   initMsx( pointer(sapr_modul1) );
 	   inc(lvl); level(lvl);
 
 	   clock:=0;

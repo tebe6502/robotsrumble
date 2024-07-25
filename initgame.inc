@@ -2,12 +2,23 @@
 procedure InitMsx(modul: pointer);
 begin
 
+ pause;
+
+ play_sfx2:=false; play_sfx4:=false;
+ addSFX(@sfx_);
+
+ if msx_play then msx.stop(0);
+
  msx_play := false;
 
  fillchar(pointer(sapr_player+$300), $900, 0);		// clear sapr-lzss buffer
  
  msx.modul:=modul;
  msx.player:=pointer(sapr_player);
+ 
+ msx.init(0);
+
+ msx_play:=true;
 
 end;
 
@@ -95,7 +106,7 @@ begin
  enemy[5]:=@enemy5;
  enemy[6]:=@enemy6;
 
- initMsx( pointer(sapr_modul1) );
+ initMsx( pointer(sapr_modul2) );
  
  pSFX:=@sfx_;
  playSFX;

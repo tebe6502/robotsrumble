@@ -66,6 +66,10 @@ begin
  TextColor($fa);
  doText(9,17);
 
+
+ initMsx( pointer(sapr_modul5) );
+ 
+
  while anyKey do begin
  
   doSprites;
