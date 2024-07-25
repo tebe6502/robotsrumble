@@ -54,6 +54,7 @@ TIME
 
  txt:='';
 
+ head:=0;
  i:=0;
 
  while not eof(sap) do begin
@@ -77,17 +78,17 @@ TIME
 
  while i < length(txt) do begin
 
-  audc1[x] := byte(txt[i]);
-  audf1[x] := byte(txt[i+1]);
+  audf1[x] := byte(txt[i]);
+  audc1[x] := byte(txt[i+1]);
 
-  audc2[x] := byte(txt[i+2]);
-  audf2[x] := byte(txt[i+3]);
+  audf2[x] := byte(txt[i+2]);
+  audc2[x] := byte(txt[i+3]);
 
-  audc3[x] := byte(txt[i+4]);
-  audf3[x] := byte(txt[i+5]);
+  audf3[x] := byte(txt[i+4]);
+  audc3[x] := byte(txt[i+5]);
 
-  audc4[x] := byte(txt[i+6]);
-  audf4[x] := byte(txt[i+7]);
+  audf4[x] := byte(txt[i+6]);
+  audc4[x] := byte(txt[i+7]);
 
   audctl[x] := byte(txt[i+8]);
 
@@ -106,11 +107,11 @@ TIME
 
    if i mod 8=0 then begin writeln(sfx); write(sfx, #9) end;
 
-   write( sfx, '$' + hexStr(audc4[i],2) + ',$' + hexStr(audf4[i],2) + ',' );
+   write( sfx, '$' + hexStr(audf4[i],2) + ',$' + hexStr(audc4[i],2) + ',' );
 
  end;
 
- writeln(sfx,'255');
+ writeln(sfx,'255,255');
 
 
  closefile(sfx);

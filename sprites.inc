@@ -23,9 +23,13 @@ begin
 						// MoveBlit modifing blt_control initialize first by EraseBlit
 
 
- if (death_robot = false) and (power < 2) and (tick and 7 < 3) then
-   DstBlit(0, dst0 + 200*320)			// robot blinks -> move outside the visible screen area
- else
+ if (death_robot = false) and (power < 2) and (tick and 7 < 3) then begin
+ 
+   addSFX(@sfx4);
+   play_sfx4:=true;
+ 
+   DstBlit(0, dst0 + 200*320);			// robot blinks -> move outside the visible screen area
+ end else
    DstBlit(0, mul320[robot.y] + robot.x);	// mask = $ff ; copy = 1
 
 

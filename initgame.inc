@@ -16,6 +16,11 @@ procedure InitGame;
 var i,j: byte;
 begin
 
+ if DetectAntic then
+  ntsc:=0
+ else
+  ntsc:=4;
+
  sdmctl:=0;
  dmactl:=0;
 
@@ -29,7 +34,7 @@ begin
  asm
   lda #0
   sta $10		; irq disable
-  sta irqen
+  sta irqen    
  end;
 
 
@@ -91,6 +96,9 @@ begin
  enemy[6]:=@enemy6;
 
  initMsx( pointer(sapr_modul1) );
+ 
+ pSFX:=@sfx_;
+ playSFX;
 
  SetIntVec(iVBL, @newVBL);
 

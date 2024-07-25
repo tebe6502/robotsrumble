@@ -20,7 +20,7 @@ begin
 	msx.player:=pointer(rmt_player);
 	msx.modul:=pointer(rmt_modul);
 
-	msx.init(10);	// 0,2,4,6,8,10
+	msx.init(6);	// 0,2,4,6,8,10
 
 	writeln('Pascal RMT player example');
 

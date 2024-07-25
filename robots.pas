@@ -23,8 +23,7 @@ prawy/lewy magnes, baterie etc.
 *)
 
 
-uses crt, graph, atari, joystick, control, ctm, vsprite, vbxe, saplzss;
-
+uses crt, graph, atari, joystick, control, ctm, vsprite, vbxe, saplzss, misc, pokey;
 {$define romoff}
 
 {$r robots.rc}
@@ -49,6 +48,8 @@ type
 
 const
 	sapr_modul1 = $f000;
+	sapr_modul2 = $f700;
+	
 	sapr_player = $c000;
 
 	cmap_width = 160;		// color map width 40 * 4 = 160
@@ -85,6 +86,14 @@ const
 
 //	mul_320: array of word = [ {$eval 256,":1*320"} ];
 
+	sfx_: array of word = [0,$ffff];
+
+	sfx0: array of byte = [ {$i sfx/sfx0.inc} ];	// death
+	sfx1: array of byte = [ {$i sfx/sfx1.inc} ];	// flying up
+	sfx2: array of byte = [ {$i sfx/sfx2.inc} ];	// bomb explode
+	sfx3: array of byte = [ {$i sfx/sfx3.inc} ];	// robot move
+	sfx4: array of byte = [ {$i sfx/sfx4.inc} ];	// time tick
+	sfx5: array of byte = [ {$i sfx/sfx5.inc} ];	// battery
 
 {$i id.inc}			// kody identyfikacji tilesow niezalezne od levelu
 
@@ -99,16 +108,18 @@ var
 	vram: TVBXEMemoryStream;
 
 	msx: TLZSSPlay;
+	
+	oldSFX, pSFX: PWord;
 
 	robot, battery, teleport: TPos;
 
 	room, lvl, lives, power, enemy_cnt: byte;
 
-	next_room, next_level, msx_play: Boolean;
+	next_room, next_level, msx_play, play_sfx0, play_sfx4, play_sfx5: Boolean;
 	death_robot: Boolean;
 	elevator: Boolean;
 
-	tick: byte;
+	ntsc, tick: byte;
 
 	clock: word absolute $13;
 
@@ -121,6 +132,21 @@ var
 
 	enemy: array [0..6] of PTEnemy;
 
+
+(*-----------------------------------------------------------*)
+(*-----------------------------------------------------------*)
+
+procedure addSFX(a: pointer);
+begin
+ 
+ if play_sfx4 = false then 
+ 
+  if a <> oldSFX then begin 
+   pSFX := a;
+   oldSFX := a;
+  end; 
+
+end;
 
 (*-----------------------------------------------------------*)
 
@@ -686,7 +712,7 @@ procedure colorRobot;
 var a,x,y: byte;
 begin
 
- if death_Robot then begin SetPaletteEntry(1, 70,255,70); exit; end;
+ if death_Robot then begin SetPaletteEntry(1, 70,255,70); play_sfx0:=true; exit; end;
 
  if next_level then begin SetPaletteEntry(1, 200,30,10); exit; end;
 
@@ -712,6 +738,8 @@ end;
 
 procedure powerUP;
 begin
+      play_sfx5:=true;
+      
       tile(empty_tile, battery.x, battery.y);
       tile(empty_tile, battery.x+1, battery.y);
 
@@ -1026,10 +1054,10 @@ begin
 
   if (a = id_lava) and (y >= 18) then next_level:=true;
 
-  if left and right then begin inc(robot.y, 4); exit end;						// falling down
+  if left and right then begin inc(robot.y, 4); addSFX(@sfx_); exit end;	// falling down
 
 
-  y_:=byte(robot.y-2) shr 3;										// elevator, move up
+  y_:=byte(robot.y-2) shr 3;							// elevator, move up
 
   elevator:=false;
 
@@ -1066,7 +1094,7 @@ begin
 	if (robot.y and 7 <> 0) then exit;
 
 
- if robot.x and 7 = 0 then begin			// robot move left
+ if robot.x and 7 = 0 then begin				// robot move left
 
    x:=robot.x shr 3 + left_magnet_px - 2;
 
@@ -1090,7 +1118,7 @@ begin
 
 
 
- if robot.x and 7 = 0 then begin			// robot move right
+ if robot.x and 7 = 0 then begin				// robot move right
 
    x:=robot.x shr 3 + left_magnet_px - 2;
 
@@ -1124,9 +1152,9 @@ begin
 
 
  case v of
-    0: SrcBlit(0, src_robot);		// 0
-    1: SrcBlit(0, src_robot_right);	// +1
-  255: SrcBlit(0, src_robot_left);	// -1
+    0: begin SrcBlit(0, src_robot); addSFX(@sfx_) end;		// 0
+    1: begin SrcBlit(0, src_robot_right); addSFX(@sfx3) end;	// +1
+  255: begin SrcBlit(0, src_robot_left); addSFX(@sfx3) end;	// -1
  end;
 
  inc(robot.x, v);
@@ -1209,10 +1237,46 @@ begin
 
 end;
 
+
+(*-----------------------------------------------------------*)
+
+procedure playSFX;
+var w: word;
+begin
+
+ w:=pSFX[0];
+ 
+ if w <> $ffff then begin
+
+  dpoke(word(@audf4), w);
+ 
+  inc(pSFX);
+ end else begin
+ 
+  if oldSFX = @sfx4 then 
+   pSFX:=@sfx4
+  else
+   dpoke(word(@audf4), 0);
+  
+ end; 
+ 
+
+end;
+
 (*-----------------------------------------------------------*)
 
 procedure newVBL; interrupt; assembler;
 asm
+
+	asl ntsc		; =0 PAL, =4 NTSC
+	bcc skp
+
+	lda #%00000100
+	sta ntsc
+
+	bne @+
+skp
+
 	lda msx_play
 	beq @+
 
@@ -1225,6 +1289,8 @@ asm
 	lda MSX
 	ldy MSX+1
 	jsr SAPLZSS.TLZSSPLAY.Play
+
+	jsr playSFX
 
 	inc portb
 @
@@ -1266,11 +1332,11 @@ begin
   lives:=3;
   power:=6;
 
-//  robot.x:=48+24+8;
-//  robot.y:=0;
+  robot.x:=48+24;
+//  robot.y:=64;
 
   lvl:=0;
-  room:=0;
+  room:=0+4;
 
   level(lvl);
 
@@ -1310,7 +1376,19 @@ begin
 	if death_Robot then begin
 
 
+		if play_sfx0 then begin
+		
+   	         play_sfx4:=false;
+
+		 addSFX(@sfx0); pause(48);		
+		 play_sfx0:=false;
+		 
+		end;
+
+
 		if robot.y > 0 then begin
+		
+		  addSFX(@sfx1);
 
 		  dec(robot.y, 2);
 
@@ -1368,6 +1446,17 @@ begin
 
 	end;
 
+
+   if play_sfx5 then begin
+   
+      play_sfx4:=false;
+
+      addSFX(@sfx5); 
+      
+      pause(32);
+      
+      play_sfx5:=false;
+   end;
 
 
    inc(tick);
