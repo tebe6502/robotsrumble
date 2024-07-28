@@ -2,11 +2,10 @@ https://miguetelo.itch.io/robots-rumble
 
 Robots Rumble - Atari VBXE
 
-Code: Tebe/Madteam
-Graphics: Miguetelo
-Music: Miker
-
-Loading screen: David Saavedra (flipation)
+          Code: Tebe/Madteam
+      Graphics: Miguetelo (Miguel Ángel Tejedor López)
+     Music/SFX: Miker
+Loading screen: David Saavedra Peña (flipation)
 
 In this game you have to guide the robot to the latest screen of each planet and throw it into the lava.
 You control the robot with the right and left magnets. Avoid green radioactive rocks and guardians.
@@ -18,5 +17,3 @@ Joystick: Up-Down left magnet. Up-Down + FIRE right magnet.
 
 Program was written in Mad Pascal. Tested only with Altirra (PAL System).
 
-TODO:
-- add music/sfx

@@ -3,6 +3,11 @@ unit control;
 
 interface
 
+type
+	TMagnet = record
+		y, old: byte;
+	       end;
+
 const
 
 	left_magnet_px = 5;
@@ -16,9 +21,11 @@ const
 
 
 var
-	fireBtn, esc: Boolean;
+	fireBtn, keyboard, esc: Boolean;
 
-	joy, joyDelay, l_magnet, r_magnet: byte;
+	joy, joyDelay: byte;
+	
+	l_magnet, r_magnet: TMagnet;
 
 
 	function anyKey: Boolean; assembler;
@@ -44,17 +51,17 @@ begin
 
  if m = 0 then begin
  
-  if l_magnet > py_limit then exit;
+  if l_magnet.y > py_limit then exit;
   
-  p:=pointer(dpeek(88) + byte(l_magnet + dy)*40 + left_magnet_px);
+  p:=pointer(dpeek(88) + byte(l_magnet.y + dy)*40 + left_magnet_px);
   
   Result:= (p[0] = empty_tile);
   
  end else begin
  
-  if r_magnet > py_limit then exit;
+  if r_magnet.y > py_limit then exit;
  
-  p:=pointer(dpeek(88) + byte(r_magnet + dy)*40 + right_magnet_px + 1);
+  p:=pointer(dpeek(88) + byte(r_magnet.y + dy)*40 + right_magnet_px + 1);
   
   Result:= (p[0] = empty_tile);
  
@@ -123,6 +130,8 @@ BEGIN
 	
 					//onKey:=onKey and %00111111;
 
+	if keyboard then fireBtn:=false;
+
 
 	if a = joy then begin
 
@@ -133,6 +142,8 @@ BEGIN
 	end else begin
 	  joyDelay:=delay_value;
 	  joy:=a;
+	  
+	  //if a <> joy_none then keyboard:=false;
 	end;
 
 
@@ -143,30 +154,31 @@ BEGIN
 	 case onKey of
 	  KEY_ESC: esc:=true;
 
-	  KEY_Q: a:=joy_up;
-	  KEY_A: a:=joy_down;
+	  KEY_Q: begin a:=joy_up; keyboard:=false end;
+	  KEY_A: begin a:=joy_down; keyboard:=false end;
 	  
-	  KEY_P: begin fireBtn:=false; a:=joy_up end;
-	  KEY_L: begin fireBtn:=false; a:=joy_down end;
+	  KEY_P: begin fireBtn:=false; a:=joy_up; keyboard:=true end;
+	  KEY_L: begin fireBtn:=false; a:=joy_down; keyboard:=true end;
 	  
 	 end;
 
 	 onKey:=$80;
 	end;
+	
 
 
-	if fireBtn then begin						{left magnet}
+	if fireBtn then begin							{left magnet}
 	
 	  case a of
-	      joy_up: if allow(0, -1) then begin dec(l_magnet, 3) end;	{up}
-	    joy_down: if allow(0, 2) then begin inc(l_magnet, 3); end;	{down}
+	      joy_up: if allow(0, -1) then begin dec(l_magnet.y, 3) end;	{up}
+	    joy_down: if allow(0, 2) then begin inc(l_magnet.y, 3); end;	{down}
 	  end;
 	  
-	end else							{right magnet}
+	end else								{right magnet}
 
 	  case a of
-	      joy_up: if allow(1, -1) then dec(r_magnet, 3);		{up}
-	    joy_down: if allow(1, 2) then inc(r_magnet, 3);		{down}
+	      joy_up: if allow(1, -1) then dec(r_magnet.y, 3);			{up}
+	    joy_down: if allow(1, 2) then inc(r_magnet.y, 3);			{down}
 	  end;
 	
 end;

@@ -1,6 +1,6 @@
 sapr_player	SAPRPLAY
 sapr_modul1	SAPR	'msx\ingame1.lzss'
-sapr_modul2	SAPR	'msx\ingame2.lzss'
+sapr_modul2	SAPR	'msx\rrumble.lzss'
 sapr_modul3	SAPR	'msx\gameover.lzss'
 sapr_modul4	SAPR	'msx\endlevel.lzss'
 sapr_modul5	SAPR	'msx\ending.lzss'

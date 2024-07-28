@@ -1,15 +1,12 @@
-// lepszy licznik czasu dla PAL/NTSC
 
 // !!! wczytywane bitmapy XBMP muszą miec szerokość podzielną przez 4
-
 
 // dlaczego dla makra  $define nie mozna wstawic kodu asm
 // nie moze byc dostepu do tablicy 'enemy[] of ^record' jako enemy.x itd.
 
-
 (*
 
-Robots Rumble
+Robots Rumble (2024-07-29)
 
 https://www.file-hunter.com/MSXdev/index.php?id=roborumble
 
@@ -26,7 +23,7 @@ prawy/lewy magnes, baterie etc.
 uses crt, graph, atari, joystick, control, ctm, vsprite, vbxe, saplzss, misc, pokey;
 {$define romoff}
 
-{$r robots.rc}
+//{$r robots.rc}
 
 {$r lzss.rc}
 
@@ -47,11 +44,11 @@ type
 	PTEnemy = ^TEnemy;
 
 const
-	sapr_modul1 = $f000;
-	sapr_modul2 = $f6f0;
-	sapr_modul3 = $f900;
-	sapr_modul4 = $fb00;
-	sapr_modul5 = $fd00;
+	sapr_modul1 = $f000;		// ingame1	1712
+	sapr_modul2 = $f6e0;		// rrumble	1056
+	sapr_modul3 = $fb00;		// gameover	294
+	sapr_modul4 = $fc80;		// endlevel	264
+	sapr_modul5 = $fe00;		// ending	482
 
 	sapr_player = $c000;
 
@@ -112,23 +109,25 @@ var
 
 	msx: TLZSSPlay;
 
-	oldSFX, pSFX: PWord;
+	oldSFX: pointer;
+	
+	pSFX: PByte absolute $e0;			// playSFX on VBL, BP2 not allowed on interrupt
 
 	robot, battery, teleport: TPos;
 
 	room, lvl, lives, power, enemy_cnt: byte;
 
-	next_room, next_level, msx_play, play_sfx0, play_sfx2, play_sfx4, play_sfx5: Boolean;
+	next_room, next_level, msx_play, msx_status, play_sfx0, play_sfx2, play_sfx4, play_sfx5: Boolean;
 	death_robot: Boolean;
 	elevator: Boolean;
 
 	ntsc, tick: byte;
 
-	clock: word absolute $13;
-
 	txt: TString;
 
 	enemy0, enemy1, enemy2, enemy3, enemy4, enemy5, enemy6: TEnemy;
+	
+	clock: word;
 
 	[striped] mul40: array [0..30] of word absolute $0b00;		// dpeek(88) + i*40 -> [0..29]
 	[striped] mul320: array [0..255] of cardinal absolute $0c00;	// dst0 + i*320 -> i = [0..255]
@@ -425,6 +424,86 @@ end;
 
 (*-----------------------------------------------------------*)
 
+procedure brightMagnet(t, x,y: byte; cl: byte);
+var p: PByte register;
+begin
+	if y > py_limit then exit;
+
+	asm
+	 fxs FX_MEMS #$81
+	end;
+
+	p:=cmap_adr[y] + x shl 2 + 1;
+
+	p[0]:=cmap1[t] + cl;
+	p[4]:=cmap1[t+1] + cl;
+
+	p[cmap_width]:=cmap1[t+2] + cl;
+	p[cmap_width + 4]:=cmap1[t+3] + cl;
+
+end;
+
+(*-----------------------------------------------------------*)
+
+procedure setMagnet(a: byte);
+begin
+
+ if a = 0 then begin
+
+	if l_magnet.y > py_limit then exit;
+	
+	if l_magnet.y <> l_magnet.old then begin
+
+	  if l_magnet.old < py_limit then begin				// clr left magnet
+	   tile(empty_tile, 5, l_magnet.old);
+	   tile(empty_tile, 6, l_magnet.old);
+	   tile(empty_tile, 5, l_magnet.old+1);
+	   tile(empty_tile, 6, l_magnet.old+1);
+	  end; 
+
+	  tile(lmag_tile_code, left_magnet_px, l_magnet.y);		// set left magnet
+	  tile(lmag_tile_code+1, left_magnet_px+1, l_magnet.y);
+	  tile(lmag_tile_code+2, left_magnet_px, l_magnet.y+1);
+	  tile(lmag_tile_code+3, left_magnet_px+1, l_magnet.y+1);
+
+	  brightMagnet(lmag_tile_code, left_magnet_px, l_magnet.y, 4);
+	  brightMagnet(rmag_tile_code, right_magnet_px, r_magnet.y, 0);
+	  
+	  l_magnet.old := l_magnet.y;
+	  
+	end;
+	
+ end else begin
+
+	if r_magnet.y > py_limit then exit;
+
+	if r_magnet.y <> r_magnet.old then begin
+
+	  if r_magnet.old < py_limit then begin				// clr right magnet
+	   tile(empty_tile, 25, r_magnet.old);
+	   tile(empty_tile, 26, r_magnet.old);
+	   tile(empty_tile, 25, r_magnet.old+1);
+	   tile(empty_tile, 26, r_magnet.old+1);
+	  end; 
+
+	  tile(rmag_tile_code, right_magnet_px, r_magnet.y);		// set right magnet
+	  tile(rmag_tile_code+1, right_magnet_px+1, r_magnet.y);
+	  tile(rmag_tile_code+2, right_magnet_px, r_magnet.y+1);
+	  tile(rmag_tile_code+3, right_magnet_px+1, r_magnet.y+1);
+
+	  brightMagnet(rmag_tile_code, right_magnet_px, r_magnet.y, 4);
+	  brightMagnet(lmag_tile_code, left_magnet_px, l_magnet.y, 0);
+
+	  r_magnet.old := r_magnet.y;
+	  
+	end;
+
+ end;
+
+end;
+
+(*-----------------------------------------------------------*)
+
 procedure newRoom;
 var j, py, adx: byte;
     ofs: word;
@@ -447,8 +526,8 @@ var j, py, adx: byte;
 
 	v:=p[0];
 
-	if v = left_magnet_code then l_magnet:=py;
-	if (room > 0) and (v = right_magnet_code) then r_magnet:=py;
+	if v = left_magnet_code then l_magnet.y := py;
+	if (room > 0) and (v = right_magnet_code) then r_magnet.y := py;
 
 	if room = 0 then
 	 if v = robot_code then begin
@@ -560,8 +639,13 @@ begin
  next_level:=false;
  death_Robot:=false;
 
- l_magnet := $ff;
- r_magnet := $ff;
+ l_magnet.y := $ff;
+ r_magnet.y := $ff;
+
+ l_magnet.old := $ff;
+ r_magnet.old := $ff;
+ 
+ keyboard:=false;
 
  battery.x:=0;
  teleport.x:=0;
@@ -1027,7 +1111,6 @@ begin
   x:=robot.x shr 3 + left_magnet_px - 2;
 
 
-
   a:=locate(x, y+2);
   b:=locate(x+1, y+2);
 
@@ -1038,7 +1121,6 @@ begin
 
    exit;
   end;
-
 
 
 
@@ -1121,7 +1203,7 @@ begin
    a:=locate(x-1, y+2);
    left := empty(a) and empty(b);
 
-   if left and magnet_field(l_magnet) then begin
+   if left and magnet_field(l_magnet.y) then begin
 
      if (a = id_battery) or (b = id_battery) then powerUP;
 
@@ -1145,7 +1227,7 @@ begin
    a:=locate(x+2, y+2);
    right := empty(a) and empty(b);
 
-   if right and magnet_field(r_magnet) then begin
+   if right and magnet_field(r_magnet.y) then begin
 
      if (a = id_battery) or (b = id_battery) then powerUP;
 
@@ -1164,10 +1246,10 @@ begin
  v:=0;
 
  if left then
-  if magnet_field(l_magnet) then if robot.x > left_magnet_px*8 then dec(v);
+  if magnet_field(l_magnet.y) then if robot.x > left_magnet_px*8 then dec(v);
 
  if right then
-  if magnet_field(r_magnet) then if robot.x < (right_magnet_px-6)*8 then inc(v);
+  if magnet_field(r_magnet.y) then if robot.x < (right_magnet_px-6)*8 then inc(v);
 
 
  case v of
@@ -1193,69 +1275,12 @@ begin
 	p:=cmap_adr[battery.y] + battery.x shl 2 + 1;
 
 	p[0]:=tick;
-
 	p[4]:=tick;
 
 	p[cmap_width]:=tick;
-
 	p[cmap_width + 4]:=tick;
 
 end;
-
-(*-----------------------------------------------------------*)
-
-procedure clrMagnet(a: byte);
-begin
-
- if a = 0 then begin
-
-	if l_magnet > py_limit then exit;
-
-	tile(empty_tile, 5, l_magnet);
-	tile(empty_tile, 6, l_magnet);
-	tile(empty_tile, 5, l_magnet+1);
-	tile(empty_tile, 6, l_magnet+1);
-
- end else begin
-
- 	if r_magnet > py_limit then exit;
-
-	tile(empty_tile, 25, r_magnet);
-	tile(empty_tile, 26, r_magnet);
-	tile(empty_tile, 25, r_magnet+1);
-	tile(empty_tile, 26, r_magnet+1);
-
- end;
-
-end;
-
-(*-----------------------------------------------------------*)
-
-procedure setMagnet(a: byte);
-begin
-
- if a = 0 then begin
-
-	if l_magnet > py_limit then exit;
-
-	tile(lmag_tile_code, left_magnet_px, l_magnet);
-	tile(lmag_tile_code+1, left_magnet_px+1, l_magnet);
-	tile(lmag_tile_code+2, left_magnet_px, l_magnet+1);
-	tile(lmag_tile_code+3, left_magnet_px+1, l_magnet+1);
-
- end else begin
-
-	if r_magnet > py_limit then exit;
-
-	tile(rmag_tile_code, right_magnet_px, r_magnet);
-	tile(rmag_tile_code+1, right_magnet_px+1, r_magnet);
-	tile(rmag_tile_code+2, right_magnet_px, r_magnet+1);
-	tile(rmag_tile_code+3, right_magnet_px+1, r_magnet+1);
-
- end;
-
-end;
-
 
 (*-----------------------------------------------------------*)
 
@@ -1263,24 +1288,22 @@ procedure playSFX;
 var w: word;
 begin
 
- w:=pSFX[0];
+ w:=pSFX[0] + pSFX[1]*256;		// pSFX -> PByte absolute -> BP2 not used (on interrupt BP2 not allowed)
 
  if w <> $ffff then begin
 
   dpoke(word(@audf4), w);
 
-  inc(pSFX);
+  inc(pSFX, 2);
+  
  end else begin
-
-  if oldSFX = @sfx4 then
-   pSFX:=@sfx4
-  else
-   dpoke(word(@audf4), 0);
+ 
+  if oldSFX = @sfx3 then pSFX:=@sfx3 else
+   if oldSFX = @sfx4 then pSFX:=@sfx4;
 
   play_sfx2:=false;
 
  end;
-
 
 end;
 
@@ -1298,7 +1321,16 @@ asm
 	bne @+
 skp
 
-	lda msx_play
+	inc clock
+	lda clock
+	cmp #51
+	bcc skp_
+	
+	inc clock+1
+	lda #0
+	sta clock
+
+skp_	lda msx_play
 	beq @+
 
 	dec portb
@@ -1307,9 +1339,8 @@ skp
 	ldy MSX+1
 	jsr SAPLZSS.TLZSSPLAY.Decode
 
-;	lda SAPLZSS.TLZSSPLAY.Decode.Result
-;	eor #1
-;	sta msx_play
+	lda SAPLZSS.TLZSSPLAY.Decode.Result
+	sta msx_status
 
 	lda MSX
 	ldy MSX+1
@@ -1383,6 +1414,11 @@ begin
 	if next_level then begin
 
 	   initMsx( pointer(sapr_modul4) );
+	   
+	   while not msx_status do ;
+	   
+	   msx.stop(0);
+	   msx_play:=false;
  
 	   while anyKey do;
 
@@ -1439,11 +1475,19 @@ begin
 
 	end else begin
 
-	  clrMagnet(0); clrMagnet(1);
-
 	  JoyScan;
 
-	  setMagnet(0); setMagnet(1);
+	  setMagnet(1); setMagnet(0);
+
+
+	  if room > 0 then
+	  if fireBtn then begin
+	    brightMagnet(lmag_tile_code, left_magnet_px, l_magnet.y, 5);
+	    brightMagnet(rmag_tile_code, right_magnet_px, r_magnet.y, 0);	  
+	  end else begin
+	    brightMagnet(rmag_tile_code, right_magnet_px, r_magnet.y, 5);
+	    brightMagnet(lmag_tile_code, left_magnet_px, l_magnet.y, 0);
+	  end;  
 
 
 	  testRobot;
@@ -1488,7 +1532,7 @@ begin
    inc(tick);
 
 
-   if lo(clock) >= 3 then begin
+   if hi(clock) > 9 then begin				// 10 second
 
      dec(power);
 

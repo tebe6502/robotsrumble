@@ -17,6 +17,8 @@ begin
  msx.player:=pointer(sapr_player);
  
  msx.init(0);
+ 
+ pause;
 
  msx_play:=true;
 
@@ -36,6 +38,10 @@ begin
  dmactl:=0;
 
  pause;
+ 
+ fillchar(pointer($9000), $3000, 0);
+ 
+ NoSound;
 
  InitGraph(0);
 
@@ -45,7 +51,7 @@ begin
  asm
   lda #0
   sta $10		; irq disable
-  sta irqen    
+  sta irqen
  end;
 
 
@@ -108,7 +114,8 @@ begin
 
  initMsx( pointer(sapr_modul2) );
  
- pSFX:=@sfx_;
+ addSFX(@sfx_);
+ //pSFX:=@sfx_;
  playSFX;
 
  SetIntVec(iVBL, @newVBL);
