@@ -20,7 +20,9 @@ A7800:
 </br>
 </br>
 <hr>
+
 **Robots Rumble - Atari VBXE** Final (2024-07-29)
+
 <hr>
 
 Code: Tebe/Madteam
