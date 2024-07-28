@@ -23,8 +23,6 @@ A7800:
 
 **Robots Rumble - Atari VBXE** Final (2024-07-29)
 
-<hr>
-
 Code: Tebe/Madteam
 
 Graphics: Miguetelo (Miguel Ángel Tejedor López)
@@ -33,6 +31,7 @@ Music/SFX: Uctumi (SID) / Miker (POKEY), cover Midnight Express, "Chase" by Gior
 
 Loading screen: David Saavedra Peña (flipation) https://zxart.ee/eng/authors/f/flipation1/
 
+<hr>
 
 In this game you have to guide the robot to the latest screen of each planet and throw it into the lava.
 You control the robot with the right and left magnets. Avoid green radioactive rocks and guardians.
