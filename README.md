@@ -17,9 +17,11 @@ A7800:
 
    https://forums.atariage.com/topic/326981-robots-rumble-done/
    https://youtu.be/rmg_6z8r4wY
-
-
+</br>
+</br>
+<hr>
 **Robots Rumble - Atari VBXE** Final (2024-07-29)
+<hr>
 
 Code: Tebe/Madteam
 
