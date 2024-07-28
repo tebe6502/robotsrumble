@@ -21,11 +21,11 @@ A7800:
 
 **Robots Rumble - Atari VBXE** Final (2024-07-29)
 
-          Code: Tebe/Madteam
+Code: Tebe/Madteam
 
-      Graphics: Miguetelo (Miguel Ángel Tejedor López)
+Graphics: Miguetelo (Miguel Ángel Tejedor López)
 
-     Music/SFX: Uctumi (SID) / Miker (POKEY), cover Midnight Express, "Chase" by Giorgio Moroder (https://youtu.be/mpW3C_k0WMY)
+Music/SFX: Uctumi (SID) / Miker (POKEY), cover Midnight Express, "Chase" by Giorgio Moroder (https://youtu.be/mpW3C_k0WMY)
 
 Loading screen: David Saavedra Peña (flipation) https://zxart.ee/eng/authors/f/flipation1/
 
