@@ -1,22 +1,22 @@
 ZX Spectrum:
 
-    https://miguetelo.itch.io/robots-rumble</br> 
-    https://zxart.ee/eng/software/game/puzzle/robots-rumble/
+   https://miguetelo.itch.io/robots-rumble</br> 
+   https://zxart.ee/eng/software/game/puzzle/robots-rumble/
 
 Commodore:
 
-    https://majikeyric.itch.io/robots-rumble</br>
-    https://www.retrovideogamer.co.uk/robots-rumble-c64-game-review/</br>
-    https://youtu.be/5blULds-xuw
+   https://majikeyric.itch.io/robots-rumble</br>
+   https://www.retrovideogamer.co.uk/robots-rumble-c64-game-review/</br>
+   https://youtu.be/5blULds-xuw
 
 MSX:
 
-    https://www.file-hunter.com/MSXdev/index.php?id=roborumble
+   https://www.file-hunter.com/MSXdev/index.php?id=roborumble
 
 A7800:
 
-    https://forums.atariage.com/topic/326981-robots-rumble-done/
-    https://youtu.be/rmg_6z8r4wY
+   https://forums.atariage.com/topic/326981-robots-rumble-done/
+   https://youtu.be/rmg_6z8r4wY
 
 
 **Robots Rumble - Atari VBXE** Final (2024-07-29)
