@@ -1,13 +1,17 @@
  ZX Spectrum:	https://miguetelo.itch.io/robots-rumble
+ 
 		https://zxart.ee/eng/software/game/puzzle/robots-rumble/
 
    Commodore:	https://majikeyric.itch.io/robots-rumble
+   
 		https://www.retrovideogamer.co.uk/robots-rumble-c64-game-review/
+  
 		https://youtu.be/5blULds-xuw
 
          MSX:	https://www.file-hunter.com/MSXdev/index.php?id=roborumble
 
        A7800:	https://forums.atariage.com/topic/326981-robots-rumble-done/
+       
 		https://youtu.be/rmg_6z8r4wY
 
 
