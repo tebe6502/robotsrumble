@@ -1,3 +1,3 @@
-bmp	XBMP	assets\bonus__.bmp
-bmp2	XBMP	assets\explosion.bmp
+bmp	XBMP	assets\bonus__.bmp 0 1
+bmp2	XBMP	assets\explosion.bmp 0 1
 

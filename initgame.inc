@@ -65,7 +65,6 @@ begin
 
  SetMapStep(160);
 
-
 (*------------------- clear VBXE mem ------------------------*)
 
  vram.position:=VBXE_OVRADR;	// CLEAR VBXE MEM
