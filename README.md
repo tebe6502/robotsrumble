@@ -37,8 +37,12 @@ In this game you have to guide the robot to the latest screen of each planet and
 You control the robot with the right and left magnets. Avoid green radioactive rocks and guardians.
 You need to recharge your energy picking up the batteries.
 
-Keys: Q-A Up-Down left magnet. P-L Up-Down right magnet.
+Keys:
+- Q-A Up-Down left magnet.
+- P-L Up-Down right magnet.
 
-Joystick: Up-Down left magnet. Up-Down + FIRE right magnet.
+Joystick:
+- Up-Down left magnet.
+- Up-Down + FIRE right magnet.
 
 Program was written in Mad Pascal.
