@@ -45,4 +45,4 @@ Joystick:
 - Up-Down left magnet.
 - Up-Down + FIRE right magnet.
 
-Program was written in Mad Pascal.
+Program was written in [Mad Pascal](https://github.com/tebe6502/Mad-Pascal/tree/master)
