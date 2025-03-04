@@ -1,7 +1,7 @@
 
 // !!! wczytywane bitmapy XBMP muszą miec szerokość podzielną przez 4
 
-// dlaczego dla makra  $define nie mozna wstawic kodu asm
+// dlaczego dla makra $define nie mozna wstawic kodu asm
 // nie moze byc dostepu do tablicy 'enemy[] of ^record' jako enemy.x itd.
 
 (*
